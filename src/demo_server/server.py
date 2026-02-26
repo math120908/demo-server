@@ -1,13 +1,18 @@
+import hashlib
 import os
 import secrets
+import time
+from collections import defaultdict
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
-from itsdangerous import URLSafeSerializer
+from itsdangerous import URLSafeTimedSerializer
 
 BASE_DIR = Path.home() / ".demo-server"
 SECRET_FILE = BASE_DIR / ".secret"
+
+AUTH_COOKIE_MAX_AGE = 86400  # 24 hours
 
 
 def _get_secret() -> str:
@@ -16,7 +21,41 @@ def _get_secret() -> str:
         return SECRET_FILE.read_text().strip()
     secret = secrets.token_hex(32)
     SECRET_FILE.write_text(secret)
+    os.chmod(SECRET_FILE, 0o600)
     return secret
+
+
+def hash_passcode(passcode: str) -> str:
+    salt = os.urandom(16)
+    h = hashlib.pbkdf2_hmac("sha256", passcode.encode(), salt, 100_000)
+    return salt.hex() + ":" + h.hex()
+
+
+def verify_passcode(passcode: str, stored: str) -> bool:
+    if ":" not in stored:
+        # Legacy plaintext — still compare safely
+        return secrets.compare_digest(passcode, stored)
+    salt_hex, hash_hex = stored.split(":", 1)
+    salt = bytes.fromhex(salt_hex)
+    h = hashlib.pbkdf2_hmac("sha256", passcode.encode(), salt, 100_000)
+    return secrets.compare_digest(h.hex(), hash_hex)
+
+
+class RateLimiter:
+    def __init__(self, max_attempts: int = 5, window: int = 60):
+        self.max_attempts = max_attempts
+        self.window = window
+        self._attempts: dict[str, list[float]] = defaultdict(list)
+
+    def is_limited(self, key: str) -> bool:
+        now = time.time()
+        self._attempts[key] = [
+            t for t in self._attempts[key] if now - t < self.window
+        ]
+        if len(self._attempts[key]) >= self.max_attempts:
+            return True
+        self._attempts[key].append(now)
+        return False
 
 
 PASSCODE_FORM = """\
@@ -58,7 +97,8 @@ WELCOME_PAGE = """\
 def create_app(base_path: str) -> FastAPI:
     base = Path(base_path).resolve()
     secret = _get_secret()
-    serializer = URLSafeSerializer(secret)
+    serializer = URLSafeTimedSerializer(secret)
+    limiter = RateLimiter()
     app = FastAPI()
 
     @app.get("/", response_class=HTMLResponse)
@@ -74,14 +114,18 @@ def create_app(base_path: str) -> FastAPI:
         return WELCOME_PAGE.format(modules=modules)
 
     @app.post("/{module}/__auth__")
-    async def auth(module: str, passcode: str = Form(...)):
+    async def auth(module: str, request: Request, passcode: str = Form(...)):
         module_dir = base / module
         encrypt_file = module_dir / ".encrypt"
         if not module_dir.is_dir() or not encrypt_file.exists():
             return HTMLResponse("Not found", status_code=404)
 
-        expected = encrypt_file.read_text().strip()
-        if passcode != expected:
+        client_ip = request.client.host if request.client else "unknown"
+        if limiter.is_limited(f"{client_ip}:{module}"):
+            return HTMLResponse("Too many attempts. Try again later.", status_code=429)
+
+        stored = encrypt_file.read_text().strip()
+        if not verify_passcode(passcode, stored):
             html = PASSCODE_FORM.format(
                 module=module,
                 error='<p class="error">Wrong passcode.</p>',
@@ -90,7 +134,9 @@ def create_app(base_path: str) -> FastAPI:
 
         response = RedirectResponse(f"/{module}/", status_code=303)
         token = serializer.dumps(module)
-        response.set_cookie(f"auth_{module}", token, httponly=True)
+        response.set_cookie(
+            f"auth_{module}", token, httponly=True, samesite="lax",
+        )
         return response
 
     @app.get("/{module}/{path:path}")
@@ -114,7 +160,7 @@ def create_app(base_path: str) -> FastAPI:
         if encrypt_file.exists():
             cookie = request.cookies.get(f"auth_{module}")
             try:
-                value = serializer.loads(cookie) if cookie else None
+                value = serializer.loads(cookie, max_age=AUTH_COOKIE_MAX_AGE) if cookie else None
             except Exception:
                 value = None
             if value != module:
@@ -122,8 +168,8 @@ def create_app(base_path: str) -> FastAPI:
                 return HTMLResponse(html, status_code=401)
 
         file_path = (module_dir / path).resolve()
-        # Prevent path traversal
-        if not str(file_path).startswith(str(module_dir)):
+        # Prevent path traversal — append os.sep to avoid prefix collisions
+        if not str(file_path).startswith(str(module_dir) + os.sep):
             return HTMLResponse("Forbidden", status_code=403)
 
         if not file_path.is_file():

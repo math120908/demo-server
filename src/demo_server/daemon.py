@@ -32,9 +32,10 @@ def daemonize(pid_file: Path = PID_FILE, log_file: Path = LOG_FILE):
     sys.stdout.flush()
     sys.stderr.flush()
 
-    log_fd = open(log_file, "a")
-    os.dup2(log_fd.fileno(), sys.stdout.fileno())
-    os.dup2(log_fd.fileno(), sys.stderr.fileno())
+    # Keep a reference so the file object is not garbage-collected
+    daemonize._log_fd = open(log_file, "a")
+    os.dup2(daemonize._log_fd.fileno(), sys.stdout.fileno())
+    os.dup2(daemonize._log_fd.fileno(), sys.stderr.fileno())
 
     # Write PID file
     pid_file.write_text(str(os.getpid()))
