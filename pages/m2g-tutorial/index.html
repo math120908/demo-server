@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member to Geo (M2G) — bingo-offline Tutorial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..800&family=DM+Sans:opsz,wght@9..40,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================
+       BINGO-OFFLINE TUTORIAL DESIGN SYSTEM
+       Theme: Meridian — Cartographic Data Observatory
+       ============================================= */
+
+    /* --- Variables --- */
+    :root {
+      --bg: #f0f2f5;
+      --grid-color: rgba(10,102,194,0.035);
+      --surface: #ffffff;
+      --surface-hover: #f8fafc;
+      --text: #1a1a2e;
+      --text-sec: #475569;
+      --text-muted: #94a3b8;
+      --text-inv: #ffffff;
+      --primary: #0a66c2;
+      --primary-hover: #004182;
+      --primary-light: #dbeafe;
+      --primary-glow: rgba(10,102,194,0.08);
+      --accent: #057642;
+      --accent-light: #dcfce7;
+      --warn: #d97706;
+      --warn-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 4px;
+      --nav-h: 60px;
+      --max-w: 1240px;
+      --font-d: 'Outfit', -apple-system, system-ui, sans-serif;
+      --font-b: 'DM Sans', -apple-system, system-ui, sans-serif;
+      --font-m: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+      --mod-blue: #0a66c2;
+      --mod-purple: #7c3aed;
+      --mod-amber: #d97706;
+      --mod-green: #059669;
+      --mod-red: #dc2626;
+      --mod-gray: #64748b;
+      --mod-teal: #0891b2;
+      --mod-indigo: #4f46e5;
+    }
+    [data-theme="dark"] {
+      --bg: #0a101e;
+      --grid-color: rgba(88,166,255,0.025);
+      --surface: #111827;
+      --surface-hover: #1e293b;
+      --text: #e2e8f0;
+      --text-sec: #94a3b8;
+      --text-muted: #475569;
+      --text-inv: #0a101e;
+      --primary: #58a6ff;
+      --primary-hover: #79b8ff;
+      --primary-light: #172554;
+      --primary-glow: rgba(88,166,255,0.1);
+      --accent: #4ade80;
+      --accent-light: #052e16;
+      --warn: #fbbf24;
+      --warn-light: #422006;
+      --danger: #f87171;
+      --danger-light: #450a0a;
+      --border: #1e293b;
+      --border-strong: #334155;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 24px); }
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; height: 500px;
+      background: linear-gradient(180deg, var(--primary-glow) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* --- Typography --- */
+    h1, h2, h3, h4, h5 { font-family: var(--font-d); line-height: 1.25; color: var(--text); }
+    h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.025em; }
+    h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 1rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+    h4 { font-size: 0.95rem; font-weight: 600; }
+    p { color: var(--text-sec); max-width: 72ch; }
+    a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--primary-hover); text-decoration: underline; }
+    code {
+      font-family: var(--font-m); font-size: 0.84em;
+      background: var(--primary-light); color: var(--primary);
+      padding: 2px 7px; border-radius: var(--radius-xs);
+    }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-m); font-size: 0.84rem; line-height: 1.7;
+    }
+    pre code { background: none; padding: 0; color: var(--text); font-size: 1em; }
+
+    /* --- Layout --- */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .page-content { padding: calc(var(--nav-h) + 2rem) 0 4rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 900px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      h1 { font-size: 1.75rem; }
+      .container { padding: 0 1rem; }
+    }
+
+    /* --- Nav --- */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      z-index: 100; display: flex; align-items: center;
+    }
+    [data-theme="dark"] nav { background: rgba(10,16,30,0.82); }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem;
+      width: 100%; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-brand {
+      font-family: var(--font-d); font-weight: 700; font-size: 1.05rem;
+      color: var(--primary); margin-right: 1.5rem; white-space: nowrap;
+      display: flex; align-items: center; gap: 0.5rem; text-decoration: none;
+    }
+    .nav-brand:hover { text-decoration: none; color: var(--primary); }
+    .nav-brand svg { width: 24px; height: 24px; fill: currentColor; flex-shrink: 0; }
+    .nav-links { display: flex; gap: 0.25rem; overflow-x: auto; flex: 1; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      padding: 0.4rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.82rem; font-weight: 500; white-space: nowrap;
+      color: var(--text-sec); transition: all 0.2s; text-decoration: none;
+    }
+    .nav-links a:hover { background: var(--primary-light); color: var(--primary); text-decoration: none; }
+    .nav-links a[aria-current="page"] {
+      background: var(--primary); color: var(--text-inv) !important;
+    }
+    .theme-toggle {
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 20px; cursor: pointer; padding: 6px 12px;
+      font-size: 0.95rem; display: flex; align-items: center; gap: 4px;
+      transition: all 0.25s; margin-left: auto; flex-shrink: 0; line-height: 1;
+    }
+    .theme-toggle:hover { border-color: var(--primary); background: var(--primary-light); }
+    @media (max-width: 768px) {
+      .nav-links a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+      .nav-brand { font-size: 0.9rem; margin-right: 0.75rem; }
+      .nav-brand span { display: none; }
+    }
+
+    /* --- Hero --- */
+    .hero {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2.5rem;
+      margin-bottom: 2rem; position: relative; overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: heroIn 0.6s ease forwards;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -50px; right: -50px;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 { margin-bottom: 0.75rem; position: relative; }
+    .hero p { font-size: 1.05rem; position: relative; }
+    .hero .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-top: 0.25rem; }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Stats Strip --- */
+    .stats-strip { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; position: relative; }
+    .stat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.75rem 1.25rem; background: var(--primary-light);
+      border-radius: var(--radius-sm); min-width: 90px;
+    }
+    .stat-value {
+      font-family: var(--font-d); font-size: 1.5rem; font-weight: 700;
+      color: var(--primary); line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 0.72rem; color: var(--text-sec); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;
+    }
+
+    /* --- Card --- */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); transition: all 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+    .card-accent { border-left: 4px solid var(--primary); }
+    .card h3 { margin-bottom: 0.5rem; }
+    .card p { font-size: 0.9rem; }
+
+    /* --- Section --- */
+    .section { margin-bottom: 2.5rem; }
+    .section-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-header h2 { margin-bottom: 0; }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    /* --- Accordion --- */
+    .accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .accordion-item { border-bottom: 1px solid var(--border); }
+    .accordion-item:last-child { border-bottom: none; }
+    .accordion-trigger {
+      width: 100%; padding: 0.85rem 1.25rem; background: var(--surface);
+      border: none; cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; font-family: var(--font-b);
+      font-size: 0.92rem; font-weight: 500; color: var(--text);
+      transition: background 0.2s; text-align: left;
+    }
+    .accordion-trigger:hover { background: var(--surface-hover); }
+    .accordion-trigger .arrow {
+      transition: transform 0.3s; font-size: 0.75rem; color: var(--text-muted);
+      flex-shrink: 0; margin-left: 0.75rem;
+    }
+    .accordion-trigger[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+    .accordion-content {
+      max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    }
+    .accordion-body { padding: 1rem 1.25rem; background: var(--surface-hover); }
+    .accordion-body p { margin-bottom: 0.5rem; }
+    .accordion-body pre { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    .accordion-body ul { margin: 0.5rem 0 0.5rem 1.25rem; color: var(--text-sec); font-size: 0.9rem; }
+    .accordion-body ul li { margin-bottom: 0.25rem; }
+
+    /* --- Table --- */
+    .table-wrap {
+      overflow-x: auto; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--surface);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    th {
+      text-align: left; padding: 0.7rem 1rem;
+      background: var(--surface-hover); font-weight: 600;
+      font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-sec); border-bottom: 2px solid var(--border);
+      position: sticky; top: 0;
+    }
+    td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+
+    /* --- Badge --- */
+    .badge {
+      display: inline-flex; padding: 2px 8px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: var(--accent-light); color: var(--accent); }
+    .badge-amber { background: var(--warn-light); color: var(--warn); }
+    .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-purple { background: #ede9fe; color: #7c3aed; }
+    .badge-gray { background: #f1f5f9; color: #64748b; }
+    [data-theme="dark"] .badge-purple { background: #2e1065; }
+    [data-theme="dark"] .badge-gray { background: #1e293b; }
+
+    /* --- Flow Strip --- */
+    .flow-strip {
+      display: flex; align-items: center; gap: 0; overflow-x: auto;
+      padding: 1rem 0; scrollbar-width: none;
+    }
+    .flow-strip::-webkit-scrollbar { display: none; }
+    .flow-step {
+      padding: 0.45rem 0.9rem; background: var(--primary-light);
+      color: var(--primary); font-size: 0.8rem; font-weight: 600;
+      white-space: nowrap; border-radius: var(--radius-xs);
+    }
+    .flow-arrow {
+      color: var(--text-muted); padding: 0 0.4rem;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    /* --- SVG Diagram --- */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; overflow-x: auto;
+    }
+    .diagram-wrap svg { max-width: 100%; height: auto; display: block; }
+    .diagram-wrap svg text {
+      font-family: var(--font-d); fill: var(--text);
+    }
+
+    /* --- Quick Links --- */
+    .quick-links { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; position: relative; }
+    .quick-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+    }
+    .quick-link:hover {
+      border-color: var(--primary); color: var(--primary);
+      background: var(--primary-light); text-decoration: none;
+    }
+
+    /* --- Sidebar Layout --- */
+    .with-sidebar {
+      display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem;
+    }
+    .sidebar {
+      position: sticky; top: calc(var(--nav-h) + 1.5rem);
+      align-self: start; height: fit-content;
+    }
+    .sidebar-nav a {
+      display: block; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.87rem; color: var(--text-sec); border-left: 3px solid transparent;
+      transition: all 0.2s; text-decoration: none; margin-bottom: 2px;
+    }
+    .sidebar-nav a:hover { background: var(--surface-hover); color: var(--text); text-decoration: none; }
+    .sidebar-nav a.active {
+      background: var(--primary-light); color: var(--primary);
+      border-left-color: var(--primary); font-weight: 600;
+    }
+    @media (max-width: 900px) {
+      .with-sidebar { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static; display: flex; gap: 0.5rem; overflow-x: auto;
+        padding-bottom: 0.5rem; scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar-nav { display: flex; gap: 0.25rem; }
+      .sidebar-nav a { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; margin-bottom: 0; }
+      .sidebar-nav a.active { border-bottom-color: var(--primary); border-left-color: transparent; }
+    }
+
+    /* --- Animations --- */
+    .fade-in {
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in:nth-child(2) { transition-delay: 0.05s; }
+    .fade-in:nth-child(3) { transition-delay: 0.1s; }
+    .fade-in:nth-child(4) { transition-delay: 0.15s; }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* --- Footer --- */
+    footer {
+      border-top: 1px solid var(--border); padding: 2rem 0;
+      text-align: center; color: var(--text-muted); font-size: 0.82rem;
+      position: relative; z-index: 1;
+    }
+    footer a { color: var(--text-sec); }
+
+    /* --- Utility --- */
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+    .mt-4 { margin-top: 2rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .gap-sm { gap: 0.5rem; }
+    .gap-md { gap: 1rem; }
+    .text-sm { font-size: 0.85rem; }
+    .text-xs { font-size: 0.78rem; }
+    .font-mono { font-family: var(--font-m); }
+    .font-display { font-family: var(--font-d); }
+    .fw-600 { font-weight: 600; }
+    .color-blue { color: var(--mod-blue); }
+    .color-purple { color: var(--mod-purple); }
+    .color-amber { color: var(--mod-amber); }
+    .color-green { color: var(--mod-green); }
+    .color-red { color: var(--mod-red); }
+    .color-gray { color: var(--mod-gray); }
+    .color-teal { color: var(--mod-teal); }
+    .color-indigo { color: var(--mod-indigo); }
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    /* === M2G-Specific Styles === */
+
+    /* Pipeline step cards */
+    .pipeline-step {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); position: relative;
+      transition: all 0.25s;
+    }
+    .pipeline-step:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+    .pipeline-step .step-num {
+      position: absolute; top: -12px; left: 1.25rem;
+      background: var(--primary); color: var(--text-inv);
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-d); font-weight: 700; font-size: 0.85rem;
+    }
+    .pipeline-step h3 { margin-top: 0.25rem; }
+
+    /* Dataset card link */
+    .dataset-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+      box-shadow: var(--shadow); transition: all 0.25s;
+      display: block; text-decoration: none; color: inherit;
+    }
+    .dataset-card:hover {
+      box-shadow: var(--shadow-md); border-color: var(--primary);
+      text-decoration: none; transform: translateY(-2px);
+    }
+    .dataset-card h4 { color: var(--text); margin-bottom: 0.35rem; }
+    .dataset-card .path { font-family: var(--font-m); font-size: 0.78rem; color: var(--text-sec); word-break: break-all; }
+
+    /* Reprocessing step */
+    .reprocess-step {
+      display: flex; gap: 1rem; align-items: flex-start;
+      padding: 1rem 0; border-bottom: 1px solid var(--border);
+    }
+    .reprocess-step:last-child { border-bottom: none; }
+    .reprocess-step .step-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--primary-light); color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-d); font-weight: 700; font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .reprocess-step .step-body { flex: 1; }
+    .reprocess-step .step-body h4 { margin-bottom: 0.25rem; }
+    .reprocess-step .step-body p { font-size: 0.87rem; }
+
+    /* Command card */
+    .cmd-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow); transition: all 0.25s;
+    }
+    .cmd-card:hover { box-shadow: var(--shadow-md); }
+    .cmd-card-header {
+      padding: 0.75rem 1.25rem; background: var(--surface-hover);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .cmd-card-header h4 { margin: 0; }
+    .cmd-card-body { padding: 1rem 1.25rem; }
+    .cmd-card-body p { font-size: 0.87rem; margin-bottom: 0.5rem; }
+
+    /* SVG diagram interactive nodes */
+    .diagram-wrap svg .node-box { cursor: pointer; transition: filter 0.2s; }
+    .diagram-wrap svg .node-box:hover { filter: brightness(0.95); }
+    [data-theme="dark"] .diagram-wrap svg .node-box:hover { filter: brightness(1.15); }
+
+    /* Pipeline connector line */
+    .pipeline-connector {
+      display: flex; justify-content: center; padding: 0.5rem 0;
+    }
+    .pipeline-connector svg { display: block; }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-inner">
+      <span class="nav-brand">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        <span>bingo-offline</span>
+      </span>
+      <div class="nav-links">
+        <a href="#architecture">Architecture</a>
+        <a href="#datasets">Datasets</a>
+        <a href="#reprocessing">Reprocessing</a>
+        <a href="#kafka">Kafka</a>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+        <span class="theme-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="page-content">
+    <div class="container">
+
+      <!-- ===== HERO ===== -->
+      <div class="hero">
+        <h1>Member to Geo (M2G)</h1>
+        <p>How LinkedIn maps every member to their geographic location &mdash; from real-time profile updates to enriched offline datasets.</p>
+        <p class="subtitle">Covers the nearline pipeline (waterloo-member-geo), offline join (member-standardization-offline), key datasets, and reprocessing workflows.</p>
+        <div class="stats-strip">
+          <div class="stat">
+            <span class="stat-value">2</span>
+            <span class="stat-label">Pipeline Steps</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">7+</span>
+            <span class="stat-label">Key Datasets</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">8</span>
+            <span class="stat-label">Reprocess Steps</span>
+          </div>
+        </div>
+        <div class="quick-links">
+          <a class="quick-link" href="#architecture">Architecture</a>
+          <a class="quick-link" href="#datasets">Datasets &amp; HDFS</a>
+          <a class="quick-link" href="#reprocessing">Reprocessing</a>
+          <a class="quick-link" href="#kafka">Kafka Commands</a>
+        </div>
+      </div>
+
+      <!-- ===== TL;DR Flow ===== -->
+      <div class="section fade-in">
+        <div class="flow-strip">
+          <span class="flow-step">Member Profile Change</span>
+          <span class="flow-arrow">&#9654;</span>
+          <span class="flow-step">Kafka Topic</span>
+          <span class="flow-arrow">&#9654;</span>
+          <span class="flow-step">waterloo-member-geo</span>
+          <span class="flow-arrow">&#9654;</span>
+          <span class="flow-step">Venice Store</span>
+          <span class="flow-arrow">&#9654;</span>
+          <span class="flow-step">Offline Join</span>
+          <span class="flow-arrow">&#9654;</span>
+          <span class="flow-step">Member Derived Geo</span>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 1: Architecture ===== -->
+      <div class="section fade-in" id="architecture">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--primary-light); color: var(--primary);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          </div>
+          <h2>System Architecture</h2>
+        </div>
+
+        <!-- SVG Architecture Diagram -->
+        <div class="diagram-wrap mb-3">
+          <svg viewBox="0 0 960 520" xmlns="http://www.w3.org/2000/svg" style="min-width: 700px;">
+            <defs>
+              <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="var(--primary)"/>
+              </marker>
+              <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/>
+              </marker>
+              <marker id="arrowhead-purple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="var(--mod-purple)"/>
+              </marker>
+            </defs>
+
+            <!-- Step 1 background -->
+            <rect x="10" y="10" width="940" height="230" rx="12" fill="var(--primary-light)" opacity="0.3" stroke="var(--primary)" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="30" y="38" font-size="13" font-weight="700" fill="var(--primary)" font-family="var(--font-d)">STEP 1 — Nearline (waterloo-member-geo)</text>
+
+            <!-- Step 2 background -->
+            <rect x="10" y="270" width="940" height="240" rx="12" fill="var(--accent-light)" opacity="0.3" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="30" y="298" font-size="13" font-weight="700" fill="var(--accent)" font-family="var(--font-d)">STEP 2 — Offline Join (member-standardization-offline)</text>
+
+            <!-- === Step 1 Nodes === -->
+
+            <!-- Member Profile Changes (input) -->
+            <g class="node-box">
+              <rect x="30" y="58" width="180" height="60" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="120" y="84" text-anchor="middle" font-size="12" font-weight="600">Member Profile</text>
+              <text x="120" y="102" text-anchor="middle" font-size="10" fill="var(--text-sec)">profile changes</text>
+            </g>
+
+            <!-- Kafka topic -->
+            <g class="node-box">
+              <rect x="270" y="58" width="200" height="60" rx="8" fill="var(--warn-light)" stroke="var(--warn)" stroke-width="1.5"/>
+              <text x="370" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="var(--warn)">Kafka Topic</text>
+              <text x="370" y="97" text-anchor="middle" font-size="9" font-family="var(--font-m)" fill="var(--text-sec)">waterloo-realtime-</text>
+              <text x="370" y="110" text-anchor="middle" font-size="9" font-family="var(--font-m)" fill="var(--text-sec)">member-profile</text>
+            </g>
+
+            <!-- Geo Taxonomy (dependency) -->
+            <g class="node-box">
+              <rect x="530" y="150" width="180" height="60" rx="8" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="1.5"/>
+              <text x="620" y="174" text-anchor="middle" font-size="11" font-weight="600" fill="var(--accent)">Geo Taxonomy</text>
+              <text x="620" y="192" text-anchor="middle" font-size="9" font-family="var(--font-m)" fill="var(--text-sec)">Lucene index (go/geo-artifacts)</text>
+            </g>
+
+            <!-- waterloo-member-geo processor -->
+            <g class="node-box">
+              <rect x="530" y="58" width="190" height="60" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="2"/>
+              <text x="625" y="84" text-anchor="middle" font-size="12" font-weight="700" fill="var(--primary)">waterloo-member-geo</text>
+              <text x="625" y="102" text-anchor="middle" font-size="10" fill="var(--text-sec)">Samza processor</text>
+            </g>
+
+            <!-- Venice Store output -->
+            <g class="node-box">
+              <rect x="780" y="58" width="150" height="60" rx="8" fill="var(--surface)" stroke="var(--mod-purple)" stroke-width="1.5"/>
+              <text x="855" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="var(--mod-purple)">Venice Store</text>
+              <text x="855" y="97" text-anchor="middle" font-size="9" font-family="var(--font-m)" fill="var(--text-sec)">MemberStandardized</text>
+              <text x="855" y="110" text-anchor="middle" font-size="9" font-family="var(--font-m)" fill="var(--text-sec)">Geo{V1_2, Exp2}</text>
+            </g>
+
+            <!-- Serving box -->
+            <g class="node-box">
+              <rect x="780" y="150" width="150" height="70" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="855" y="172" text-anchor="middle" font-size="10" font-weight="600">Serving</text>
+              <text x="855" y="189" text-anchor="middle" font-size="9" fill="var(--text-sec)">lime: memberStdData</text>
+              <text x="855" y="204" text-anchor="middle" font-size="9" fill="var(--text-sec)">memberDerivedBingGeo</text>
+            </g>
+
+            <!-- Offline Snapshot -->
+            <g class="node-box">
+              <rect x="30" y="150" width="230" height="60" rx="8" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5"/>
+              <text x="145" y="174" text-anchor="middle" font-size="10" font-weight="600">Offline Snapshot</text>
+              <text x="145" y="192" text-anchor="middle" font-size="8.5" font-family="var(--font-m)" fill="var(--text-sec)">data_derived.standardization_</text>
+              <text x="145" y="204" text-anchor="middle" font-size="8.5" font-family="var(--font-m)" fill="var(--text-sec)">waterloo_members_std_data</text>
+            </g>
+
+            <!-- Step 1 Arrows -->
+            <line x1="210" y1="88" x2="268" y2="88" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <line x1="470" y1="88" x2="528" y2="88" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <line x1="620" y1="150" x2="620" y2="120" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrowhead-green)" stroke-dasharray="4 3"/>
+            <line x1="720" y1="88" x2="778" y2="88" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+            <line x1="855" y1="118" x2="855" y2="148" stroke="var(--mod-purple)" stroke-width="1.5" marker-end="url(#arrowhead-purple)"/>
+            <!-- Venice to offline snapshot (dashed down-left) -->
+            <path d="M 780 100 Q 500 140, 260 175" fill="none" stroke="var(--border-strong)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowhead)"/>
+
+            <!-- === Step 2 Nodes === -->
+
+            <!-- Venice Input A -->
+            <g class="node-box">
+              <rect x="30" y="320" width="200" height="60" rx="8" fill="var(--surface)" stroke="var(--mod-purple)" stroke-width="1.5"/>
+              <text x="130" y="342" text-anchor="middle" font-size="11" font-weight="600" fill="var(--mod-purple)">Input A: Venice Store</text>
+              <text x="130" y="359" text-anchor="middle" font-size="9" font-family="var(--font-m)" fill="var(--text-sec)">MemberStandardizedGeo</text>
+              <text x="130" y="372" text-anchor="middle" font-size="9" fill="var(--text-sec)">(from Step 1)</text>
+            </g>
+
+            <!-- Taxonomy Input B -->
+            <g class="node-box">
+              <rect x="30" y="410" width="200" height="80" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+              <text x="130" y="434" text-anchor="middle" font-size="11" font-weight="600" fill="var(--accent)">Input B: Taxonomy</text>
+              <text x="130" y="451" text-anchor="middle" font-size="8" font-family="var(--font-m)" fill="var(--text-sec)">data_derived.standardization_</text>
+              <text x="130" y="463" text-anchor="middle" font-size="8" font-family="var(--font-m)" fill="var(--text-sec)">ra_taxonomy_geo_</text>
+              <text x="130" y="475" text-anchor="middle" font-size="8" font-family="var(--font-m)" fill="var(--text-sec)">standardizedBingGeo_1_1_2</text>
+              <text x="130" y="488" text-anchor="middle" font-size="9" fill="var(--text-sec)">(from bingo-offline)</text>
+            </g>
+
+            <!-- Offline Join processor -->
+            <g class="node-box">
+              <rect x="340" y="355" width="240" height="70" rx="8" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="460" y="381" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">member-standardization</text>
+              <text x="460" y="399" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">-offline</text>
+              <text x="460" y="417" text-anchor="middle" font-size="10" fill="var(--text-sec)">Enrich geoUrn with ancestor chain</text>
+            </g>
+
+            <!-- Final output -->
+            <g class="node-box">
+              <rect x="680" y="355" width="250" height="70" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="2"/>
+              <text x="805" y="381" text-anchor="middle" font-size="12" font-weight="700" fill="var(--primary)">Member Derived Geo</text>
+              <text x="805" y="399" text-anchor="middle" font-size="8.5" font-family="var(--font-m)" fill="var(--text-sec)">data_derived.standardization_</text>
+              <text x="805" y="411" text-anchor="middle" font-size="8.5" font-family="var(--font-m)" fill="var(--text-sec)">ra_member_derived_geo</text>
+            </g>
+
+            <!-- Step 2 Arrows -->
+            <line x1="230" y1="350" x2="338" y2="375" stroke="var(--mod-purple)" stroke-width="1.5" marker-end="url(#arrowhead-purple)"/>
+            <line x1="230" y1="450" x2="338" y2="405" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrowhead-green)"/>
+            <line x1="580" y1="390" x2="678" y2="390" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+            <!-- Step 1 to Step 2 vertical connector -->
+            <path d="M 855 118 L 855 250 Q 855 265, 840 265 L 240 265 Q 225 265, 225 280 L 225 318" fill="none" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6 3" marker-end="url(#arrowhead-purple)"/>
+          </svg>
+        </div>
+
+        <!-- Step details -->
+        <div class="grid-2">
+          <div class="pipeline-step fade-in">
+            <div class="step-num">1</div>
+            <h3>Nearline: waterloo-member-geo</h3>
+            <p class="text-sm mt-1">Processes real-time member profile changes via Samza. Uses the Lucene geo taxonomy index from bingo-offline to standardize locations. Writes results to Venice store.</p>
+            <div class="mt-2 flex flex-wrap gap-sm">
+              <span class="badge badge-amber">Samza</span>
+              <span class="badge badge-purple">Venice</span>
+              <span class="badge badge-blue">Nearline</span>
+            </div>
+            <div class="mt-2">
+              <p class="text-xs"><strong>Input:</strong> <code>waterloo-realtime-member-profile</code></p>
+              <p class="text-xs mt-1"><strong>Output:</strong> <code>MemberStandardizedGeo{V1_2, Exp2}</code></p>
+              <p class="text-xs mt-1"><strong>Serving:</strong> lime (memberStandardizedData), waterloo-lime-confidential (memberDerivedBingGeo)</p>
+            </div>
+          </div>
+          <div class="pipeline-step fade-in">
+            <div class="step-num">2</div>
+            <h3>Offline: member-standardization-offline</h3>
+            <p class="text-sm mt-1">Joins Venice store snapshot with the full bingo-offline taxonomy to enrich each member's geoUrn with the complete ancestor chain info.</p>
+            <div class="mt-2 flex flex-wrap gap-sm">
+              <span class="badge badge-green">Spark</span>
+              <span class="badge badge-blue">Offline</span>
+              <span class="badge badge-gray">Batch</span>
+            </div>
+            <div class="mt-2">
+              <p class="text-xs"><strong>Input A:</strong> MemberStandardizedGeo Venice store</p>
+              <p class="text-xs mt-1"><strong>Input B:</strong> <code>ra_taxonomy_geo_standardizedBingGeo_1_1_2</code></p>
+              <p class="text-xs mt-1"><strong>Output:</strong> <code>ra_member_derived_geo</code></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 2: Datasets & HDFS ===== -->
+      <div class="section fade-in" id="datasets">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--accent-light); color: var(--accent);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          </div>
+          <h2>Key Datasets &amp; HDFS Links</h2>
+        </div>
+
+        <div class="grid-3">
+          <!-- StandardizedBingGeo -->
+          <a class="dataset-card fade-in" href="https://go/hdfs%20/jobs/msftgeo/versions/1/1_2/standardizedBingGeo" target="_blank" rel="noopener">
+            <div class="flex items-center gap-sm mb-1">
+              <span class="badge badge-green">bingo-offline</span>
+              <span class="badge badge-blue">HDFS</span>
+            </div>
+            <h4>StandardizedBingGeo</h4>
+            <p class="path">/jobs/msftgeo/versions/1/1_2/standardizedBingGeo</p>
+          </a>
+
+          <!-- Geo Entities -->
+          <a class="dataset-card fade-in" href="https://go/hdfs%20/jobs/msftgeo/versions/1/1_2/geo_entities" target="_blank" rel="noopener">
+            <div class="flex items-center gap-sm mb-1">
+              <span class="badge badge-green">bingo-offline</span>
+              <span class="badge badge-blue">HDFS</span>
+            </div>
+            <h4>Geo Entities</h4>
+            <p class="path">/jobs/msftgeo/versions/1/1_2/geo_entities</p>
+          </a>
+
+          <!-- ID Mapping -->
+          <a class="dataset-card fade-in" href="https://go/hdfs%20/jobs/msftgeo/versions/1/1_2/id_mapping_with_history" target="_blank" rel="noopener">
+            <div class="flex items-center gap-sm mb-1">
+              <span class="badge badge-green">bingo-offline</span>
+              <span class="badge badge-blue">HDFS</span>
+            </div>
+            <h4>ID Mapping</h4>
+            <p class="path">/jobs/msftgeo/versions/1/1_2/id_mapping_with_history</p>
+          </a>
+
+          <!-- Waterloo M2G Snapshot -->
+          <div class="dataset-card fade-in" style="cursor: default;">
+            <div class="flex items-center gap-sm mb-1">
+              <span class="badge badge-purple">Venice</span>
+              <span class="badge badge-gray">Dali View</span>
+            </div>
+            <h4>Waterloo M2G Snapshot</h4>
+            <p class="path">data_derived.standardization_waterloo_members_std_data</p>
+          </div>
+
+          <!-- Member Derived Geo -->
+          <div class="dataset-card fade-in" style="cursor: default;">
+            <div class="flex items-center gap-sm mb-1">
+              <span class="badge badge-blue">Final Output</span>
+              <span class="badge badge-gray">Dali View</span>
+            </div>
+            <h4>Member Derived Geo</h4>
+            <p class="path">data_derived.standardization_ra_member_derived_geo</p>
+          </div>
+
+          <!-- Venice Store -->
+          <a class="dataset-card fade-in" href="https://go/nuage/venice MemberStandardizedGeo" target="_blank" rel="noopener">
+            <div class="flex items-center gap-sm mb-1">
+              <span class="badge badge-purple">Venice</span>
+              <span class="badge badge-amber">Nuage</span>
+            </div>
+            <h4>Venice Store</h4>
+            <p class="path">MemberStandardizedGeo (Nuage)</p>
+          </a>
+
+          <!-- Venice Comparison (waterloo) -->
+          <a class="dataset-card fade-in" href="https://go/hdfs%20/jobs/waterloo/venice_future_data_comparison/" target="_blank" rel="noopener">
+            <div class="flex items-center gap-sm mb-1">
+              <span class="badge badge-amber">Comparison</span>
+              <span class="badge badge-blue">HDFS</span>
+            </div>
+            <h4>Venice Comparison (waterloo)</h4>
+            <p class="path">/jobs/waterloo/venice_future_data_comparison/</p>
+          </a>
+
+          <!-- Venice Comparison (memberkg) -->
+          <a class="dataset-card fade-in" href="https://go/hdfs%20/jobs/memberkg/venice_future_data_comparison/MemberStandardizedGeo" target="_blank" rel="noopener">
+            <div class="flex items-center gap-sm mb-1">
+              <span class="badge badge-amber">Comparison</span>
+              <span class="badge badge-blue">HDFS</span>
+            </div>
+            <h4>Venice Comparison (memberkg)</h4>
+            <p class="path">/jobs/memberkg/venice_future_data_comparison/MemberStandardizedGeo</p>
+          </a>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 3: Reprocessing ===== -->
+      <div class="section fade-in" id="reprocessing">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--warn-light); color: var(--warn);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          </div>
+          <h2>Reprocessing (Grandfathering) Workflow</h2>
+        </div>
+
+        <p class="mb-3">Follow these steps sequentially when a new geo taxonomy release requires reprocessing all member geo data.</p>
+
+        <div class="accordion">
+          <!-- Step 1 -->
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span class="flex items-center gap-sm">
+                <span class="badge badge-blue" style="min-width: 28px; justify-content: center;">1</span>
+                Check no future version &amp; no running grandfather
+              </span>
+              <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <p>Before starting, verify the Venice store has no pending future version and no active grandfathering instance is running.</p>
+                <pre><code># Check Venice store status in Nuage
+# go/nuage/venice MemberStandardizedGeo
+
+# Check for running grandfather instances
+go-status -a waterloo-member-geo-standardizer</code></pre>
+                <ul>
+                  <li>If a future version exists, resolve it before proceeding</li>
+                  <li>If a grandfather instance is running, wait for it to finish or undeploy it</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span class="flex items-center gap-sm">
+                <span class="badge badge-blue" style="min-width: 28px; justify-content: center;">2</span>
+                Reset Kafka offset
+              </span>
+              <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <p>SSH to the shell host and reset the Kafka consumer offset to the beginning so the grandfathering job reprocesses all messages.</p>
+                <pre><code># SSH to the shell host
+ssh ltx1-shell07
+
+# Reset the start point for the grandfathering job
+sp job startpoint write \
+  --application waterloo-member-geo-standardizer \
+  --environment GRANDFATHER \
+  --start-point BEGINNING</code></pre>
+                <ul>
+                  <li>This ensures the reprocessing reads from the earliest available Kafka offset</li>
+                  <li>Make sure you target the <code>GRANDFATHER</code> environment, not production</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span class="flex items-center gap-sm">
+                <span class="badge badge-blue" style="min-width: 28px; justify-content: center;">3</span>
+                Deploy grandfathering
+              </span>
+              <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <p>Deploy the grandfathering job through CRT UI to start reprocessing all member geo data.</p>
+                <ul>
+                  <li>Open the CRT UI deployment page for <code>waterloo-member-geo-standardizer</code></li>
+                  <li>Select the <code>GRANDFATHER</code> environment</li>
+                  <li>Deploy with the latest artifact version</li>
+                  <li>The job will start consuming from the beginning of the Kafka topic</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span class="flex items-center gap-sm">
+                <span class="badge badge-amber" style="min-width: 28px; justify-content: center;">4</span>
+                Monitor progress
+              </span>
+              <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <p>Monitor the grandfathering job via dashboards and wait for it to catch up.</p>
+                <ul>
+                  <li><strong>Grafana dashboard:</strong> Watch throughput and lag metrics for the grandfather consumer group</li>
+                  <li><strong>Samza dashboard:</strong> Check task-level metrics and container health</li>
+                  <li><strong>Completion signal:</strong> Wait until messages processed per second drops below <strong>500/sec</strong> &mdash; this indicates the job has caught up to the tail of the topic</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span class="flex items-center gap-sm">
+                <span class="badge badge-amber" style="min-width: 28px; justify-content: center;">5</span>
+                Compare data
+              </span>
+              <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <p>Trigger a data comparison between the current and future Venice store versions.</p>
+                <pre><code># Trigger the comparison DAG on WAR grid
+# Airflow DAG: GeneralTempoReprocessing
+
+# Review comparison statistics at:
+# /jobs/waterloo/venice_future_data_comparison/
+# /jobs/memberkg/venice_future_data_comparison/MemberStandardizedGeo</code></pre>
+                <ul>
+                  <li>Trigger the <code>GeneralTempoReprocessing</code> Airflow DAG on the WAR grid</li>
+                  <li>Review the output statistics at the HDFS comparison paths</li>
+                  <li>Check for unexpected large diffs or data quality regressions</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span class="flex items-center gap-sm">
+                <span class="badge badge-green" style="min-width: 28px; justify-content: center;">6</span>
+                Promote or de-promote
+              </span>
+              <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <p>Based on the comparison results, promote or de-promote the future Venice version.</p>
+                <ul>
+                  <li><strong>If data looks good:</strong> Mark the future version as <em>success</em> in Nuage &mdash; this will promote it to the current serving version</li>
+                  <li><strong>If data has issues:</strong> Mark the future version as <em>failed</em> in Nuage &mdash; this will discard it</li>
+                  <li>Use the Nuage UI: <a href="https://go/nuage/venice MemberStandardizedGeo" target="_blank" rel="noopener">go/nuage/venice MemberStandardizedGeo</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 7 -->
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span class="flex items-center gap-sm">
+                <span class="badge badge-red" style="min-width: 28px; justify-content: center;">7</span>
+                Undeploy grandfathering
+              </span>
+              <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <p>Undeploy the grandfathering job to free up resources.</p>
+                <pre><code># Undeploy the grandfather job
+sp job undeploy \
+  --application waterloo-member-geo-standardizer \
+  --environment GRANDFATHER</code></pre>
+                <ul>
+                  <li>This stops the grandfathering Samza job and releases its containers</li>
+                  <li>The production environment is unaffected</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 8 -->
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span class="flex items-center gap-sm">
+                <span class="badge badge-green" style="min-width: 28px; justify-content: center;">8</span>
+                Mark version (final)
+              </span>
+              <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <p>Finalize by marking the future version status in Venice.</p>
+                <ul>
+                  <li>If not already done in Step 6, mark the future version as <strong>successful</strong> or <strong>failed</strong> in Venice via Nuage</li>
+                  <li>Verify the serving version is correct: check lime endpoints to confirm members resolve to updated geo data</li>
+                  <li>Confirm with: <code>curli --dv-auth SELF -s --pretty-print "d2://memberDerivedBingGeo/urn:li:member:50510"</code></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 4: Kafka Quick Reference ===== -->
+      <div class="section fade-in" id="kafka">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--warn-light); color: var(--warn);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          </div>
+          <h2>Kafka Quick Reference</h2>
+        </div>
+
+        <div class="grid-2">
+          <!-- Read M2G Output -->
+          <div class="cmd-card fade-in">
+            <div class="cmd-card-header">
+              <span class="badge badge-amber">Read</span>
+              <h4>Read M2G Output</h4>
+            </div>
+            <div class="cmd-card-body">
+              <p>Consume messages from the M2G output topic:</p>
+              <pre><code>kafka-tool topic consume \
+  -f ei-ltx1 \
+  -c queuing \
+  -t waterloo-realtime-MemberStandardizedGeoMessageExp2</code></pre>
+            </div>
+          </div>
+
+          <!-- Read Input Profiles -->
+          <div class="cmd-card fade-in">
+            <div class="cmd-card-header">
+              <span class="badge badge-blue">Read</span>
+              <h4>Read Input Profiles</h4>
+            </div>
+            <div class="cmd-card-body">
+              <p>Consume member profile change messages:</p>
+              <pre><code>kafka-tool topic consume \
+  -f ei-ltx1 \
+  -c queuing \
+  -t waterloo-realtime-member-profile</code></pre>
+            </div>
+          </div>
+
+          <!-- Produce Test Message -->
+          <div class="cmd-card fade-in">
+            <div class="cmd-card-header">
+              <span class="badge badge-red">Write</span>
+              <h4>Produce Test Message</h4>
+            </div>
+            <div class="cmd-card-body">
+              <p>Send a test message using avro-tools:</p>
+              <pre><code># 1. Create your Avro test payload JSON file
+# 2. Convert JSON to Avro binary:
+avro-tools fromjson --schema-file schema.avsc \
+  payload.json > payload.avro
+
+# 3. Produce to the topic:
+kafka-tool topic produce \
+  -f ei-ltx1 \
+  -c queuing \
+  -t waterloo-realtime-member-profile \
+  --payload-file payload.avro</code></pre>
+            </div>
+          </div>
+
+          <!-- Online API Query -->
+          <div class="cmd-card fade-in">
+            <div class="cmd-card-header">
+              <span class="badge badge-green">API</span>
+              <h4>Online API Query</h4>
+            </div>
+            <div class="cmd-card-body">
+              <p>Query a member's derived geo via the D2 endpoint:</p>
+              <pre><code>curli --dv-auth SELF -s --pretty-print \
+  "d2://memberDerivedBingGeo/urn:li:member:50510"</code></pre>
+              <p class="text-xs mt-1">Replace <code>50510</code> with the target member ID.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      bingo-offline tutorial &middot; Member to Geo (M2G) &middot;
+      <a href="http://go/projbingo">go/projbingo</a> &middot;
+      <a href="http://go/offlinegeo">go/offlinegeo</a>
+    </div>
+  </footer>
+
+  <script>
+    /* === Dark mode === */
+    (function() {
+      var saved = localStorage.getItem('bingo-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', 'dark');
+      updateIcon();
+    })();
+    function toggleTheme() {
+      var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('bingo-theme', t);
+      updateIcon();
+    }
+    function updateIcon() {
+      var el = document.querySelector('.theme-icon');
+      if (el) el.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+    }
+
+    /* === Accordion === */
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.accordion-trigger').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!expanded));
+          var content = btn.nextElementSibling;
+          if (expanded) { content.style.maxHeight = '0'; }
+          else { content.style.maxHeight = content.scrollHeight + 'px'; }
+        });
+      });
+
+      /* === Scroll fade-in === */
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.fade-in').forEach(function(el) { obs.observe(el); });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overview — bingo-offline Tutorial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..800&family=DM+Sans:opsz,wght@9..40,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================
+       BINGO-OFFLINE TUTORIAL DESIGN SYSTEM
+       Theme: Meridian — Cartographic Data Observatory
+       ============================================= */
+
+    /* --- Variables --- */
+    :root {
+      --bg: #f0f2f5;
+      --grid-color: rgba(10,102,194,0.035);
+      --surface: #ffffff;
+      --surface-hover: #f8fafc;
+      --text: #1a1a2e;
+      --text-sec: #475569;
+      --text-muted: #94a3b8;
+      --text-inv: #ffffff;
+      --primary: #0a66c2;
+      --primary-hover: #004182;
+      --primary-light: #dbeafe;
+      --primary-glow: rgba(10,102,194,0.08);
+      --accent: #057642;
+      --accent-light: #dcfce7;
+      --warn: #d97706;
+      --warn-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 4px;
+      --nav-h: 60px;
+      --max-w: 1240px;
+      --font-d: 'Outfit', -apple-system, system-ui, sans-serif;
+      --font-b: 'DM Sans', -apple-system, system-ui, sans-serif;
+      --font-m: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+      --mod-blue: #0a66c2;
+      --mod-purple: #7c3aed;
+      --mod-amber: #d97706;
+      --mod-green: #059669;
+      --mod-red: #dc2626;
+      --mod-gray: #64748b;
+      --mod-teal: #0891b2;
+      --mod-indigo: #4f46e5;
+    }
+    [data-theme="dark"] {
+      --bg: #0a101e;
+      --grid-color: rgba(88,166,255,0.025);
+      --surface: #111827;
+      --surface-hover: #1e293b;
+      --text: #e2e8f0;
+      --text-sec: #94a3b8;
+      --text-muted: #475569;
+      --text-inv: #0a101e;
+      --primary: #58a6ff;
+      --primary-hover: #79b8ff;
+      --primary-light: #172554;
+      --primary-glow: rgba(88,166,255,0.1);
+      --accent: #4ade80;
+      --accent-light: #052e16;
+      --warn: #fbbf24;
+      --warn-light: #422006;
+      --danger: #f87171;
+      --danger-light: #450a0a;
+      --border: #1e293b;
+      --border-strong: #334155;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 24px); }
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Map grid overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+    /* Ambient top glow */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; height: 500px;
+      background: linear-gradient(180deg, var(--primary-glow) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* --- Typography --- */
+    h1, h2, h3, h4, h5 { font-family: var(--font-d); line-height: 1.25; color: var(--text); }
+    h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.025em; }
+    h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 1rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+    h4 { font-size: 0.95rem; font-weight: 600; }
+    p { color: var(--text-sec); max-width: 72ch; }
+    a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--primary-hover); text-decoration: underline; }
+    code {
+      font-family: var(--font-m); font-size: 0.84em;
+      background: var(--primary-light); color: var(--primary);
+      padding: 2px 7px; border-radius: var(--radius-xs);
+    }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-m); font-size: 0.84rem; line-height: 1.7;
+    }
+    pre code { background: none; padding: 0; color: var(--text); font-size: 1em; }
+
+    /* --- Layout --- */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .page-content { padding: calc(var(--nav-h) + 2rem) 0 4rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 900px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      h1 { font-size: 1.75rem; }
+      .container { padding: 0 1rem; }
+    }
+
+    /* --- Nav --- */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      z-index: 100; display: flex; align-items: center;
+    }
+    [data-theme="dark"] nav { background: rgba(10,16,30,0.82); }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem;
+      width: 100%; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-brand {
+      font-family: var(--font-d); font-weight: 700; font-size: 1.05rem;
+      color: var(--primary); margin-right: 1.5rem; white-space: nowrap;
+      display: flex; align-items: center; gap: 0.5rem; text-decoration: none;
+    }
+    .nav-brand:hover { text-decoration: none; color: var(--primary); }
+    .nav-brand svg { width: 24px; height: 24px; fill: currentColor; flex-shrink: 0; }
+    .nav-links { display: flex; gap: 0.25rem; overflow-x: auto; flex: 1; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      padding: 0.4rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.82rem; font-weight: 500; white-space: nowrap;
+      color: var(--text-sec); transition: all 0.2s; text-decoration: none;
+    }
+    .nav-links a:hover { background: var(--primary-light); color: var(--primary); text-decoration: none; }
+    .nav-links a[aria-current="page"] {
+      background: var(--primary); color: var(--text-inv) !important;
+    }
+    .theme-toggle {
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 20px; cursor: pointer; padding: 6px 12px;
+      font-size: 0.95rem; display: flex; align-items: center; gap: 4px;
+      transition: all 0.25s; margin-left: auto; flex-shrink: 0; line-height: 1;
+    }
+    .theme-toggle:hover { border-color: var(--primary); background: var(--primary-light); }
+    @media (max-width: 768px) {
+      .nav-links a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+      .nav-brand { font-size: 0.9rem; margin-right: 0.75rem; }
+      .nav-brand span { display: none; }
+    }
+
+    /* --- Hero --- */
+    .hero {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2.5rem;
+      margin-bottom: 2rem; position: relative; overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: heroIn 0.6s ease forwards;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -50px; right: -50px;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 { margin-bottom: 0.75rem; position: relative; }
+    .hero p { font-size: 1.05rem; position: relative; }
+    .hero .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-top: 0.25rem; }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Stats Strip --- */
+    .stats-strip { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; position: relative; }
+    .stat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.75rem 1.25rem; background: var(--primary-light);
+      border-radius: var(--radius-sm); min-width: 90px;
+    }
+    .stat-value {
+      font-family: var(--font-d); font-size: 1.5rem; font-weight: 700;
+      color: var(--primary); line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 0.72rem; color: var(--text-sec); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;
+    }
+
+    /* --- Card --- */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); transition: all 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+    .card-accent { border-left: 4px solid var(--primary); }
+    .card h3 { margin-bottom: 0.5rem; }
+    .card p { font-size: 0.9rem; }
+
+    /* --- Section --- */
+    .section { margin-bottom: 2.5rem; }
+    .section-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-header h2 { margin-bottom: 0; }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    /* --- Accordion --- */
+    .accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .accordion-item { border-bottom: 1px solid var(--border); }
+    .accordion-item:last-child { border-bottom: none; }
+    .accordion-trigger {
+      width: 100%; padding: 0.85rem 1.25rem; background: var(--surface);
+      border: none; cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; font-family: var(--font-b);
+      font-size: 0.92rem; font-weight: 500; color: var(--text);
+      transition: background 0.2s; text-align: left;
+    }
+    .accordion-trigger:hover { background: var(--surface-hover); }
+    .accordion-trigger .arrow {
+      transition: transform 0.3s; font-size: 0.75rem; color: var(--text-muted);
+      flex-shrink: 0; margin-left: 0.75rem;
+    }
+    .accordion-trigger[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+    .accordion-content {
+      max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    }
+    .accordion-body { padding: 1rem 1.25rem; background: var(--surface-hover); }
+
+    /* --- Table --- */
+    .table-wrap {
+      overflow-x: auto; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--surface);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    th {
+      text-align: left; padding: 0.7rem 1rem;
+      background: var(--surface-hover); font-weight: 600;
+      font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-sec); border-bottom: 2px solid var(--border);
+      position: sticky; top: 0;
+    }
+    td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+
+    /* --- Badge --- */
+    .badge {
+      display: inline-flex; padding: 2px 8px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: var(--accent-light); color: var(--accent); }
+    .badge-amber { background: var(--warn-light); color: var(--warn); }
+    .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-purple { background: #ede9fe; color: #7c3aed; }
+    .badge-gray { background: #f1f5f9; color: #64748b; }
+    [data-theme="dark"] .badge-purple { background: #2e1065; }
+    [data-theme="dark"] .badge-gray { background: #1e293b; }
+
+    /* --- Search --- */
+    .search-box { position: relative; max-width: 400px; }
+    .search-box input {
+      width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-family: var(--font-b);
+      font-size: 0.87rem; color: var(--text); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute; left: 0.85rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      font-size: 0.9rem; pointer-events: none;
+    }
+
+    /* --- Filter Chips --- */
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .chip {
+      padding: 0.4rem 0.85rem; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: all 0.2s; color: var(--text-sec); font-family: var(--font-b);
+    }
+    .chip:hover, .chip.active {
+      background: var(--primary); color: var(--text-inv); border-color: var(--primary);
+    }
+
+    /* --- Tooltip --- */
+    [data-tip] { position: relative; cursor: help; }
+    [data-tip]::after {
+      content: attr(data-tip);
+      visibility: hidden; opacity: 0;
+      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%);
+      background: var(--text); color: var(--bg); padding: 4px 10px;
+      border-radius: var(--radius-xs); font-size: 0.76rem;
+      white-space: nowrap; transition: all 0.2s; z-index: 50;
+      pointer-events: none;
+    }
+    [data-tip]:hover::after { visibility: visible; opacity: 1; }
+
+    /* --- SVG Diagram --- */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; overflow-x: auto;
+    }
+    .diagram-wrap svg { max-width: 100%; height: auto; display: block; }
+    .diagram-wrap svg text {
+      font-family: var(--font-d); fill: var(--text);
+    }
+
+    /* --- Slide-out Panel --- */
+    .panel-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+      z-index: 89; opacity: 0; visibility: hidden; transition: all 0.3s;
+    }
+    .panel-overlay.open { opacity: 1; visibility: visible; }
+    .detail-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 400px; max-width: 90vw; background: var(--surface);
+      border-left: 1px solid var(--border); box-shadow: var(--shadow-lg);
+      transform: translateX(100%); transition: transform 0.3s ease;
+      z-index: 90; overflow-y: auto; padding: calc(var(--nav-h) + 1.5rem) 1.5rem 1.5rem;
+    }
+    .detail-panel.open { transform: translateX(0); }
+    .panel-close {
+      position: absolute; top: calc(var(--nav-h) + 0.75rem); right: 1rem;
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 50%; width: 32px; height: 32px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--text-sec); transition: all 0.2s;
+    }
+    .panel-close:hover { background: var(--danger-light); color: var(--danger); }
+
+    /* --- Quick Links --- */
+    .quick-links { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; position: relative; }
+    .quick-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+    }
+    .quick-link:hover {
+      border-color: var(--primary); color: var(--primary);
+      background: var(--primary-light); text-decoration: none;
+    }
+
+    /* --- Flow Strip --- */
+    .flow-strip {
+      display: flex; align-items: center; gap: 0; overflow-x: auto;
+      padding: 1rem 0; scrollbar-width: none;
+    }
+    .flow-strip::-webkit-scrollbar { display: none; }
+    .flow-step {
+      padding: 0.45rem 0.9rem; background: var(--primary-light);
+      color: var(--primary); font-size: 0.8rem; font-weight: 600;
+      white-space: nowrap; border-radius: var(--radius-xs);
+    }
+    .flow-arrow {
+      color: var(--text-muted); padding: 0 0.4rem;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    /* --- Sidebar Layout --- */
+    .with-sidebar {
+      display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem;
+    }
+    .sidebar {
+      position: sticky; top: calc(var(--nav-h) + 1.5rem);
+      align-self: start; height: fit-content;
+    }
+    .sidebar-nav a {
+      display: block; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.87rem; color: var(--text-sec); border-left: 3px solid transparent;
+      transition: all 0.2s; text-decoration: none; margin-bottom: 2px;
+    }
+    .sidebar-nav a:hover { background: var(--surface-hover); color: var(--text); text-decoration: none; }
+    .sidebar-nav a.active {
+      background: var(--primary-light); color: var(--primary);
+      border-left-color: var(--primary); font-weight: 600;
+    }
+    @media (max-width: 900px) {
+      .with-sidebar { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static; display: flex; gap: 0.5rem; overflow-x: auto;
+        padding-bottom: 0.5rem; scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar-nav { display: flex; gap: 0.25rem; }
+      .sidebar-nav a { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; margin-bottom: 0; }
+      .sidebar-nav a.active { border-bottom-color: var(--primary); border-left-color: transparent; }
+    }
+
+    /* --- Animations --- */
+    .fade-in {
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in:nth-child(2) { transition-delay: 0.05s; }
+    .fade-in:nth-child(3) { transition-delay: 0.1s; }
+    .fade-in:nth-child(4) { transition-delay: 0.15s; }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* --- Footer --- */
+    footer {
+      border-top: 1px solid var(--border); padding: 2rem 0;
+      text-align: center; color: var(--text-muted); font-size: 0.82rem;
+      position: relative; z-index: 1;
+    }
+    footer a { color: var(--text-sec); }
+
+    /* --- Utility --- */
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+    .mt-4 { margin-top: 2rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .gap-sm { gap: 0.5rem; }
+    .gap-md { gap: 1rem; }
+    .text-sm { font-size: 0.85rem; }
+    .text-xs { font-size: 0.78rem; }
+    .font-mono { font-family: var(--font-m); }
+    .font-display { font-family: var(--font-d); }
+    .fw-600 { font-weight: 600; }
+    .color-blue { color: var(--mod-blue); }
+    .color-purple { color: var(--mod-purple); }
+    .color-amber { color: var(--mod-amber); }
+    .color-green { color: var(--mod-green); }
+    .color-red { color: var(--mod-red); }
+    .color-gray { color: var(--mod-gray); }
+    .color-teal { color: var(--mod-teal); }
+    .color-indigo { color: var(--mod-indigo); }
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    /* =============================================
+       PAGE-SPECIFIC STYLES: Overview
+       ============================================= */
+
+    /* SVG module nodes */
+    .module-node { cursor: pointer; transition: filter 0.2s, transform 0.2s; }
+    .module-node:hover { filter: brightness(1.1) drop-shadow(0 4px 12px rgba(0,0,0,0.2)); }
+    .module-node rect { transition: stroke-width 0.2s; }
+    .module-node:hover rect { stroke-width: 3; }
+
+    /* External source nodes */
+    .source-node text { font-family: var(--font-d); }
+
+    /* Panel module badge */
+    .panel-badge {
+      display: inline-block; padding: 4px 12px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 600; color: #fff;
+      margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+
+    /* Panel class list */
+    .panel-classes {
+      list-style: none; padding: 0; margin: 0.75rem 0;
+    }
+    .panel-classes li {
+      padding: 0.35rem 0; border-bottom: 1px solid var(--border);
+      font-family: var(--font-m); font-size: 0.82rem; color: var(--text);
+    }
+    .panel-classes li:last-child { border-bottom: none; }
+
+    /* Panel link */
+    .panel-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      margin-top: 1rem; padding: 0.5rem 1rem;
+      background: var(--primary-light); color: var(--primary);
+      border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .panel-link:hover {
+      background: var(--primary); color: var(--text-inv); text-decoration: none;
+    }
+
+    /* Reference cards icon */
+    .card-icon {
+      width: 40px; height: 40px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; margin-bottom: 0.75rem; flex-shrink: 0;
+    }
+    .card-icon-blue { background: var(--primary-light); color: var(--primary); }
+    .card-icon-green { background: var(--accent-light); color: var(--accent); }
+    .card-icon-amber { background: var(--warn-light); color: var(--warn); }
+
+    /* SVG dark mode adjustments */
+    [data-theme="dark"] .diagram-wrap svg .arrow-line { stroke: var(--text-muted); }
+    [data-theme="dark"] .diagram-wrap svg .arrow-dash { stroke: var(--text-muted); }
+    [data-theme="dark"] .diagram-wrap svg .label-text { fill: var(--text-sec); }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="1-overview.html">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        <span>bingo-offline</span>
+      </a>
+      <div class="nav-links">
+        <a href="1-overview.html" aria-current="page">Overview</a>
+        <a href="2-pipeline.html">Pipeline</a>
+        <a href="3-modules.html">Modules</a>
+        <a href="4-geo-entity.html">Geo Entity</a>
+        <a href="5-datasets.html">Datasets</a>
+        <a href="6-operations.html">Operations</a>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+        <span class="theme-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="page-content">
+    <div class="container">
+
+      <!-- Hero Section -->
+      <div class="hero">
+        <h1>bingo-offline</h1>
+        <p class="subtitle">LinkedIn's Offline Geographic Data Infrastructure</p>
+        <p>Interactive guide to the ETL system that processes 120K+ geographic entities across 24 locales, generating search indexes, data transformations, and analytics for LinkedIn's location-based features.</p>
+
+        <div class="stats-strip">
+          <div class="stat">
+            <span class="stat-value">8</span>
+            <span class="stat-label">Modules</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">5</span>
+            <span class="stat-label">Airflow Apps</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">24</span>
+            <span class="stat-label">Locales</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">4</span>
+            <span class="stat-label">Venice Stores</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">120K+</span>
+            <span class="stat-label">Entities</span>
+          </div>
+        </div>
+
+        <div class="quick-links">
+          <a class="quick-link" href="http://go/projbingo" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            go/projbingo
+          </a>
+          <a class="quick-link" href="http://go/offlinegeo" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            go/offlinegeo
+          </a>
+          <a class="quick-link" href="https://github.com/linkedin-multiproduct/bingo-offline" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- Architecture Diagram Section -->
+      <div class="section fade-in">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--primary-light); color: var(--primary);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </div>
+          <h2>Architecture Overview</h2>
+        </div>
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 1100 620" xmlns="http://www.w3.org/2000/svg">
+            <!-- Arrowhead marker definitions -->
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-muted)" />
+              </marker>
+              <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#0a66c2" />
+              </marker>
+              <filter id="node-shadow" x="-4%" y="-4%" width="108%" height="116%">
+                <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.1"/>
+              </filter>
+            </defs>
+
+            <!-- External Data Source: Microsoft Bing -->
+            <g class="source-node">
+              <rect x="20" y="225" width="160" height="70" rx="12" fill="var(--surface)" stroke="var(--border-strong)" stroke-width="1.5" filter="url(#node-shadow)" />
+              <text x="100" y="254" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text)">Microsoft Bing</text>
+              <text x="100" y="274" text-anchor="middle" font-size="11" fill="var(--text-muted)">Geographic Data</text>
+            </g>
+
+            <!-- Arrow: Bing → offline-azkaban -->
+            <path d="M180,260 L290,260" stroke="var(--text-muted)" stroke-width="2" fill="none" marker-end="url(#arrowhead)" class="arrow-line" />
+            <text x="235" y="250" text-anchor="middle" font-size="10" fill="var(--text-muted)" class="label-text">raw dump</text>
+
+            <!-- Central Module: bingo-offline-azkaban (large) -->
+            <g class="module-node" data-module="bingo-offline-azkaban" onclick="openPanel('bingo-offline-azkaban')">
+              <rect x="300" y="200" width="240" height="120" rx="14" fill="#0a66c2" stroke="#004182" stroke-width="2" filter="url(#node-shadow)" />
+              <text x="420" y="240" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">bingo-offline-azkaban</text>
+              <text x="420" y="262" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.8)">Main ETL: entities, IDs,</text>
+              <text x="420" y="278" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.8)">relationships, publishing</text>
+              <text x="420" y="306" text-anchor="middle" font-size="10" font-weight="500" fill="rgba(255,255,255,0.6)">Click for details</text>
+            </g>
+
+            <!-- Arrow: offline-azkaban → analysis-azkaban -->
+            <path d="M540,240 C600,240 600,100 680,100" stroke="var(--text-muted)" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)" class="arrow-line" />
+
+            <!-- Module: bingo-analysis-azkaban -->
+            <g class="module-node" data-module="bingo-analysis-azkaban" onclick="openPanel('bingo-analysis-azkaban')">
+              <rect x="690" y="60" width="220" height="80" rx="12" fill="#7c3aed" stroke="#6d28d9" stroke-width="1.5" filter="url(#node-shadow)" />
+              <text x="800" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">bingo-analysis-azkaban</text>
+              <text x="800" y="112" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Data quality, blocklist, metrics</text>
+              <text x="800" y="128" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.55)">Click for details</text>
+            </g>
+
+            <!-- Arrow: offline-azkaban → indexer-azkaban -->
+            <path d="M540,260 L680,210" stroke="var(--text-muted)" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)" class="arrow-line" />
+
+            <!-- Module: bingo-indexer-azkaban -->
+            <g class="module-node" data-module="bingo-indexer-azkaban" onclick="openPanel('bingo-indexer-azkaban')">
+              <rect x="690" y="170" width="220" height="80" rx="12" fill="#d97706" stroke="#b45309" stroke-width="1.5" filter="url(#node-shadow)" />
+              <text x="800" y="202" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">bingo-indexer-azkaban</text>
+              <text x="800" y="222" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Lucene index generation</text>
+              <text x="800" y="238" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.55)">Click for details</text>
+            </g>
+
+            <!-- Arrow: offline-azkaban → remap-azkaban -->
+            <path d="M540,280 L680,320" stroke="var(--text-muted)" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)" class="arrow-line" />
+
+            <!-- Module: bingo-remap-azkaban -->
+            <g class="module-node" data-module="bingo-remap-azkaban" onclick="openPanel('bingo-remap-azkaban')">
+              <rect x="690" y="280" width="220" height="80" rx="12" fill="#059669" stroke="#047857" stroke-width="1.5" filter="url(#node-shadow)" />
+              <text x="800" y="312" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">bingo-remap-azkaban</text>
+              <text x="800" y="332" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">ID remapping, standardization</text>
+              <text x="800" y="348" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.55)">Click for details</text>
+            </g>
+
+            <!-- Arrow: offline-azkaban → termvector-azkaban -->
+            <path d="M540,280 C600,280 600,420 680,420" stroke="var(--text-muted)" stroke-width="1.5" fill="none" marker-end="url(#arrowhead)" class="arrow-line" />
+
+            <!-- Module: bingo-termvector-azkaban -->
+            <g class="module-node" data-module="bingo-termvector-azkaban" onclick="openPanel('bingo-termvector-azkaban')">
+              <rect x="690" y="390" width="220" height="80" rx="12" fill="#dc2626" stroke="#b91c1c" stroke-width="1.5" filter="url(#node-shadow)" />
+              <text x="800" y="422" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">bingo-termvector-azkaban</text>
+              <text x="800" y="442" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Term vector generation</text>
+              <text x="800" y="458" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.55)">Click for details</text>
+            </g>
+
+            <!-- bingo-utils (bottom left) with dashed lines to all -->
+            <g class="module-node" data-module="bingo-utils" onclick="openPanel('bingo-utils')">
+              <rect x="80" y="440" width="180" height="70" rx="12" fill="#64748b" stroke="#475569" stroke-width="1.5" filter="url(#node-shadow)" />
+              <text x="170" y="470" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">bingo-utils</text>
+              <text x="170" y="490" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Shared utility library</text>
+            </g>
+
+            <!-- Dashed lines from bingo-utils to modules -->
+            <path d="M260,460 L310,320" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="6,4" fill="none" class="arrow-dash" />
+            <path d="M260,465 L700,100" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="6,4" fill="none" class="arrow-dash" />
+            <path d="M260,460 L700,210" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="6,4" fill="none" class="arrow-dash" />
+            <path d="M260,475 L700,320" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="6,4" fill="none" class="arrow-dash" />
+            <path d="M260,480 L700,430" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="6,4" fill="none" class="arrow-dash" />
+
+            <!-- bingo-misc-azkaban (bottom center) -->
+            <g class="module-node" data-module="bingo-misc-azkaban" onclick="openPanel('bingo-misc-azkaban')">
+              <rect x="330" y="520" width="180" height="70" rx="12" fill="#64748b" stroke="#475569" stroke-width="1.5" filter="url(#node-shadow)" />
+              <text x="420" y="550" text-anchor="middle" font-size="13" font-weight="600" fill="#ffffff">bingo-misc-azkaban</text>
+              <text x="420" y="570" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Shell-based workflows</text>
+            </g>
+
+            <!-- bingo-grandfathering-azkaban (bottom right) -->
+            <g class="module-node" data-module="bingo-grandfathering-azkaban" onclick="openPanel('bingo-grandfathering-azkaban')">
+              <rect x="580" y="520" width="220" height="70" rx="12" fill="#64748b" stroke="#475569" stroke-width="1.5" filter="url(#node-shadow)" />
+              <text x="690" y="550" text-anchor="middle" font-size="12" font-weight="600" fill="#ffffff">bingo-grandfathering-azkaban</text>
+              <text x="690" y="570" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">Legacy data handling</text>
+            </g>
+
+            <!-- Legend -->
+            <g transform="translate(920, 500)">
+              <text x="0" y="0" font-size="11" font-weight="600" fill="var(--text-sec)">Legend</text>
+              <line x1="0" y1="18" x2="30" y2="18" stroke="var(--text-muted)" stroke-width="2" marker-end="url(#arrowhead)" />
+              <text x="38" y="22" font-size="10" fill="var(--text-muted)">Data flow</text>
+              <line x1="0" y1="40" x2="30" y2="40" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="6,4" />
+              <text x="38" y="44" font-size="10" fill="var(--text-muted)">Shared dep</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Data Flow Summary Strip -->
+      <div class="section fade-in">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--accent-light); color: var(--accent);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h2>Pipeline Data Flow</h2>
+        </div>
+
+        <div class="card">
+          <div class="flow-strip">
+            <span class="flow-step">RAW INPUT</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Filter</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Generate Entities</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Relationships</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Virtual Areas</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Enrichment</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Hotfixes</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Standardize</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Publish</span>
+            <span class="flow-arrow">&#x2192;</span>
+            <span class="flow-step">Validate</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Reference Cards -->
+      <div class="section fade-in">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--warn-light); color: var(--warn);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <h2>Quick Reference</h2>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-icon card-icon-blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <h3>Data Sources</h3>
+            <p>Microsoft Bing Maps geographic data dump in <code>YYYYMMDD</code> format. HDFS working directories under <code>/jobs/msftgeo/</code>.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-icon card-icon-green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            </div>
+            <h3>Output Destinations</h3>
+            <p>Dali views (<code>stz_derived_mp.*</code>), Venice stores (BingGeoEntities, StylizedGeoNames, StandardizedBingGeo, GeoPolygonInfo), Lucene indexes in Artifactory.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-icon card-icon-amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </div>
+            <h3>Key Concepts</h3>
+            <p>BID (Bing ID) &rarr; LID (LinkedIn ID, range 90M&ndash;200M) &rarr; URN (<code>urn:li:geo:{lid}</code>). Supports 24 locales, market areas, and country clusters.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Slide-out Detail Panel -->
+  <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+  <div class="detail-panel" id="detailPanel">
+    <button class="panel-close" onclick="closePanel()" aria-label="Close panel">&times;</button>
+    <div id="panelContent"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      bingo-offline tutorial &middot; LinkedIn Geo Infrastructure &middot;
+      <a href="http://go/projbingo">go/projbingo</a> &middot;
+      <a href="http://go/offlinegeo">go/offlinegeo</a>
+    </div>
+  </footer>
+
+  <script>
+    /* === Dark mode === */
+    (function() {
+      var saved = localStorage.getItem('bingo-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', 'dark');
+      updateIcon();
+    })();
+    function toggleTheme() {
+      var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('bingo-theme', t);
+      updateIcon();
+    }
+    function updateIcon() {
+      var el = document.querySelector('.theme-icon');
+      if (el) el.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+    }
+
+    /* === Accordion === */
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.accordion-trigger').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!expanded));
+          var content = btn.nextElementSibling;
+          if (expanded) { content.style.maxHeight = '0'; }
+          else { content.style.maxHeight = content.scrollHeight + 'px'; }
+        });
+      });
+
+      /* === Scroll fade-in === */
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.fade-in').forEach(function(el) { obs.observe(el); });
+    });
+
+    /* === Module Detail Panel === */
+    var moduleData = {
+      'bingo-offline-azkaban': {
+        color: '#0a66c2',
+        badgeClass: 'badge-blue',
+        label: 'Core ETL',
+        description: 'Main offline ETL: formats geo entities, ID mappings, relationships, data publishing. This is the central module that processes raw Bing geographic data and produces the canonical entity representations used across LinkedIn.',
+        classes: ['GenerateGeoEntities', 'GenerateRelationshipGraph', 'PopulateLid', 'ToGeoEntity', 'FormatGeoEntities', 'GenerateStandardizedBingGeo', 'GenerateMarketAreas', 'GenerateTargetAreas', 'CustomizedDataPurge', 'PublishVersionedData']
+      },
+      'bingo-analysis-azkaban': {
+        color: '#7c3aed',
+        badgeClass: 'badge-purple',
+        label: 'Analysis',
+        description: 'Data quality analysis, typeahead blocklist generation, metrics calculation. Ensures the integrity and quality of geo data before it reaches production systems.',
+        classes: ['GenerateTypeaheadBlacklist', 'CalcMergedMemberCount', 'PillarCount', 'CalculateSanityCheckMetrics', 'CollectGeoTypeCountPerCountry']
+      },
+      'bingo-indexer-azkaban': {
+        color: '#d97706',
+        badgeClass: 'badge-amber',
+        label: 'Indexer',
+        description: 'Lucene index generation for geo search (Lucene 6.6.6). Builds the search indexes that power location typeahead and geographic lookups across LinkedIn.',
+        classes: ['GenerateGeoIndexV2', 'IndexBuilder', 'PrepareTypeaheadData', 'ArtifactoryUploaderV2', 'MultiVersionIndexerV2']
+      },
+      'bingo-remap-azkaban': {
+        color: '#059669',
+        badgeClass: 'badge-green',
+        label: 'Remapping',
+        description: 'Entity ID remapping and location standardization using libpostal. Maps member-entered locations to canonical geo entities through name matching and structured data comparison.',
+        classes: ['StandardizeEntityByName', 'StandardizeEntityByStructuredData', 'NielsenDMACandidateProcessor', 'MergeRemapEntities']
+      },
+      'bingo-termvector-azkaban': {
+        color: '#dc2626',
+        badgeClass: 'badge-red',
+        label: 'Term Vectors',
+        description: 'Term vector generation for member and job geographic distributions. Produces vectors used in relevance scoring and geographic analysis.',
+        classes: ['GenerateMemberStdGeoVector', 'GenerateJobStdGeoVector', 'SeparateJobByCategory']
+      },
+      'bingo-utils': {
+        color: '#64748b',
+        badgeClass: 'badge-gray',
+        label: 'Utilities',
+        description: 'Shared utility library used by all Azkaban modules. Provides common constants, schema utilities, and Spark job base classes.',
+        classes: ['Utils', 'OfflineJobCoreConstants', 'SchemaUtils', 'SparkJob']
+      },
+      'bingo-misc-azkaban': {
+        color: '#64748b',
+        badgeClass: 'badge-gray',
+        label: 'Miscellaneous',
+        description: 'Shell-based miscellaneous workflows for operational tasks like path validation and data copying.',
+        classes: ['checkPathsExist', 'copy-data']
+      },
+      'bingo-grandfathering-azkaban': {
+        color: '#64748b',
+        badgeClass: 'badge-gray',
+        label: 'Legacy',
+        description: 'Legacy data handling and migration scripts. Manages grandfathered entity data from previous system versions.',
+        classes: ['Legacy data migration scripts']
+      }
+    };
+
+    function openPanel(moduleName) {
+      var data = moduleData[moduleName];
+      if (!data) return;
+
+      var classItems = data.classes.map(function(c) {
+        return '<li>' + c + '</li>';
+      }).join('');
+
+      var html = '' +
+        '<span class="panel-badge" style="background:' + data.color + ';">' + data.label + '</span>' +
+        '<h3 style="margin-bottom:0.75rem;">' + moduleName + '</h3>' +
+        '<p style="font-size:0.9rem;">' + data.description + '</p>' +
+        '<h4 style="margin-top:1.25rem; margin-bottom:0.5rem;">Key Classes</h4>' +
+        '<ul class="panel-classes">' + classItems + '</ul>' +
+        '<a class="panel-link" href="3-modules.html">' +
+          'View in Modules page &#x2192;' +
+        '</a>';
+
+      document.getElementById('panelContent').innerHTML = html;
+      document.getElementById('detailPanel').classList.add('open');
+      document.getElementById('panelOverlay').classList.add('open');
+    }
+
+    function closePanel() {
+      document.getElementById('detailPanel').classList.remove('open');
+      document.getElementById('panelOverlay').classList.remove('open');
+    }
+
+    /* Close panel on Escape key */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closePanel();
+    });
+  </script>
+</body>
+</html>

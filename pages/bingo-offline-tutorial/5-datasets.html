@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datasets Reference — bingo-offline Tutorial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..800&family=DM+Sans:opsz,wght@9..40,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================
+       BINGO-OFFLINE TUTORIAL DESIGN SYSTEM
+       Theme: Meridian — Cartographic Data Observatory
+       ============================================= */
+
+    /* --- Variables --- */
+    :root {
+      --bg: #f0f2f5;
+      --grid-color: rgba(10,102,194,0.035);
+      --surface: #ffffff;
+      --surface-hover: #f8fafc;
+      --text: #1a1a2e;
+      --text-sec: #475569;
+      --text-muted: #94a3b8;
+      --text-inv: #ffffff;
+      --primary: #0a66c2;
+      --primary-hover: #004182;
+      --primary-light: #dbeafe;
+      --primary-glow: rgba(10,102,194,0.08);
+      --accent: #057642;
+      --accent-light: #dcfce7;
+      --warn: #d97706;
+      --warn-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 4px;
+      --nav-h: 60px;
+      --max-w: 1240px;
+      --font-d: 'Outfit', -apple-system, system-ui, sans-serif;
+      --font-b: 'DM Sans', -apple-system, system-ui, sans-serif;
+      --font-m: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+      --mod-blue: #0a66c2;
+      --mod-purple: #7c3aed;
+      --mod-amber: #d97706;
+      --mod-green: #059669;
+      --mod-red: #dc2626;
+      --mod-gray: #64748b;
+      --mod-teal: #0891b2;
+      --mod-indigo: #4f46e5;
+    }
+    [data-theme="dark"] {
+      --bg: #0a101e;
+      --grid-color: rgba(88,166,255,0.025);
+      --surface: #111827;
+      --surface-hover: #1e293b;
+      --text: #e2e8f0;
+      --text-sec: #94a3b8;
+      --text-muted: #475569;
+      --text-inv: #0a101e;
+      --primary: #58a6ff;
+      --primary-hover: #79b8ff;
+      --primary-light: #172554;
+      --primary-glow: rgba(88,166,255,0.1);
+      --accent: #4ade80;
+      --accent-light: #052e16;
+      --warn: #fbbf24;
+      --warn-light: #422006;
+      --danger: #f87171;
+      --danger-light: #450a0a;
+      --border: #1e293b;
+      --border-strong: #334155;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 24px); }
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Map grid overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+    /* Ambient top glow */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; height: 500px;
+      background: linear-gradient(180deg, var(--primary-glow) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* --- Typography --- */
+    h1, h2, h3, h4, h5 { font-family: var(--font-d); line-height: 1.25; color: var(--text); }
+    h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.025em; }
+    h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 1rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+    h4 { font-size: 0.95rem; font-weight: 600; }
+    p { color: var(--text-sec); max-width: 72ch; }
+    a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--primary-hover); text-decoration: underline; }
+    code {
+      font-family: var(--font-m); font-size: 0.84em;
+      background: var(--primary-light); color: var(--primary);
+      padding: 2px 7px; border-radius: var(--radius-xs);
+    }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-m); font-size: 0.84rem; line-height: 1.7;
+    }
+    pre code { background: none; padding: 0; color: var(--text); font-size: 1em; }
+
+    /* --- Layout --- */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .page-content { padding: calc(var(--nav-h) + 2rem) 0 4rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 900px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      h1 { font-size: 1.75rem; }
+      .container { padding: 0 1rem; }
+    }
+
+    /* --- Nav --- */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      z-index: 100; display: flex; align-items: center;
+    }
+    [data-theme="dark"] nav { background: rgba(10,16,30,0.82); }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem;
+      width: 100%; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-brand {
+      font-family: var(--font-d); font-weight: 700; font-size: 1.05rem;
+      color: var(--primary); margin-right: 1.5rem; white-space: nowrap;
+      display: flex; align-items: center; gap: 0.5rem; text-decoration: none;
+    }
+    .nav-brand:hover { text-decoration: none; color: var(--primary); }
+    .nav-brand svg { width: 24px; height: 24px; fill: currentColor; flex-shrink: 0; }
+    .nav-links { display: flex; gap: 0.25rem; overflow-x: auto; flex: 1; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      padding: 0.4rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.82rem; font-weight: 500; white-space: nowrap;
+      color: var(--text-sec); transition: all 0.2s; text-decoration: none;
+    }
+    .nav-links a:hover { background: var(--primary-light); color: var(--primary); text-decoration: none; }
+    .nav-links a[aria-current="page"] {
+      background: var(--primary); color: var(--text-inv) !important;
+    }
+    .theme-toggle {
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 20px; cursor: pointer; padding: 6px 12px;
+      font-size: 0.95rem; display: flex; align-items: center; gap: 4px;
+      transition: all 0.25s; margin-left: auto; flex-shrink: 0; line-height: 1;
+    }
+    .theme-toggle:hover { border-color: var(--primary); background: var(--primary-light); }
+    @media (max-width: 768px) {
+      .nav-links a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+      .nav-brand { font-size: 0.9rem; margin-right: 0.75rem; }
+      .nav-brand span { display: none; }
+    }
+
+    /* --- Hero --- */
+    .hero {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2.5rem;
+      margin-bottom: 2rem; position: relative; overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: heroIn 0.6s ease forwards;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -50px; right: -50px;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 { margin-bottom: 0.75rem; position: relative; }
+    .hero p { font-size: 1.05rem; position: relative; }
+    .hero .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-top: 0.25rem; }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Stats Strip --- */
+    .stats-strip { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; position: relative; }
+    .stat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.75rem 1.25rem; background: var(--primary-light);
+      border-radius: var(--radius-sm); min-width: 90px;
+    }
+    .stat-value {
+      font-family: var(--font-d); font-size: 1.5rem; font-weight: 700;
+      color: var(--primary); line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 0.72rem; color: var(--text-sec); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;
+    }
+
+    /* --- Card --- */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); transition: all 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+    .card-accent { border-left: 4px solid var(--primary); }
+    .card h3 { margin-bottom: 0.5rem; }
+    .card p { font-size: 0.9rem; }
+
+    /* --- Section --- */
+    .section { margin-bottom: 2.5rem; }
+    .section-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-header h2 { margin-bottom: 0; }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    /* --- Accordion --- */
+    .accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .accordion-item { border-bottom: 1px solid var(--border); }
+    .accordion-item:last-child { border-bottom: none; }
+    .accordion-trigger {
+      width: 100%; padding: 0.85rem 1.25rem; background: var(--surface);
+      border: none; cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; font-family: var(--font-b);
+      font-size: 0.92rem; font-weight: 500; color: var(--text);
+      transition: background 0.2s; text-align: left;
+    }
+    .accordion-trigger:hover { background: var(--surface-hover); }
+    .accordion-trigger .arrow {
+      transition: transform 0.3s; font-size: 0.75rem; color: var(--text-muted);
+      flex-shrink: 0; margin-left: 0.75rem;
+    }
+    .accordion-trigger[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+    .accordion-content {
+      max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    }
+    .accordion-body { padding: 1rem 1.25rem; background: var(--surface-hover); }
+
+    /* --- Table --- */
+    .table-wrap {
+      overflow-x: auto; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--surface);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    th {
+      text-align: left; padding: 0.7rem 1rem;
+      background: var(--surface-hover); font-weight: 600;
+      font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-sec); border-bottom: 2px solid var(--border);
+      position: sticky; top: 0;
+    }
+    td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+
+    /* --- Badge --- */
+    .badge {
+      display: inline-flex; padding: 2px 8px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: var(--accent-light); color: var(--accent); }
+    .badge-amber { background: var(--warn-light); color: var(--warn); }
+    .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-purple { background: #ede9fe; color: #7c3aed; }
+    .badge-gray { background: #f1f5f9; color: #64748b; }
+    [data-theme="dark"] .badge-purple { background: #2e1065; }
+    [data-theme="dark"] .badge-gray { background: #1e293b; }
+
+    /* --- Search --- */
+    .search-box { position: relative; max-width: 400px; }
+    .search-box input {
+      width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-family: var(--font-b);
+      font-size: 0.87rem; color: var(--text); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute; left: 0.85rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      font-size: 0.9rem; pointer-events: none;
+    }
+
+    /* --- Filter Chips --- */
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .chip {
+      padding: 0.4rem 0.85rem; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: all 0.2s; color: var(--text-sec); font-family: var(--font-b);
+    }
+    .chip:hover, .chip.active {
+      background: var(--primary); color: var(--text-inv); border-color: var(--primary);
+    }
+
+    /* --- Tooltip --- */
+    [data-tip] { position: relative; cursor: help; }
+    [data-tip]::after {
+      content: attr(data-tip);
+      visibility: hidden; opacity: 0;
+      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%);
+      background: var(--text); color: var(--bg); padding: 4px 10px;
+      border-radius: var(--radius-xs); font-size: 0.76rem;
+      white-space: nowrap; transition: all 0.2s; z-index: 50;
+      pointer-events: none;
+    }
+    [data-tip]:hover::after { visibility: visible; opacity: 1; }
+
+    /* --- SVG Diagram --- */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; overflow-x: auto;
+    }
+    .diagram-wrap svg { max-width: 100%; height: auto; display: block; }
+    .diagram-wrap svg text {
+      font-family: var(--font-d); fill: var(--text);
+    }
+
+    /* --- Slide-out Panel --- */
+    .panel-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+      z-index: 89; opacity: 0; visibility: hidden; transition: all 0.3s;
+    }
+    .panel-overlay.open { opacity: 1; visibility: visible; }
+    .detail-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 400px; max-width: 90vw; background: var(--surface);
+      border-left: 1px solid var(--border); box-shadow: var(--shadow-lg);
+      transform: translateX(100%); transition: transform 0.3s ease;
+      z-index: 90; overflow-y: auto; padding: calc(var(--nav-h) + 1.5rem) 1.5rem 1.5rem;
+    }
+    .detail-panel.open { transform: translateX(0); }
+    .panel-close {
+      position: absolute; top: calc(var(--nav-h) + 0.75rem); right: 1rem;
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 50%; width: 32px; height: 32px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--text-sec); transition: all 0.2s;
+    }
+    .panel-close:hover { background: var(--danger-light); color: var(--danger); }
+
+    /* --- Quick Links --- */
+    .quick-links { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; position: relative; }
+    .quick-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+    }
+    .quick-link:hover {
+      border-color: var(--primary); color: var(--primary);
+      background: var(--primary-light); text-decoration: none;
+    }
+
+    /* --- Flow Strip --- */
+    .flow-strip {
+      display: flex; align-items: center; gap: 0; overflow-x: auto;
+      padding: 1rem 0; scrollbar-width: none;
+    }
+    .flow-strip::-webkit-scrollbar { display: none; }
+    .flow-step {
+      padding: 0.45rem 0.9rem; background: var(--primary-light);
+      color: var(--primary); font-size: 0.8rem; font-weight: 600;
+      white-space: nowrap; border-radius: var(--radius-xs);
+    }
+    .flow-arrow {
+      color: var(--text-muted); padding: 0 0.4rem;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    /* --- Sidebar Layout --- */
+    .with-sidebar {
+      display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem;
+    }
+    .sidebar {
+      position: sticky; top: calc(var(--nav-h) + 1.5rem);
+      align-self: start; height: fit-content;
+    }
+    .sidebar-nav a {
+      display: block; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.87rem; color: var(--text-sec); border-left: 3px solid transparent;
+      transition: all 0.2s; text-decoration: none; margin-bottom: 2px;
+    }
+    .sidebar-nav a:hover { background: var(--surface-hover); color: var(--text); text-decoration: none; }
+    .sidebar-nav a.active {
+      background: var(--primary-light); color: var(--primary);
+      border-left-color: var(--primary); font-weight: 600;
+    }
+    @media (max-width: 900px) {
+      .with-sidebar { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static; display: flex; gap: 0.5rem; overflow-x: auto;
+        padding-bottom: 0.5rem; scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar-nav { display: flex; gap: 0.25rem; }
+      .sidebar-nav a { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; margin-bottom: 0; }
+      .sidebar-nav a.active { border-bottom-color: var(--primary); border-left-color: transparent; }
+    }
+
+    /* --- Animations --- */
+    .fade-in {
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in:nth-child(2) { transition-delay: 0.05s; }
+    .fade-in:nth-child(3) { transition-delay: 0.1s; }
+    .fade-in:nth-child(4) { transition-delay: 0.15s; }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* --- Footer --- */
+    footer {
+      border-top: 1px solid var(--border); padding: 2rem 0;
+      text-align: center; color: var(--text-muted); font-size: 0.82rem;
+      position: relative; z-index: 1;
+    }
+    footer a { color: var(--text-sec); }
+
+    /* --- Utility --- */
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+    .mt-4 { margin-top: 2rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .gap-sm { gap: 0.5rem; }
+    .gap-md { gap: 1rem; }
+    .text-sm { font-size: 0.85rem; }
+    .text-xs { font-size: 0.78rem; }
+    .font-mono { font-family: var(--font-m); }
+    .font-display { font-family: var(--font-d); }
+    .fw-600 { font-weight: 600; }
+    .color-blue { color: var(--mod-blue); }
+    .color-purple { color: var(--mod-purple); }
+    .color-amber { color: var(--mod-amber); }
+    .color-green { color: var(--mod-green); }
+    .color-red { color: var(--mod-red); }
+    .color-gray { color: var(--mod-gray); }
+    .color-teal { color: var(--mod-teal); }
+    .color-indigo { color: var(--mod-indigo); }
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    /* =============================================
+       PAGE-SPECIFIC STYLES
+       ============================================= */
+
+    .dataset-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+      box-shadow: var(--shadow); transition: all 0.25s;
+    }
+    .dataset-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+    .dataset-card h4 { margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .dataset-card .ds-path {
+      font-family: var(--font-m); font-size: 0.78rem;
+      color: var(--text-muted); word-break: break-all;
+      margin-bottom: 0.5rem; display: block;
+    }
+    .dataset-card .ds-path a { color: var(--primary); }
+    .dataset-card .ds-desc {
+      font-size: 0.87rem; color: var(--text-sec); margin-bottom: 0.5rem;
+    }
+    .dataset-card .ds-meta {
+      font-size: 0.76rem; color: var(--text-muted);
+    }
+    .dataset-card .ds-meta span { margin-right: 1rem; }
+
+    .filter-controls {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .no-results {
+      text-align: center; padding: 3rem 1rem; color: var(--text-muted);
+      font-size: 0.95rem; display: none;
+    }
+    .no-results.visible { display: block; }
+
+    .collapsible-preview {
+      margin-top: 0.75rem;
+    }
+    .collapsible-preview summary {
+      cursor: pointer; font-size: 0.85rem; font-weight: 500;
+      color: var(--primary); padding: 0.35rem 0;
+      user-select: none;
+    }
+    .collapsible-preview summary:hover { text-decoration: underline; }
+    .collapsible-preview pre {
+      margin-top: 0.5rem; font-size: 0.78rem;
+    }
+
+    .dataset-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;
+    }
+    @media (max-width: 900px) {
+      .dataset-grid { grid-template-columns: 1fr; }
+    }
+
+    .cmd-ref pre {
+      position: relative;
+    }
+    .cmd-ref .cmd-comment {
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="1-overview.html">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        <span>bingo-offline</span>
+      </a>
+      <div class="nav-links">
+        <a href="1-overview.html">Overview</a>
+        <a href="2-pipeline.html">Pipeline</a>
+        <a href="3-modules.html">Modules</a>
+        <a href="4-geo-entity.html">Geo Entity</a>
+        <a href="5-datasets.html" aria-current="page">Datasets</a>
+        <a href="6-operations.html">Operations</a>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+        <span class="theme-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="page-content">
+    <div class="container">
+
+      <!-- Hero -->
+      <div class="hero">
+        <h1>Key Datasets Reference</h1>
+        <p>Comprehensive reference for all datasets produced and consumed by bingo-offline. Includes Dali views, HDFS paths, Venice stores, and custom CSV files.</p>
+        <div class="stats-strip">
+          <div class="stat">
+            <span class="stat-value">8</span>
+            <span class="stat-label">Dali Views</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">12</span>
+            <span class="stat-label">HDFS Dirs</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">4</span>
+            <span class="stat-label">Venice Stores</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">9</span>
+            <span class="stat-label">CSV Files</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">4</span>
+            <span class="stat-label">Analysis Outputs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="filter-controls">
+        <div class="search-box">
+          <span class="search-icon">&#x1F50D;</span>
+          <input type="text" id="dataset-search" placeholder="Filter datasets by name..." aria-label="Search datasets">
+        </div>
+        <div class="filter-bar" id="filter-chips">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="dali">Dali</button>
+          <button class="chip" data-filter="hdfs">HDFS</button>
+          <button class="chip" data-filter="venice">Venice</button>
+          <button class="chip" data-filter="csv">CSV</button>
+          <button class="chip" data-filter="analysis">Analysis</button>
+        </div>
+      </div>
+
+      <div id="no-results" class="no-results">No datasets match your search criteria.</div>
+
+      <!-- Section 1: Dali Published Views -->
+      <div class="section fade-in" id="section-dali" data-category="dali">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--primary-light); color: var(--primary);">&#x1F4E6;</div>
+          <h2>Dali Published Views</h2>
+          <span class="badge badge-blue">DALI</span>
+        </div>
+
+        <div class="dataset-grid">
+          <div class="dataset-card" data-category="dali" data-name="Geo Entities Beta">
+            <h4>Geo Entities (Beta) <span class="badge badge-blue">DALI</span></h4>
+            <code class="ds-path">dalids:///stz_derived_mp.stz_derived_taxonomy_geo_entities</code>
+            <p class="ds-desc">All geo entities -- the primary output. Beta channel.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-offline-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="dali" data-name="Geo Entities Versioned">
+            <h4>Geo Entities (Versioned) <span class="badge badge-blue">DALI</span></h4>
+            <code class="ds-path">dalids:///stz_derived_mp.stz_derived_taxonomy_versions_geo_entities_{version}</code>
+            <p class="ds-desc">Versioned snapshot of geo entities.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-offline-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="dali" data-name="Geo Relationships Beta">
+            <h4>Geo Relationships (Beta) <span class="badge badge-blue">DALI</span></h4>
+            <code class="ds-path">dalids:///stz_derived_mp.stz_derived_taxonomy_geo_entity_relationships</code>
+            <p class="ds-desc">Entity parent/child/admin-chain relationships.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-offline-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="dali" data-name="Geo Relationships Versioned">
+            <h4>Geo Relationships (Versioned) <span class="badge badge-blue">DALI</span></h4>
+            <code class="ds-path">dalids:///stz_derived_mp.stz_derived_taxonomy_versions_geo_entity_relationships_{version}</code>
+            <p class="ds-desc">Versioned relationships.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-offline-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="dali" data-name="Standardized Bing Geo Beta">
+            <h4>Standardized Bing Geo (Beta) <span class="badge badge-blue">DALI</span></h4>
+            <code class="ds-path">dalids:///stz_derived_mp.stz_derived_taxonomy_standardized_bing_geo</code>
+            <p class="ds-desc">Enriched standardized geo records.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-offline-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="dali" data-name="Standardized Bing Geo Versioned">
+            <h4>Standardized Bing Geo (Versioned) <span class="badge badge-blue">DALI</span></h4>
+            <code class="ds-path">dalids:///stz_derived_mp.stz_derived_taxonomy_versions_standardized_bing_geo_{version}</code>
+            <p class="ds-desc">Versioned standardized geo.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-offline-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="dali" data-name="Stylized Geo Beta">
+            <h4>Stylized Geo (Beta) <span class="badge badge-blue">DALI</span></h4>
+            <code class="ds-path">dalids:///stz_derived_mp.stz_derived_taxonomy_stylized_geo</code>
+            <p class="ds-desc">Stylized display names per locale.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-offline-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="dali" data-name="Stylized Geo Versioned">
+            <h4>Stylized Geo (Versioned) <span class="badge badge-blue">DALI</span></h4>
+            <code class="ds-path">dalids:///stz_derived_mp.stz_derived_taxonomy_versions_stylized_geo_{version}</code>
+            <p class="ds-desc">Versioned stylized names.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-offline-azkaban</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: HDFS Working Directories -->
+      <div class="section fade-in" id="section-hdfs" data-category="hdfs">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--warn-light); color: var(--warn);">&#x1F4C1;</div>
+          <h2>HDFS Working Directories</h2>
+          <span class="badge badge-amber">HDFS</span>
+        </div>
+        <p class="mb-2">Base path: <code>/jobs/msftgeo/versions/{major}/{major}_{minor}/</code> (e.g., <code>/jobs/msftgeo/versions/1/1_2/</code>)</p>
+
+        <div class="dataset-grid">
+          <div class="dataset-card" data-category="hdfs" data-name="filtered_entities">
+            <h4>filtered_entities <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/filtered_entities"><code>/jobs/msftgeo/versions/1/1_2/filtered_entities</code></a>
+            <p class="ds-desc">Raw Bing entities filtered by type.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>filterByType</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="geo_entities">
+            <h4>geo_entities <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/geo_entities"><code>/jobs/msftgeo/versions/1/1_2/geo_entities</code></a>
+            <p class="ds-desc">Final geo entities after all processing.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingoEtl (final)</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="relationship_graph">
+            <h4>relationship_graph <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/02_relationship_graph_lid"><code>/jobs/msftgeo/versions/1/1_2/02_relationship_graph_lid</code></a>
+            <p class="ds-desc">Entity relationships with LIDs.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>multiple stages</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="admin_chain_relationships">
+            <h4>admin_chain_relationships <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/admin_chain_relationships"><code>/jobs/msftgeo/versions/1/1_2/admin_chain_relationships</code></a>
+            <p class="ds-desc">Admin chain relationships.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>generateAdminChainBasedRelationships</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="id_mapping_with_history">
+            <h4>id_mapping_with_history <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/id_mapping_with_history/%23LATEST"><code>/jobs/msftgeo/versions/1/1_2/id_mapping_with_history/#LATEST</code></a>
+            <p class="ds-desc">BID-to-LID mapping history.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>GenerateGeoEntities</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="standardizedBingGeo">
+            <h4>standardizedBingGeo <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/standardizedBingGeo"><code>/jobs/msftgeo/versions/1/1_2/standardizedBingGeo</code></a>
+            <p class="ds-desc">Standardized geo data.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>generateStandardizedBingGeo + append</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="stylized_geo">
+            <h4>stylized_geo <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/stylized_geo"><code>/jobs/msftgeo/versions/1/1_2/stylized_geo</code></a>
+            <p class="ds-desc">Stylized geo names.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>generateStylizedName merge</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="geo_polygon_info">
+            <h4>geo_polygon_info <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/geo_polygon_info"><code>/jobs/msftgeo/versions/1/1_2/geo_polygon_info</code></a>
+            <p class="ds-desc">Polygon geometry data.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>toGeoPolygonInfo</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="market_area_id_mapping">
+            <h4>market_area_id_mapping <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/market_area_id_mapping/%23LATEST"><code>/jobs/msftgeo/versions/1/1_2/market_area_id_mapping/#LATEST</code></a>
+            <p class="ds-desc">Market area ID mappings.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>generateMarketAreas</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="validation">
+            <h4>validation <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/validation"><code>/jobs/msftgeo/versions/1/1_2/validation</code></a>
+            <p class="ds-desc">Validation reports.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>validate</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="datapack">
+            <h4>datapack <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/datapack"><code>/jobs/msftgeo/versions/1/1_2/datapack</code></a>
+            <p class="ds-desc">REST.li datapack.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>generateDatapackForRestli</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="hdfs" data-name="i18n">
+            <h4>i18n <span class="badge badge-amber">HDFS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/versions/1/1_2/i18n"><code>/jobs/msftgeo/versions/1/1_2/i18n</code></a>
+            <p class="ds-desc">Internationalization property files.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>toProperties</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Venice Stores -->
+      <div class="section fade-in" id="section-venice" data-category="venice">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--accent-light); color: var(--accent);">&#x1F5C4;</div>
+          <h2>Venice Stores</h2>
+          <span class="badge badge-green">VENICE</span>
+        </div>
+
+        <div class="dataset-grid">
+          <div class="dataset-card" data-category="venice" data-name="BingGeoEntities">
+            <h4>BingGeoEntities <span class="badge badge-green">VENICE</span></h4>
+            <p class="ds-desc">Primary entity lookup store.</p>
+            <div class="ds-meta mb-1">
+              <span>Key: <strong>LID</strong></span>
+            </div>
+            <p class="text-xs" style="color: var(--text-muted);">Fields: GeoEntity (name, type, adminChain, latLong, etc.)</p>
+          </div>
+
+          <div class="dataset-card" data-category="venice" data-name="StylizedGeoNames">
+            <h4>StylizedGeoNames <span class="badge badge-green">VENICE</span></h4>
+            <p class="ds-desc">Localized display names.</p>
+            <div class="ds-meta mb-1">
+              <span>Key: <strong>LID + locale</strong></span>
+            </div>
+            <p class="text-xs" style="color: var(--text-muted);">Fields: stylized name string</p>
+          </div>
+
+          <div class="dataset-card" data-category="venice" data-name="StandardizedBingGeo">
+            <h4>StandardizedBingGeo <span class="badge badge-green">VENICE</span></h4>
+            <p class="ds-desc">Enriched geo records.</p>
+            <div class="ds-meta mb-1">
+              <span>Key: <strong>LID</strong></span>
+            </div>
+            <p class="text-xs" style="color: var(--text-muted);">Fields: standardized record with city list, member counts</p>
+          </div>
+
+          <div class="dataset-card" data-category="venice" data-name="GeoPolygonInfo">
+            <h4>GeoPolygonInfo <span class="badge badge-green">VENICE</span></h4>
+            <p class="ds-desc">Geographic polygon data.</p>
+            <div class="ds-meta mb-1">
+              <span>Key: <strong>LID</strong></span>
+            </div>
+            <p class="text-xs" style="color: var(--text-muted);">Fields: polygon boundaries, area</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Custom CSV Files -->
+      <div class="section fade-in" id="section-csv" data-category="csv">
+        <div class="section-header">
+          <div class="section-icon" style="background: #ede9fe; color: #7c3aed;">&#x1F4CB;</div>
+          <h2>Custom CSV Files</h2>
+          <span class="badge badge-purple">CSV</span>
+        </div>
+        <p class="mb-2">Base path: <code>bingo-offline-azkaban/src/main/resources/custom_data/1_2/</code></p>
+
+        <div class="dataset-grid">
+          <div class="dataset-card" data-category="csv" data-name="market_areas.csv">
+            <h4>market_areas.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Market area definitions with LID, name, aliases, country, member BIDs, population, coordinates. ~700 entries.</p>
+            <details class="collapsible-preview">
+              <summary>Preview sample data</summary>
+              <pre><code>lid,status,remapLid,name,aliases,countryISOCode,bingoIds,parentIds,population,lat,lon,comments,referenceId
+90000004,ACTIVE,,Greater Abilene Area,"Abilene, Texas Area",US,106194486;105759817;100161505,,170219,32.428383,-99.74551,,10180
+90000007,ACTIVE,,Greater Boston,Boston Metropolitan Area;Greater Boston Area,US,100183986;100890906;...,,8233270,42.36041,-71.05798,,14460
+90000014,ACTIVE,,Greater Chicago Area,Chicagoland;Greater Chicago Area,US,101267587;101667623;...,,9901711,41.948055,-87.655754,,36860</code></pre>
+            </details>
+          </div>
+
+          <div class="dataset-card" data-category="csv" data-name="country_clusters.csv">
+            <h4>country_clusters.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Country cluster definitions (e.g., EMEA, APAC regions).</p>
+          </div>
+
+          <div class="dataset-card" data-category="csv" data-name="city_blacklist.csv">
+            <h4>city_blacklist.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Cities excluded from typeahead/suggestions.</p>
+          </div>
+
+          <div class="dataset-card" data-category="csv" data-name="entity_name_hotfix.csv">
+            <h4>entity_name_hotfix.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Manual name corrections applied during EntityNameHotfix.</p>
+          </div>
+
+          <div class="dataset-card" data-category="csv" data-name="gdpr_countries.csv">
+            <h4>gdpr_countries.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Countries subject to GDPR regulations.</p>
+          </div>
+
+          <div class="dataset-card" data-category="csv" data-name="relationship_hotfix.csv">
+            <h4>relationship_hotfix.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Manual relationship corrections.</p>
+          </div>
+
+          <div class="dataset-card" data-category="csv" data-name="official_city_allowlist.csv">
+            <h4>official_city_allowlist.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Curated list of official cities.</p>
+          </div>
+
+          <div class="dataset-card" data-category="csv" data-name="purged_entity_hotfix.csv">
+            <h4>purged_entity_hotfix.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Hotfixes for purged entities.</p>
+          </div>
+
+          <div class="dataset-card" data-category="csv" data-name="translation_correction.csv">
+            <h4>translation_correction.csv <span class="badge badge-purple">CSV</span></h4>
+            <p class="ds-desc">Translation corrections per locale.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Analysis Outputs -->
+      <div class="section fade-in" id="section-analysis" data-category="analysis">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--danger-light); color: var(--danger);">&#x1F4CA;</div>
+          <h2>Analysis Outputs</h2>
+          <span class="badge badge-red">ANALYSIS</span>
+        </div>
+        <p class="mb-2">Base path: <code>/jobs/msftgeo/analysis/{major}/{major}_{minor}/</code></p>
+
+        <div class="dataset-grid">
+          <div class="dataset-card" data-category="analysis" data-name="bingo_member_count">
+            <h4>bingo_member_count <span class="badge badge-red">ANALYSIS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/analysis/1/1_2/bingo_member_count/%23LATEST"><code>/jobs/msftgeo/analysis/1/1_2/bingo_member_count/#LATEST</code></a>
+            <p class="ds-desc">Member count per geo entity.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-analysis-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="analysis" data-name="typeahead blocklist">
+            <h4>typeahead blocklist <span class="badge badge-red">ANALYSIS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/analysis/1/1_2/typeahead_blacklist"><code>/jobs/msftgeo/analysis/1/1_2/typeahead_blacklist</code></a>
+            <p class="ds-desc">Entities blocked from typeahead.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-analysis-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="analysis" data-name="pillar_count">
+            <h4>pillar_count <span class="badge badge-red">ANALYSIS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/analysis/1/1_2/pillar_count"><code>/jobs/msftgeo/analysis/1/1_2/pillar_count</code></a>
+            <p class="ds-desc">Entity counts by type and country.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-analysis-azkaban</strong></span>
+            </div>
+          </div>
+
+          <div class="dataset-card" data-category="analysis" data-name="sanity_check_metrics">
+            <h4>sanity_check_metrics <span class="badge badge-red">ANALYSIS</span></h4>
+            <a class="ds-path" href="http://go/hdfs%20/jobs/msftgeo/analysis/1/1_2/sanity_check_metrics"><code>/jobs/msftgeo/analysis/1/1_2/sanity_check_metrics</code></a>
+            <p class="ds-desc">Data quality metrics.</p>
+            <div class="ds-meta">
+              <span>Producer: <strong>bingo-analysis-azkaban</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HDFS Commands Reference -->
+      <div class="section fade-in" id="section-commands">
+        <div class="section-header">
+          <div class="section-icon" style="background: #f1f5f9; color: #64748b;">&#x2328;</div>
+          <h2>HDFS Commands Reference</h2>
+        </div>
+        <p class="mb-2">Common <code>hdfs-cli</code> commands for inspecting bingo-offline datasets.</p>
+
+        <div class="cmd-ref">
+          <pre><code><span class="cmd-comment"># List contents</span>
+hdfs-cli -u msftgeo ls /jobs/msftgeo/versions/1/1_2/
+
+<span class="cmd-comment"># View Avro schema</span>
+hdfs-cli -u msftgeo avro-schema dalids:///stz_derived_mp.stz_derived_taxonomy_geo_entities
+
+<span class="cmd-comment"># Sample records</span>
+hdfs-cli -u msftgeo avro-cat dalids:///stz_derived_mp.stz_derived_taxonomy_geo_entities 2&gt;/dev/null | head -5
+
+<span class="cmd-comment"># Check file size</span>
+hdfs-cli -u msftgeo du /jobs/msftgeo/versions/1/1_2/geo_entities</code></pre>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      bingo-offline tutorial &middot; LinkedIn Geo Infrastructure &middot;
+      <a href="http://go/projbingo">go/projbingo</a> &middot;
+      <a href="http://go/offlinegeo">go/offlinegeo</a>
+    </div>
+  </footer>
+
+  <script>
+    /* === Dark mode === */
+    (function() {
+      var saved = localStorage.getItem('bingo-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', 'dark');
+      updateIcon();
+    })();
+    function toggleTheme() {
+      var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('bingo-theme', t);
+      updateIcon();
+    }
+    function updateIcon() {
+      var el = document.querySelector('.theme-icon');
+      if (el) el.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+    }
+
+    /* === Accordion === */
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.accordion-trigger').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!expanded));
+          var content = btn.nextElementSibling;
+          if (expanded) { content.style.maxHeight = '0'; }
+          else { content.style.maxHeight = content.scrollHeight + 'px'; }
+        });
+      });
+
+      /* === Scroll fade-in === */
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.fade-in').forEach(function(el) { obs.observe(el); });
+
+      /* === Dataset Search & Filter === */
+      var searchInput = document.getElementById('dataset-search');
+      var chips = document.querySelectorAll('#filter-chips .chip');
+      var sections = document.querySelectorAll('.section[data-category]');
+      var allCards = document.querySelectorAll('.dataset-card');
+      var noResults = document.getElementById('no-results');
+      var commandSection = document.getElementById('section-commands');
+      var activeFilter = 'all';
+
+      function applyFilters() {
+        var query = searchInput.value.toLowerCase().trim();
+        var totalVisible = 0;
+
+        sections.forEach(function(section) {
+          var category = section.getAttribute('data-category');
+          var cards = section.querySelectorAll('.dataset-card');
+          var sectionVisible = 0;
+
+          // Check if section matches category filter
+          var categoryMatch = (activeFilter === 'all' || activeFilter === category);
+
+          cards.forEach(function(card) {
+            var name = (card.getAttribute('data-name') || '').toLowerCase();
+            var desc = (card.querySelector('.ds-desc') || {}).textContent || '';
+            desc = desc.toLowerCase();
+            var path = (card.querySelector('.ds-path') || {}).textContent || '';
+            path = path.toLowerCase();
+
+            var textMatch = !query || name.indexOf(query) !== -1 || desc.indexOf(query) !== -1 || path.indexOf(query) !== -1;
+
+            if (categoryMatch && textMatch) {
+              card.style.display = '';
+              sectionVisible++;
+              totalVisible++;
+            } else {
+              card.style.display = 'none';
+            }
+          });
+
+          // Show/hide entire section
+          if (sectionVisible > 0) {
+            section.style.display = '';
+          } else {
+            section.style.display = 'none';
+          }
+        });
+
+        // Show/hide commands section based on filter
+        if (commandSection) {
+          if (activeFilter === 'all' || activeFilter === 'hdfs') {
+            commandSection.style.display = '';
+          } else {
+            commandSection.style.display = 'none';
+          }
+        }
+
+        // No results message
+        if (totalVisible === 0) {
+          noResults.classList.add('visible');
+        } else {
+          noResults.classList.remove('visible');
+        }
+      }
+
+      searchInput.addEventListener('input', applyFilters);
+
+      chips.forEach(function(chip) {
+        chip.addEventListener('click', function() {
+          chips.forEach(function(c) { c.classList.remove('active'); });
+          chip.classList.add('active');
+          activeFilter = chip.getAttribute('data-filter');
+          applyFilters();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "demo-server"
+version = "0.1.0"
+requires-python = ">=3.8"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "click",
+    "python-multipart",
+    "itsdangerous",
+]
+
+[project.scripts]
+demo-server = "demo_server.cli:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pipeline Deep Dive — bingo-offline Tutorial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..800&family=DM+Sans:opsz,wght@9..40,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================
+       BINGO-OFFLINE TUTORIAL DESIGN SYSTEM
+       Theme: Meridian — Cartographic Data Observatory
+       ============================================= */
+
+    /* --- Variables --- */
+    :root {
+      --bg: #f0f2f5;
+      --grid-color: rgba(10,102,194,0.035);
+      --surface: #ffffff;
+      --surface-hover: #f8fafc;
+      --text: #1a1a2e;
+      --text-sec: #475569;
+      --text-muted: #94a3b8;
+      --text-inv: #ffffff;
+      --primary: #0a66c2;
+      --primary-hover: #004182;
+      --primary-light: #dbeafe;
+      --primary-glow: rgba(10,102,194,0.08);
+      --accent: #057642;
+      --accent-light: #dcfce7;
+      --warn: #d97706;
+      --warn-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 4px;
+      --nav-h: 60px;
+      --max-w: 1240px;
+      --font-d: 'Outfit', -apple-system, system-ui, sans-serif;
+      --font-b: 'DM Sans', -apple-system, system-ui, sans-serif;
+      --font-m: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+      --mod-blue: #0a66c2;
+      --mod-purple: #7c3aed;
+      --mod-amber: #d97706;
+      --mod-green: #059669;
+      --mod-red: #dc2626;
+      --mod-gray: #64748b;
+      --mod-teal: #0891b2;
+      --mod-indigo: #4f46e5;
+    }
+    [data-theme="dark"] {
+      --bg: #0a101e;
+      --grid-color: rgba(88,166,255,0.025);
+      --surface: #111827;
+      --surface-hover: #1e293b;
+      --text: #e2e8f0;
+      --text-sec: #94a3b8;
+      --text-muted: #475569;
+      --text-inv: #0a101e;
+      --primary: #58a6ff;
+      --primary-hover: #79b8ff;
+      --primary-light: #172554;
+      --primary-glow: rgba(88,166,255,0.1);
+      --accent: #4ade80;
+      --accent-light: #052e16;
+      --warn: #fbbf24;
+      --warn-light: #422006;
+      --danger: #f87171;
+      --danger-light: #450a0a;
+      --border: #1e293b;
+      --border-strong: #334155;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 24px); }
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Map grid overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+    /* Ambient top glow */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; height: 500px;
+      background: linear-gradient(180deg, var(--primary-glow) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* --- Typography --- */
+    h1, h2, h3, h4, h5 { font-family: var(--font-d); line-height: 1.25; color: var(--text); }
+    h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.025em; }
+    h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 1rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+    h4 { font-size: 0.95rem; font-weight: 600; }
+    p { color: var(--text-sec); max-width: 72ch; }
+    a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--primary-hover); text-decoration: underline; }
+    code {
+      font-family: var(--font-m); font-size: 0.84em;
+      background: var(--primary-light); color: var(--primary);
+      padding: 2px 7px; border-radius: var(--radius-xs);
+    }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-m); font-size: 0.84rem; line-height: 1.7;
+    }
+    pre code { background: none; padding: 0; color: var(--text); font-size: 1em; }
+
+    /* --- Layout --- */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .page-content { padding: calc(var(--nav-h) + 2rem) 0 4rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 900px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      h1 { font-size: 1.75rem; }
+      .container { padding: 0 1rem; }
+    }
+
+    /* --- Nav --- */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      z-index: 100; display: flex; align-items: center;
+    }
+    [data-theme="dark"] nav { background: rgba(10,16,30,0.82); }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem;
+      width: 100%; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-brand {
+      font-family: var(--font-d); font-weight: 700; font-size: 1.05rem;
+      color: var(--primary); margin-right: 1.5rem; white-space: nowrap;
+      display: flex; align-items: center; gap: 0.5rem; text-decoration: none;
+    }
+    .nav-brand:hover { text-decoration: none; color: var(--primary); }
+    .nav-brand svg { width: 24px; height: 24px; fill: currentColor; flex-shrink: 0; }
+    .nav-links { display: flex; gap: 0.25rem; overflow-x: auto; flex: 1; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      padding: 0.4rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.82rem; font-weight: 500; white-space: nowrap;
+      color: var(--text-sec); transition: all 0.2s; text-decoration: none;
+    }
+    .nav-links a:hover { background: var(--primary-light); color: var(--primary); text-decoration: none; }
+    .nav-links a[aria-current="page"] {
+      background: var(--primary); color: var(--text-inv) !important;
+    }
+    .theme-toggle {
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 20px; cursor: pointer; padding: 6px 12px;
+      font-size: 0.95rem; display: flex; align-items: center; gap: 4px;
+      transition: all 0.25s; margin-left: auto; flex-shrink: 0; line-height: 1;
+    }
+    .theme-toggle:hover { border-color: var(--primary); background: var(--primary-light); }
+    @media (max-width: 768px) {
+      .nav-links a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+      .nav-brand { font-size: 0.9rem; margin-right: 0.75rem; }
+      .nav-brand span { display: none; }
+    }
+
+    /* --- Hero --- */
+    .hero {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2.5rem;
+      margin-bottom: 2rem; position: relative; overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: heroIn 0.6s ease forwards;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -50px; right: -50px;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 { margin-bottom: 0.75rem; position: relative; }
+    .hero p { font-size: 1.05rem; position: relative; }
+    .hero .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-top: 0.25rem; }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Stats Strip --- */
+    .stats-strip { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; position: relative; }
+    .stat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.75rem 1.25rem; background: var(--primary-light);
+      border-radius: var(--radius-sm); min-width: 90px;
+    }
+    .stat-value {
+      font-family: var(--font-d); font-size: 1.5rem; font-weight: 700;
+      color: var(--primary); line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 0.72rem; color: var(--text-sec); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;
+    }
+
+    /* --- Card --- */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); transition: all 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+    .card-accent { border-left: 4px solid var(--primary); }
+    .card h3 { margin-bottom: 0.5rem; }
+    .card p { font-size: 0.9rem; }
+
+    /* --- Section --- */
+    .section { margin-bottom: 2.5rem; }
+    .section-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-header h2 { margin-bottom: 0; }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    /* --- Accordion --- */
+    .accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .accordion-item { border-bottom: 1px solid var(--border); }
+    .accordion-item:last-child { border-bottom: none; }
+    .accordion-trigger {
+      width: 100%; padding: 0.85rem 1.25rem; background: var(--surface);
+      border: none; cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; font-family: var(--font-b);
+      font-size: 0.92rem; font-weight: 500; color: var(--text);
+      transition: background 0.2s; text-align: left;
+    }
+    .accordion-trigger:hover { background: var(--surface-hover); }
+    .accordion-trigger .arrow {
+      transition: transform 0.3s; font-size: 0.75rem; color: var(--text-muted);
+      flex-shrink: 0; margin-left: 0.75rem;
+    }
+    .accordion-trigger[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+    .accordion-content {
+      max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    }
+    .accordion-body { padding: 1rem 1.25rem; background: var(--surface-hover); }
+
+    /* --- Table --- */
+    .table-wrap {
+      overflow-x: auto; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--surface);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    th {
+      text-align: left; padding: 0.7rem 1rem;
+      background: var(--surface-hover); font-weight: 600;
+      font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-sec); border-bottom: 2px solid var(--border);
+      position: sticky; top: 0;
+    }
+    td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+
+    /* --- Badge --- */
+    .badge {
+      display: inline-flex; padding: 2px 8px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: var(--accent-light); color: var(--accent); }
+    .badge-amber { background: var(--warn-light); color: var(--warn); }
+    .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-purple { background: #ede9fe; color: #7c3aed; }
+    .badge-gray { background: #f1f5f9; color: #64748b; }
+    [data-theme="dark"] .badge-purple { background: #2e1065; }
+    [data-theme="dark"] .badge-gray { background: #1e293b; }
+
+    /* --- Search --- */
+    .search-box { position: relative; max-width: 400px; }
+    .search-box input {
+      width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-family: var(--font-b);
+      font-size: 0.87rem; color: var(--text); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute; left: 0.85rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      font-size: 0.9rem; pointer-events: none;
+    }
+
+    /* --- Filter Chips --- */
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .chip {
+      padding: 0.4rem 0.85rem; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: all 0.2s; color: var(--text-sec); font-family: var(--font-b);
+    }
+    .chip:hover, .chip.active {
+      background: var(--primary); color: var(--text-inv); border-color: var(--primary);
+    }
+
+    /* --- Tooltip --- */
+    [data-tip] { position: relative; cursor: help; }
+    [data-tip]::after {
+      content: attr(data-tip);
+      visibility: hidden; opacity: 0;
+      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%);
+      background: var(--text); color: var(--bg); padding: 4px 10px;
+      border-radius: var(--radius-xs); font-size: 0.76rem;
+      white-space: nowrap; transition: all 0.2s; z-index: 50;
+      pointer-events: none;
+    }
+    [data-tip]:hover::after { visibility: visible; opacity: 1; }
+
+    /* --- SVG Diagram --- */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; overflow-x: auto;
+    }
+    .diagram-wrap svg { max-width: 100%; height: auto; display: block; }
+    .diagram-wrap svg text {
+      font-family: var(--font-d); fill: var(--text);
+    }
+
+    /* --- Slide-out Panel --- */
+    .panel-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+      z-index: 89; opacity: 0; visibility: hidden; transition: all 0.3s;
+    }
+    .panel-overlay.open { opacity: 1; visibility: visible; }
+    .detail-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 400px; max-width: 90vw; background: var(--surface);
+      border-left: 1px solid var(--border); box-shadow: var(--shadow-lg);
+      transform: translateX(100%); transition: transform 0.3s ease;
+      z-index: 90; overflow-y: auto; padding: calc(var(--nav-h) + 1.5rem) 1.5rem 1.5rem;
+    }
+    .detail-panel.open { transform: translateX(0); }
+    .panel-close {
+      position: absolute; top: calc(var(--nav-h) + 0.75rem); right: 1rem;
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 50%; width: 32px; height: 32px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--text-sec); transition: all 0.2s;
+    }
+    .panel-close:hover { background: var(--danger-light); color: var(--danger); }
+
+    /* --- Quick Links --- */
+    .quick-links { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; position: relative; }
+    .quick-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+    }
+    .quick-link:hover {
+      border-color: var(--primary); color: var(--primary);
+      background: var(--primary-light); text-decoration: none;
+    }
+
+    /* --- Flow Strip --- */
+    .flow-strip {
+      display: flex; align-items: center; gap: 0; overflow-x: auto;
+      padding: 1rem 0; scrollbar-width: none;
+    }
+    .flow-strip::-webkit-scrollbar { display: none; }
+    .flow-step {
+      padding: 0.45rem 0.9rem; background: var(--primary-light);
+      color: var(--primary); font-size: 0.8rem; font-weight: 600;
+      white-space: nowrap; border-radius: var(--radius-xs);
+    }
+    .flow-arrow {
+      color: var(--text-muted); padding: 0 0.4rem;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    /* --- Sidebar Layout --- */
+    .with-sidebar {
+      display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem;
+    }
+    .sidebar {
+      position: sticky; top: calc(var(--nav-h) + 1.5rem);
+      align-self: start; height: fit-content;
+    }
+    .sidebar-nav a {
+      display: block; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.87rem; color: var(--text-sec); border-left: 3px solid transparent;
+      transition: all 0.2s; text-decoration: none; margin-bottom: 2px;
+    }
+    .sidebar-nav a:hover { background: var(--surface-hover); color: var(--text); text-decoration: none; }
+    .sidebar-nav a.active {
+      background: var(--primary-light); color: var(--primary);
+      border-left-color: var(--primary); font-weight: 600;
+    }
+    @media (max-width: 900px) {
+      .with-sidebar { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static; display: flex; gap: 0.5rem; overflow-x: auto;
+        padding-bottom: 0.5rem; scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar-nav { display: flex; gap: 0.25rem; }
+      .sidebar-nav a { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; margin-bottom: 0; }
+      .sidebar-nav a.active { border-bottom-color: var(--primary); border-left-color: transparent; }
+    }
+
+    /* --- Animations --- */
+    .fade-in {
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in:nth-child(2) { transition-delay: 0.05s; }
+    .fade-in:nth-child(3) { transition-delay: 0.1s; }
+    .fade-in:nth-child(4) { transition-delay: 0.15s; }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* --- Footer --- */
+    footer {
+      border-top: 1px solid var(--border); padding: 2rem 0;
+      text-align: center; color: var(--text-muted); font-size: 0.82rem;
+      position: relative; z-index: 1;
+    }
+    footer a { color: var(--text-sec); }
+
+    /* --- Utility --- */
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+    .mt-4 { margin-top: 2rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .gap-sm { gap: 0.5rem; }
+    .gap-md { gap: 1rem; }
+    .text-sm { font-size: 0.85rem; }
+    .text-xs { font-size: 0.78rem; }
+    .font-mono { font-family: var(--font-m); }
+    .font-display { font-family: var(--font-d); }
+    .fw-600 { font-weight: 600; }
+    .color-blue { color: var(--mod-blue); }
+    .color-purple { color: var(--mod-purple); }
+    .color-amber { color: var(--mod-amber); }
+    .color-green { color: var(--mod-green); }
+    .color-red { color: var(--mod-red); }
+    .color-gray { color: var(--mod-gray); }
+    .color-teal { color: var(--mod-teal); }
+    .color-indigo { color: var(--mod-indigo); }
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    /* =============================================
+       PAGE-SPECIFIC: Pipeline DAG
+       ============================================= */
+
+    .filter-controls {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .filter-controls .filter-bar { margin-bottom: 0; flex: 1; min-width: 300px; }
+    .filter-controls .search-box { min-width: 220px; }
+
+    /* DAG Container */
+    .dag-container {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); position: relative;
+      overflow: auto; box-shadow: var(--shadow);
+      min-height: 400px;
+    }
+    .dag-canvas {
+      position: relative; padding: 2rem;
+      min-width: 100%;
+    }
+
+    /* DAG Nodes */
+    .dag-node {
+      position: absolute;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-size: 0.78rem;
+      font-weight: 500;
+      white-space: nowrap;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: var(--shadow);
+    }
+    .dag-node:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+      z-index: 3;
+    }
+    .dag-node.selected {
+      box-shadow: 0 0 0 3px var(--primary-glow), var(--shadow-md);
+    }
+    .dag-node.dimmed {
+      opacity: 0.2;
+      pointer-events: none;
+    }
+    .dag-node .node-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .dag-node .node-label {
+      font-family: var(--font-m); font-size: 0.73rem;
+    }
+    .dag-node .node-mem {
+      font-size: 0.65rem; color: var(--text-muted); margin-left: auto; padding-left: 0.4rem;
+    }
+
+    /* Stage colors on nodes */
+    .dag-node[data-stage="ingestion"] { border-color: var(--mod-teal); }
+    .dag-node[data-stage="ingestion"] .node-dot { background: var(--mod-teal); }
+    .dag-node[data-stage="core"] { border-color: var(--mod-blue); }
+    .dag-node[data-stage="core"] .node-dot { background: var(--mod-blue); }
+    .dag-node[data-stage="virtual"] { border-color: var(--mod-purple); }
+    .dag-node[data-stage="virtual"] .node-dot { background: var(--mod-purple); }
+    .dag-node[data-stage="enrichment"] { border-color: var(--mod-amber); }
+    .dag-node[data-stage="enrichment"] .node-dot { background: var(--mod-amber); }
+    .dag-node[data-stage="hotfix"] { border-color: var(--mod-red); }
+    .dag-node[data-stage="hotfix"] .node-dot { background: var(--mod-red); }
+    .dag-node[data-stage="publishing"] { border-color: var(--mod-green); }
+    .dag-node[data-stage="publishing"] .node-dot { background: var(--mod-green); }
+    .dag-node[data-stage="validation"] { border-color: var(--mod-indigo); }
+    .dag-node[data-stage="validation"] .node-dot { background: var(--mod-indigo); }
+
+    /* SVG edges */
+    .dag-edges {
+      position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;
+    }
+    .dag-edges path {
+      fill: none; stroke: var(--border-strong); stroke-width: 1.5;
+      transition: opacity 0.25s;
+    }
+    .dag-edges path.dimmed { opacity: 0.1; }
+    .dag-edges path.highlighted { stroke: var(--primary); stroke-width: 2; }
+
+    /* Stage legend */
+    .stage-legend {
+      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;
+      padding: 0.75rem 1rem; background: var(--surface-hover);
+      border-radius: var(--radius-sm); font-size: 0.78rem;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 0.35rem; color: var(--text-sec);
+    }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+
+    /* Detail panel extras */
+    .detail-panel h3 { margin-bottom: 1rem; }
+    .detail-field { margin-bottom: 0.75rem; }
+    .detail-field label {
+      display: block; font-size: 0.72rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-muted); margin-bottom: 0.2rem;
+    }
+    .detail-field .value {
+      font-size: 0.87rem; color: var(--text);
+    }
+    .detail-field code { font-size: 0.78rem; }
+    .detail-deps {
+      display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.25rem;
+    }
+    .detail-deps .dep-chip {
+      padding: 2px 8px; border-radius: 12px; font-size: 0.72rem;
+      background: var(--primary-light); color: var(--primary); font-weight: 500;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .detail-deps .dep-chip:hover {
+      background: var(--primary); color: var(--text-inv);
+    }
+
+    /* Chip stage-colored variants */
+    .chip[data-stage="ingestion"].active { background: var(--mod-teal); border-color: var(--mod-teal); }
+    .chip[data-stage="core"].active { background: var(--mod-blue); border-color: var(--mod-blue); }
+    .chip[data-stage="virtual"].active { background: var(--mod-purple); border-color: var(--mod-purple); }
+    .chip[data-stage="enrichment"].active { background: var(--mod-amber); border-color: var(--mod-amber); }
+    .chip[data-stage="hotfix"].active { background: var(--mod-red); border-color: var(--mod-red); }
+    .chip[data-stage="publishing"].active { background: var(--mod-green); border-color: var(--mod-green); }
+    .chip[data-stage="validation"].active { background: var(--mod-indigo); border-color: var(--mod-indigo); }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="1-overview.html">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        <span>bingo-offline</span>
+      </a>
+      <div class="nav-links">
+        <a href="1-overview.html">Overview</a>
+        <a href="2-pipeline.html" aria-current="page">Pipeline</a>
+        <a href="3-modules.html">Modules</a>
+        <a href="4-geo-entity.html">Geo Entity</a>
+        <a href="5-datasets.html">Datasets</a>
+        <a href="6-operations.html">Operations</a>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+        <span class="theme-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Slide-out detail panel -->
+  <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+  <div class="detail-panel" id="detailPanel">
+    <button class="panel-close" onclick="closePanel()">&times;</button>
+    <div id="panelContent"></div>
+  </div>
+
+  <main class="page-content">
+    <div class="container">
+      <!-- Hero -->
+      <div class="hero">
+        <h1>Pipeline Deep Dive</h1>
+        <p>The bingoEtl DAG orchestrates ~35 Spark jobs in a carefully ordered pipeline, transforming raw Microsoft Bing geographic data into LinkedIn's geo infrastructure.</p>
+        <div class="stats-strip">
+          <div class="stat">
+            <div class="stat-value">~35</div>
+            <div class="stat-label">Tasks</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">7</div>
+            <div class="stat-label">Stages</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">64g</div>
+            <div class="stat-label">Max Memory</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">7d</div>
+            <div class="stat-label">Timeout</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="section fade-in">
+        <div class="filter-controls">
+          <div class="filter-bar" id="filterBar">
+            <button class="chip active" data-stage="all" onclick="filterByStage('all', this)">All</button>
+            <button class="chip" data-stage="ingestion" onclick="filterByStage('ingestion', this)">Ingestion</button>
+            <button class="chip" data-stage="core" onclick="filterByStage('core', this)">Core ETL</button>
+            <button class="chip" data-stage="virtual" onclick="filterByStage('virtual', this)">Virtual Areas</button>
+            <button class="chip" data-stage="enrichment" onclick="filterByStage('enrichment', this)">Enrichment</button>
+            <button class="chip" data-stage="hotfix" onclick="filterByStage('hotfix', this)">Hotfixes</button>
+            <button class="chip" data-stage="publishing" onclick="filterByStage('publishing', this)">Publishing</button>
+            <button class="chip" data-stage="validation" onclick="filterByStage('validation', this)">Validation</button>
+          </div>
+          <div class="search-box">
+            <span class="search-icon">&#x1F50D;</span>
+            <input type="text" id="dagSearch" placeholder="Search tasks..." oninput="searchNodes(this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- DAG Visualization -->
+      <div class="section fade-in">
+        <div class="dag-container" id="dagContainer">
+          <div class="dag-canvas" id="dagCanvas">
+            <svg class="dag-edges" id="dagEdges"></svg>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="stage-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--mod-teal)"></div> Ingestion</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--mod-blue)"></div> Core ETL</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--mod-purple)"></div> Virtual Areas</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--mod-amber)"></div> Enrichment</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--mod-red)"></div> Hotfixes</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--mod-green)"></div> Publishing</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--mod-indigo)"></div> Validation</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      bingo-offline tutorial &middot; LinkedIn Geo Infrastructure &middot;
+      <a href="http://go/projbingo">go/projbingo</a> &middot;
+      <a href="http://go/offlinegeo">go/offlinegeo</a>
+    </div>
+  </footer>
+
+  <script>
+    /* === Dark mode === */
+    (function() {
+      var saved = localStorage.getItem('bingo-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', 'dark');
+      updateIcon();
+    })();
+    function toggleTheme() {
+      var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('bingo-theme', t);
+      updateIcon();
+    }
+    function updateIcon() {
+      var el = document.querySelector('.theme-icon');
+      if (el) el.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+    }
+
+    /* === Accordion === */
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.accordion-trigger').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!expanded));
+          var content = btn.nextElementSibling;
+          if (expanded) { content.style.maxHeight = '0'; }
+          else { content.style.maxHeight = content.scrollHeight + 'px'; }
+        });
+      });
+
+      /* === Scroll fade-in === */
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.fade-in').forEach(function(el) { obs.observe(el); });
+    });
+
+    /* =============================================
+       PIPELINE DAG DATA & RENDERING
+       ============================================= */
+
+    var TASKS = [
+      // --- Ingestion ---
+      { id: 'copyMsftInboundDataFromWar', label: 'copyMsftInboundData', jobClass: 'shell (holdem only)', stage: 'ingestion', memory: null, inputs: ['WAR HDFS inbound'], outputs: ['HDFS raw Bing data'], deps: [], desc: 'Copies raw Microsoft Bing geographic data from WAR (Web Archive Repository) to HDFS. Only runs in holdem environment.' },
+      { id: 'checkInputsExist', label: 'checkInputsExist', jobClass: 'shell', stage: 'ingestion', memory: null, inputs: ['HDFS raw Bing data'], outputs: ['validated input paths'], deps: ['copyMsftInboundDataFromWar'], desc: 'Validates that all required input datasets exist on HDFS before proceeding with the pipeline.' },
+      { id: 'filterByType', label: 'filterByType', jobClass: 'com.linkedin.geo.FilterEntities', stage: 'ingestion', memory: '32g', inputs: ['raw Bing entities'], outputs: ['filtered entities by type'], deps: ['checkInputsExist'], desc: 'Filters raw Bing entities by geographic type (cities, states, countries, etc.), removing unsupported or invalid entity types.' },
+
+      // --- Core ETL ---
+      { id: 'FindPostcodeSecondaryCity', label: 'FindPostcodeSecondaryCity', jobClass: 'com.linkedin.geo.FindPostcodeSecondaryCity', stage: 'core', memory: '20g', inputs: ['filtered entities'], outputs: ['postcode-city mappings'], deps: ['filterByType'], desc: 'Identifies secondary city associations for postcodes, mapping postal codes to their containing cities.' },
+      { id: 'generateRelationshipGraph', label: 'generateRelationshipGraph', jobClass: 'com.linkedin.geo.GenerateRelationshipGraph', stage: 'core', memory: null, inputs: ['postcode-city mappings'], outputs: ['entity relationship graph'], deps: ['FindPostcodeSecondaryCity'], desc: 'Builds the geographic relationship graph defining parent-child and containment relationships between entities.' },
+      { id: 'generateGeoEntities', label: 'generateGeoEntities', jobClass: 'com.linkedin.geo.GenerateGeoEntities', stage: 'core', memory: '64g', inputs: ['filtered entities', 'relationship graph'], outputs: ['GeoEntity records'], deps: ['filterByType', 'generateRelationshipGraph'], desc: 'Core transformation step: converts filtered Bing entities into LinkedIn GeoEntity format with all base attributes.' },
+      { id: 'populateLid', label: 'populateLid', jobClass: 'com.linkedin.geo.PopulateLid', stage: 'core', memory: null, inputs: ['GeoEntity records'], outputs: ['entities with LinkedIn IDs'], deps: ['generateGeoEntities'], desc: 'Assigns stable LinkedIn IDs (LIDs) to geo entities, maintaining ID continuity across data refreshes.' },
+      { id: 'populateAdminChainLid', label: 'populateAdminChainLid', jobClass: 'com.linkedin.geo.PopulateAdminChainLid', stage: 'core', memory: null, inputs: ['GeoEntity records'], outputs: ['entities with admin chain LIDs'], deps: ['generateGeoEntities'], desc: 'Populates LinkedIn IDs for all entities in each entity\'s administrative chain (city -> state -> country).' },
+      { id: 'populateRelationshipGraphLid', label: 'populateRelationshipGraphLid', jobClass: 'com.linkedin.geo.PopulateRelationshipGraphLid', stage: 'core', memory: null, inputs: ['GeoEntity records'], outputs: ['relationship graph with LIDs'], deps: ['generateGeoEntities'], desc: 'Updates the relationship graph with LinkedIn IDs, replacing Bing IDs with stable LIDs.' },
+      { id: 'populateAdminChainNames', label: 'populateAdminChainNames', jobClass: 'com.linkedin.geo.PopulateAdminChainNames', stage: 'core', memory: null, inputs: ['entities with LIDs'], outputs: ['entities with admin chain names'], deps: ['populateLid'], desc: 'Resolves and populates human-readable names for each entity\'s admin chain (e.g., "San Francisco, California, United States").' },
+      { id: 'generateRelatedEntitiesLid', label: 'generateRelatedEntitiesLid', jobClass: 'com.linkedin.geo.GenerateRelatedEntitiesLid', stage: 'core', memory: null, inputs: ['relationship graph with LIDs'], outputs: ['related entities with LIDs'], deps: ['populateRelationshipGraphLid'], desc: 'Generates related entity lists using LinkedIn IDs from the relationship graph.' },
+      { id: 'toGeoEntity', label: 'toGeoEntity', jobClass: 'com.linkedin.geo.ToGeoEntity', stage: 'core', memory: null, inputs: ['admin chain names', 'admin chain LIDs', 'related entities'], outputs: ['complete GeoEntity Avro'], deps: ['populateAdminChainNames', 'populateAdminChainLid', 'generateRelatedEntitiesLid'], desc: 'Merges all enriched attributes into the final GeoEntity Avro schema, producing complete entity records.' },
+      { id: 'TagPostcodeCountries', label: 'TagPostcodeCountries', jobClass: 'com.linkedin.geo.TagPostcodeCountries', stage: 'core', memory: null, inputs: ['complete GeoEntity Avro'], outputs: ['entities with postcode country tags'], deps: ['toGeoEntity'], desc: 'Tags entities with postcode-level country information for accurate geographic classification.' },
+      { id: 'tagGDPRCountries', label: 'tagGDPRCountries', jobClass: 'com.linkedin.geo.PopulateGeoTags', stage: 'core', memory: null, inputs: ['entities with postcode country tags'], outputs: ['entities with GDPR tags'], deps: ['TagPostcodeCountries'], desc: 'Applies GDPR-relevant country tags to entities for regulatory compliance in data handling.' },
+      { id: 'appendPurgedEntities', label: 'appendPurgedEntities', jobClass: 'com.linkedin.geo.AppendPurgedEntities', stage: 'core', memory: null, inputs: ['entities with GDPR tags'], outputs: ['entities with purged data appended'], deps: ['tagGDPRCountries'], desc: 'Appends previously purged entity records back into the dataset to maintain ID stability and backward compatibility.' },
+      { id: 'appendPurgedRelation', label: 'appendPurgedRelation', jobClass: 'com.linkedin.geo.AppendPurgedRelationship', stage: 'core', memory: null, inputs: ['relationship graph with LIDs'], outputs: ['relationships with purged data'], deps: ['populateRelationshipGraphLid'], desc: 'Appends purged relationship records back into the relationship graph.' },
+
+      // --- Virtual Areas ---
+      { id: 'partialExcludeCountriesFlow', label: 'partialExcludeCountriesFlow', jobClass: 'com.linkedin.geo.MergeDataByCountry', stage: 'virtual', memory: null, inputs: ['entities with purged data', 'relationships with purged data'], outputs: ['country-merged entities'], deps: ['appendPurgedEntities', 'appendPurgedRelation'], desc: 'Merges entity and relationship data by country, applying partial country exclusion rules for virtual area generation.' },
+      { id: 'generateMarketAreas', label: 'generateMarketAreas', jobClass: 'com.linkedin.geo.GenerateMarketAreas', stage: 'virtual', memory: '32g', inputs: ['country-merged entities'], outputs: ['market area entities'], deps: ['partialExcludeCountriesFlow'], desc: 'Generates virtual market area entities (e.g., "Greater San Francisco Bay Area") from configuration and geographic data.' },
+      { id: 'generateTargetAreas', label: 'generateTargetAreas', jobClass: 'com.linkedin.geo.GenerateTargetAreas', stage: 'virtual', memory: '32g', inputs: ['country-merged entities'], outputs: ['target area entities'], deps: ['partialExcludeCountriesFlow'], desc: 'Generates virtual target area entities used for LinkedIn ad targeting and content relevance.' },
+      { id: 'mergeGeoEntities', label: 'mergeGeoEntities', jobClass: 'com.linkedin.geo.MergeGeoEntityAvro', stage: 'virtual', memory: null, inputs: ['market areas', 'target areas', 'base entities'], outputs: ['merged entity dataset'], deps: ['generateMarketAreas', 'generateTargetAreas'], desc: 'Merges generated virtual area entities with the base entity dataset into a unified Avro output.' },
+      { id: 'mergeRelationshipGraph', label: 'mergeRelationshipGraph', jobClass: 'com.linkedin.geo.MergeGeoRelationshipAvro', stage: 'virtual', memory: null, inputs: ['virtual area relationships', 'base relationships'], outputs: ['merged relationship graph'], deps: ['generateMarketAreas', 'generateTargetAreas'], desc: 'Merges virtual area relationships with the base relationship graph.' },
+      { id: 'appendPurgedMarketAreas', label: 'appendPurgedMarketAreas', jobClass: 'com.linkedin.geo.AppendPurgedEntities', stage: 'virtual', memory: null, inputs: ['merged entity dataset'], outputs: ['entities with purged market areas'], deps: ['mergeGeoEntities'], desc: 'Appends purged market area entities to maintain continuity.' },
+      { id: 'appendPurgedMarketAreaRelation', label: 'appendPurgedMktAreaRel', jobClass: 'com.linkedin.geo.AppendPurgedRelationship', stage: 'virtual', memory: null, inputs: ['merged relationship graph'], outputs: ['relationships with purged market areas'], deps: ['mergeRelationshipGraph'], desc: 'Appends purged market area relationships to the merged graph.' },
+
+      // --- Enrichment ---
+      { id: 'generateOverlaps', label: 'generateOverlaps', jobClass: 'com.linkedin.geo.GenerateOverlaps', stage: 'enrichment', memory: null, inputs: ['virtual area entities'], outputs: ['overlap data'], deps: ['appendPurgedMarketAreas', 'appendPurgedMarketAreaRelation'], desc: 'Computes geographic overlaps between entities — which areas overlap with which other areas.' },
+      { id: 'generateSpecialCountryRegions', label: 'generateSpecialCountryRegions', jobClass: 'com.linkedin.geo.GenerateSpecialCountryRegions', stage: 'enrichment', memory: null, inputs: ['overlap data'], outputs: ['special region data'], deps: ['generateOverlaps'], desc: 'Generates special country-level regional groupings (e.g., EU, APAC, EMEA).' },
+      { id: 'generateCountryClusters', label: 'generateCountryClusters', jobClass: 'com.linkedin.geo.GenerateCountryClusters', stage: 'enrichment', memory: null, inputs: ['special region data'], outputs: ['country cluster data'], deps: ['generateSpecialCountryRegions'], desc: 'Creates country cluster groupings for regional analytics and targeting.' },
+      { id: 'populateTimeZoneId', label: 'populateTimeZoneId', jobClass: 'com.linkedin.geo.PopulateTimeZoneId', stage: 'enrichment', memory: '16g', inputs: ['filtered entities', 'country clusters'], outputs: ['entities with timezone IDs'], deps: ['filterByType', 'generateCountryClusters'], desc: 'Populates timezone identifiers for all geographic entities using spatial lookups.' },
+      { id: 'mergeGeoEntityWithTimeZoneId', label: 'mergeGeoEntityWithTZ', jobClass: 'com.linkedin.geo.MergeGeoEntityWithTimeZoneId', stage: 'enrichment', memory: null, inputs: ['entities with timezone IDs'], outputs: ['TZ-enriched entities'], deps: ['populateTimeZoneId'], desc: 'Merges timezone-enriched data back into the main entity dataset.' },
+      { id: 'customizedDataPurge', label: 'customizedDataPurge', jobClass: 'com.linkedin.geo.CustomizedDataPurge', stage: 'enrichment', memory: null, inputs: ['TZ-enriched entities'], outputs: ['purge-applied entities'], deps: ['mergeGeoEntityWithTimeZoneId'], desc: 'Applies customized data purge rules, removing entities or attributes based on business requirements.' },
+
+      // --- Hotfixes ---
+      { id: 'relationshipHotfix', label: 'relationshipHotfix', jobClass: 'com.linkedin.geo.RelationshipHotfix', stage: 'hotfix', memory: null, inputs: ['purge-applied entities'], outputs: ['relationship-fixed entities'], deps: ['customizedDataPurge'], desc: 'Applies manual hotfixes to entity relationships, correcting known data quality issues from the source.' },
+      { id: 'translationCorrection', label: 'translationCorrection', jobClass: 'com.linkedin.geo.TranslationCorrection', stage: 'hotfix', memory: null, inputs: ['relationship-fixed entities'], outputs: ['translation-corrected entities'], deps: ['relationshipHotfix'], desc: 'Corrects translation errors in entity names across locales, applying curated fixes.' },
+      { id: 'entityNameHotfix', label: 'entityNameHotfix', jobClass: 'com.linkedin.geo.EntityNameHotfix', stage: 'hotfix', memory: null, inputs: ['translation-corrected entities'], outputs: ['name-fixed entities'], deps: ['translationCorrection'], desc: 'Applies manual name corrections (spelling, formatting, preferred names) to specific entities.' },
+      { id: 'cleanUpWorkflow', label: 'cleanUpWorkflow', jobClass: 'shell', stage: 'hotfix', memory: null, inputs: ['name-fixed entities', 'country clusters'], outputs: ['cleaned entities'], deps: ['entityNameHotfix', 'generateCountryClusters'], desc: 'Shell-based cleanup workflow that finalizes entity data before publishing steps.' },
+
+      // --- Publishing ---
+      { id: 'toProperties', label: 'toProperties', jobClass: 'com.linkedin.geo.ToProperties', stage: 'publishing', memory: null, inputs: ['cleaned entities'], outputs: ['entity properties'], deps: ['cleanUpWorkflow'], desc: 'Extracts entity properties into a flattened format for downstream consumption.' },
+      { id: 'generateStylizedName', label: 'generateStylizedName', jobClass: '24 locale jobs + merge', stage: 'publishing', memory: null, inputs: ['entity properties'], outputs: ['stylized names (all locales)'], deps: ['toProperties'], desc: 'Generates stylized display names across 24 locales, merging locale-specific formatting rules.' },
+      { id: 'toEntityTypes', label: 'toEntityTypes', jobClass: 'com.linkedin.geo.ToEntityTypes', stage: 'publishing', memory: null, inputs: ['cleaned entities'], outputs: ['entity type mappings'], deps: ['cleanUpWorkflow'], desc: 'Produces entity type classification data for type-based filtering and display.' },
+      { id: 'generateAdminChainBasedRelationships', label: 'generateAdminChainRels', jobClass: 'com.linkedin.geo.GenerateAdminChainBasedRelationship', stage: 'publishing', memory: '64g', inputs: ['cleaned entities'], outputs: ['admin-chain relationships'], deps: ['cleanUpWorkflow'], desc: 'Generates admin-chain-based relationships: parent admin regions, sibling regions, related entities.' },
+      { id: 'generateRuleBasedCityList', label: 'generateRuleBasedCityList', jobClass: 'com.linkedin.geo.GenerateRuleBasedCityList', stage: 'publishing', memory: '32g', inputs: ['admin-chain relationships'], outputs: ['rule-based city list'], deps: ['generateAdminChainBasedRelationships'], desc: 'Generates city lists based on administrative chain rules for city-level targeting.' },
+      { id: 'GenerateGeoPolygonEntitiesBid', label: 'GenerateGeoPolygonBid', jobClass: 'com.linkedin.geo.GenerateGeoPolygonEntities', stage: 'publishing', memory: null, inputs: ['admin-chain relationships'], outputs: ['polygon entities (Bid)'], deps: ['generateAdminChainBasedRelationships'], desc: 'Generates polygon-based entity records from admin chain data for spatial operations.' },
+      { id: 'FilterByOverlap', label: 'FilterByOverlap', jobClass: 'com.linkedin.geo.FilterByOverlap', stage: 'publishing', memory: '32g', inputs: ['polygon entities'], outputs: ['overlap-filtered polygons'], deps: ['GenerateGeoPolygonEntitiesBid'], desc: 'Filters polygon entities by overlap criteria, removing redundant or conflicting boundaries.' },
+      { id: 'ToSecondaryRelationship', label: 'ToSecondaryRelationship', jobClass: 'com.linkedin.geo.ToSecondaryRelationship', stage: 'publishing', memory: '64g', inputs: ['overlap-filtered polygons'], outputs: ['secondary relationships'], deps: ['FilterByOverlap'], desc: 'Generates secondary (non-admin-chain) relationships between entities based on polygon overlaps.' },
+      { id: 'EvaluatePostcodeCityRelationship', label: 'EvalPostcodeCityRel', jobClass: 'com.linkedin.geo.EvaluatePostcodeCityRelationship', stage: 'publishing', memory: null, inputs: ['secondary relationships'], outputs: ['evaluated postcode-city rels'], deps: ['ToSecondaryRelationship'], desc: 'Evaluates and validates postcode-to-city relationships for accuracy.' },
+      { id: 'generateFinalCityListFlow', label: 'generateFinalCityListFlow', jobClass: 'GenerateFinalCityList + TagCityEntities', stage: 'publishing', memory: null, inputs: ['rule-based city list', 'stylized names'], outputs: ['final city list'], deps: ['generateRuleBasedCityList', 'generateStylizedName'], desc: 'Generates the final city list by combining rule-based lists with stylized names, then tags city entities.' },
+      { id: 'generateStandardizedBingGeo', label: 'generateStdBingGeo', jobClass: 'com.linkedin.geo.GenerateStandardizedBingGeo', stage: 'publishing', memory: '32g', inputs: ['final city list'], outputs: ['standardized Bing geo data'], deps: ['generateFinalCityListFlow'], desc: 'Produces the final standardized Bing geo dataset used by downstream LinkedIn services.' },
+      { id: 'appendPurgedStandardizedBingGeo', label: 'appendPurgedStdBingGeo', jobClass: 'com.linkedin.geo.AppendPurgedEntities', stage: 'publishing', memory: null, inputs: ['standardized Bing geo data'], outputs: ['standardized data + purged'], deps: ['generateStandardizedBingGeo'], desc: 'Appends purged entity records to the standardized output for backward compatibility.' },
+      { id: 'generateDatapackForRestli', label: 'generateDatapackForRestli', jobClass: 'com.linkedin.geo.GenerateDataPack', stage: 'publishing', memory: '16g', inputs: ['admin-chain relationships'], outputs: ['Rest.li datapack'], deps: ['generateAdminChainBasedRelationships'], desc: 'Generates a datapack formatted for Rest.li service consumption.' },
+      { id: 'extractNewlyPurgedIds', label: 'extractNewlyPurgedIds', jobClass: 'shell', stage: 'publishing', memory: null, inputs: ['cleaned entities'], outputs: ['newly purged entity IDs'], deps: ['cleanUpWorkflow'], desc: 'Extracts IDs of entities newly purged in this data refresh cycle.' },
+      { id: 'enrichNewlyPurgedIds', label: 'enrichNewlyPurgedIds', jobClass: 'com.linkedin.geo.EnrichNewlyPurgedIds', stage: 'publishing', memory: null, inputs: ['newly purged IDs'], outputs: ['enriched purged entity data'], deps: ['extractNewlyPurgedIds'], desc: 'Enriches newly purged entity IDs with details, polygons, and child information.' },
+      { id: 'generateRemapCandidates', label: 'generateRemapCandidates', jobClass: 'com.linkedin.geo.GenerateRemapCandidates', stage: 'publishing', memory: null, inputs: ['enriched purged data', 'polygon info'], outputs: ['remap candidate pairs'], deps: ['enrichNewlyPurgedIds', 'toGeoPolygonInfo'], desc: 'Generates remap candidates for purged entities to map old IDs to replacement entities.' },
+
+      // --- Polygon ETL (parallel sub-pipeline) ---
+      { id: 'generateGeoPolygonEntities', label: 'generateGeoPolygonEntities', jobClass: 'com.linkedin.geo.GenerateGeoPolygonEntities', stage: 'publishing', memory: null, inputs: ['filtered entities'], outputs: ['polygon entities'], deps: ['filterByType'], desc: 'Generates geographic polygon entity records from filtered Bing entity data (parallel sub-pipeline).' },
+      { id: 'toGeoPolygonInfo', label: 'toGeoPolygonInfo', jobClass: 'com.linkedin.geo.ToGeoPolygonInfo', stage: 'publishing', memory: null, inputs: ['polygon entities'], outputs: ['polygon info records'], deps: ['generateGeoPolygonEntities'], desc: 'Converts polygon entities into GeoPolygonInfo format for spatial operations and remap candidate generation.' },
+
+      // --- Validation ---
+      { id: 'validate', label: 'validate', jobClass: 'com.linkedin.geo.GenerateValidationReports', stage: 'validation', memory: '16g', inputs: ['stylized names', 'datapack', 'standardized data', 'entity types', 'postcode-city rels', 'remap candidates'], outputs: ['validation reports'], deps: ['generateStylizedName', 'generateDatapackForRestli', 'appendPurgedStandardizedBingGeo', 'toEntityTypes', 'EvaluatePostcodeCityRelationship', 'generateRemapCandidates'], desc: 'Generates comprehensive validation reports comparing current output against previous version, checking entity counts, name quality, relationship integrity, and data completeness.' }
+    ];
+
+    /* === Layout Configuration === */
+    var STAGE_ORDER = ['ingestion', 'core', 'virtual', 'enrichment', 'hotfix', 'publishing', 'validation'];
+    var STAGE_COLORS = {
+      ingestion: 'var(--mod-teal)', core: 'var(--mod-blue)', virtual: 'var(--mod-purple)',
+      enrichment: 'var(--mod-amber)', hotfix: 'var(--mod-red)', publishing: 'var(--mod-green)',
+      validation: 'var(--mod-indigo)'
+    };
+    var STAGE_LABELS = {
+      ingestion: 'Ingestion', core: 'Core ETL', virtual: 'Virtual Areas',
+      enrichment: 'Enrichment', hotfix: 'Hotfixes', publishing: 'Publishing',
+      validation: 'Validation'
+    };
+
+    var NODE_W = 175;
+    var NODE_H = 36;
+    var COL_GAP = 60;
+    var ROW_GAP = 14;
+    var PADDING_TOP = 40;
+    var PADDING_LEFT = 30;
+
+    /* Build lookup */
+    var taskMap = {};
+    TASKS.forEach(function(t) { taskMap[t.id] = t; });
+
+    /* Topological sort to assign columns (longest path from root) */
+    function computeDepth(taskId, memo) {
+      if (memo[taskId] !== undefined) return memo[taskId];
+      var t = taskMap[taskId];
+      if (!t || t.deps.length === 0) { memo[taskId] = 0; return 0; }
+      var maxParent = 0;
+      t.deps.forEach(function(d) {
+        if (taskMap[d]) {
+          var pd = computeDepth(d, memo);
+          if (pd + 1 > maxParent) maxParent = pd + 1;
+        }
+      });
+      memo[taskId] = maxParent;
+      return maxParent;
+    }
+
+    var depthMemo = {};
+    TASKS.forEach(function(t) { computeDepth(t.id, depthMemo); });
+
+    /* Group tasks by column (depth) */
+    var columns = {};
+    var maxCol = 0;
+    TASKS.forEach(function(t) {
+      var col = depthMemo[t.id];
+      if (col > maxCol) maxCol = col;
+      if (!columns[col]) columns[col] = [];
+      columns[col].push(t);
+    });
+
+    /* Sort within each column by stage order, then alphabetically */
+    Object.keys(columns).forEach(function(col) {
+      columns[col].sort(function(a, b) {
+        var sa = STAGE_ORDER.indexOf(a.stage), sb = STAGE_ORDER.indexOf(b.stage);
+        if (sa !== sb) return sa - sb;
+        return a.label.localeCompare(b.label);
+      });
+    });
+
+    /* Assign positions */
+    var positions = {};
+    for (var c = 0; c <= maxCol; c++) {
+      var col = columns[c] || [];
+      var x = PADDING_LEFT + c * (NODE_W + COL_GAP);
+      col.forEach(function(t, i) {
+        var y = PADDING_TOP + i * (NODE_H + ROW_GAP);
+        positions[t.id] = { x: x, y: y };
+      });
+    }
+
+    /* Canvas size */
+    var canvasW = PADDING_LEFT + (maxCol + 1) * (NODE_W + COL_GAP) + 40;
+    var canvasH = PADDING_TOP;
+    for (var c2 = 0; c2 <= maxCol; c2++) {
+      var colLen = (columns[c2] || []).length;
+      var colH = PADDING_TOP + colLen * (NODE_H + ROW_GAP) + 40;
+      if (colH > canvasH) canvasH = colH;
+    }
+
+    /* Render DAG */
+    function renderDAG() {
+      var canvas = document.getElementById('dagCanvas');
+      var edgesSvg = document.getElementById('dagEdges');
+
+      canvas.style.width = canvasW + 'px';
+      canvas.style.height = canvasH + 'px';
+      edgesSvg.setAttribute('width', canvasW);
+      edgesSvg.setAttribute('height', canvasH);
+
+      /* Render nodes */
+      TASKS.forEach(function(t) {
+        var pos = positions[t.id];
+        var node = document.createElement('div');
+        node.className = 'dag-node';
+        node.setAttribute('data-stage', t.stage);
+        node.setAttribute('data-id', t.id);
+        node.style.left = pos.x + 'px';
+        node.style.top = pos.y + 'px';
+        node.style.width = NODE_W + 'px';
+        node.style.height = NODE_H + 'px';
+        node.innerHTML = '<span class="node-dot"></span>' +
+          '<span class="node-label">' + t.label + '</span>' +
+          (t.memory ? '<span class="node-mem">' + t.memory + '</span>' : '');
+        node.onclick = function() { showDetail(t.id); };
+        canvas.appendChild(node);
+      });
+
+      /* Render edges */
+      var pathsHtml = '';
+      TASKS.forEach(function(t) {
+        t.deps.forEach(function(depId) {
+          if (!positions[depId]) return;
+          var from = positions[depId];
+          var to = positions[t.id];
+          var x1 = from.x + NODE_W;
+          var y1 = from.y + NODE_H / 2;
+          var x2 = to.x;
+          var y2 = to.y + NODE_H / 2;
+          var mx = x1 + (x2 - x1) * 0.5;
+          pathsHtml += '<path data-from="' + depId + '" data-to="' + t.id +
+            '" d="M' + x1 + ',' + y1 + ' C' + mx + ',' + y1 + ' ' + mx + ',' + y2 + ' ' + x2 + ',' + y2 + '"/>';
+        });
+      });
+      edgesSvg.innerHTML = pathsHtml;
+    }
+
+    /* Detail panel */
+    function showDetail(taskId) {
+      var t = taskMap[taskId];
+      if (!t) return;
+
+      /* Highlight selected node */
+      document.querySelectorAll('.dag-node').forEach(function(n) { n.classList.remove('selected'); });
+      var sel = document.querySelector('.dag-node[data-id="' + taskId + '"]');
+      if (sel) sel.classList.add('selected');
+
+      var depsList = t.deps.map(function(d) {
+        var dt = taskMap[d];
+        return '<span class="dep-chip" onclick="showDetail(\'' + d + '\')">' + (dt ? dt.label : d) + '</span>';
+      }).join('');
+
+      /* Find dependents */
+      var dependents = TASKS.filter(function(ot) {
+        return ot.deps.indexOf(taskId) !== -1;
+      }).map(function(ot) {
+        return '<span class="dep-chip" onclick="showDetail(\'' + ot.id + '\')">' + ot.label + '</span>';
+      }).join('');
+
+      var html = '<h3>' + t.label + '</h3>' +
+        '<div class="detail-field"><label>Stage</label><div class="value"><span class="badge badge-' + stageBadge(t.stage) + '">' + STAGE_LABELS[t.stage] + '</span></div></div>' +
+        '<div class="detail-field"><label>Job Class</label><div class="value"><code>' + t.jobClass + '</code></div></div>' +
+        (t.memory ? '<div class="detail-field"><label>Memory</label><div class="value"><code>' + t.memory + '</code></div></div>' : '') +
+        '<div class="detail-field"><label>Description</label><div class="value" style="color:var(--text-sec);font-size:0.85rem;">' + t.desc + '</div></div>' +
+        '<div class="detail-field"><label>Inputs</label><div class="value">' + t.inputs.map(function(i) { return '<code>' + i + '</code>'; }).join(' ') + '</div></div>' +
+        '<div class="detail-field"><label>Outputs</label><div class="value">' + t.outputs.map(function(o) { return '<code>' + o + '</code>'; }).join(' ') + '</div></div>' +
+        (depsList ? '<div class="detail-field"><label>Depends On</label><div class="detail-deps">' + depsList + '</div></div>' : '<div class="detail-field"><label>Depends On</label><div class="value" style="color:var(--text-muted)">None (root task)</div></div>') +
+        (dependents ? '<div class="detail-field"><label>Dependents</label><div class="detail-deps">' + dependents + '</div></div>' : '');
+
+      document.getElementById('panelContent').innerHTML = html;
+      document.getElementById('detailPanel').classList.add('open');
+      document.getElementById('panelOverlay').classList.add('open');
+    }
+
+    function stageBadge(stage) {
+      var map = { ingestion: 'gray', core: 'blue', virtual: 'purple', enrichment: 'amber', hotfix: 'red', publishing: 'green', validation: 'purple' };
+      return map[stage] || 'gray';
+    }
+
+    function closePanel() {
+      document.getElementById('detailPanel').classList.remove('open');
+      document.getElementById('panelOverlay').classList.remove('open');
+      document.querySelectorAll('.dag-node').forEach(function(n) { n.classList.remove('selected'); });
+    }
+
+    /* Filter by stage */
+    var currentStage = 'all';
+    function filterByStage(stage, btn) {
+      currentStage = stage;
+      document.querySelectorAll('#filterBar .chip').forEach(function(c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      applyFilters();
+    }
+
+    /* Search */
+    function searchNodes(query) {
+      applyFilters(query);
+    }
+
+    function applyFilters(searchQuery) {
+      var q = searchQuery !== undefined ? searchQuery : (document.getElementById('dagSearch').value || '');
+      q = q.toLowerCase().trim();
+
+      document.querySelectorAll('.dag-node').forEach(function(node) {
+        var id = node.getAttribute('data-id');
+        var stage = node.getAttribute('data-stage');
+        var t = taskMap[id];
+        var stageMatch = currentStage === 'all' || stage === currentStage;
+        var searchMatch = !q || id.toLowerCase().indexOf(q) !== -1 ||
+          (t && t.label.toLowerCase().indexOf(q) !== -1) ||
+          (t && t.jobClass.toLowerCase().indexOf(q) !== -1);
+
+        if (stageMatch && searchMatch) {
+          node.classList.remove('dimmed');
+        } else {
+          node.classList.add('dimmed');
+        }
+      });
+
+      document.querySelectorAll('.dag-edges path').forEach(function(path) {
+        var from = path.getAttribute('data-from');
+        var to = path.getAttribute('data-to');
+        var fromNode = document.querySelector('.dag-node[data-id="' + from + '"]');
+        var toNode = document.querySelector('.dag-node[data-id="' + to + '"]');
+        if (fromNode && toNode && !fromNode.classList.contains('dimmed') && !toNode.classList.contains('dimmed')) {
+          path.classList.remove('dimmed');
+          path.classList.add('highlighted');
+        } else {
+          path.classList.add('dimmed');
+          path.classList.remove('highlighted');
+        }
+      });
+
+      /* If "all" and no search, remove all highlights */
+      if (currentStage === 'all' && !q) {
+        document.querySelectorAll('.dag-edges path').forEach(function(p) {
+          p.classList.remove('dimmed');
+          p.classList.remove('highlighted');
+        });
+      }
+    }
+
+    /* Keyboard shortcut: Escape to close panel */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closePanel();
+    });
+
+    /* Initialize */
+    document.addEventListener('DOMContentLoaded', function() {
+      renderDAG();
+    });
+  </script>
+</body>
+</html>

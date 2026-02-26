@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geo Entity Model — bingo-offline Tutorial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..800&family=DM+Sans:opsz,wght@9..40,300..600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================
+       BINGO-OFFLINE TUTORIAL DESIGN SYSTEM
+       Theme: Meridian — Cartographic Data Observatory
+       ============================================= */
+
+    /* --- Variables --- */
+    :root {
+      --bg: #f0f2f5;
+      --grid-color: rgba(10,102,194,0.035);
+      --surface: #ffffff;
+      --surface-hover: #f8fafc;
+      --text: #1a1a2e;
+      --text-sec: #475569;
+      --text-muted: #94a3b8;
+      --text-inv: #ffffff;
+      --primary: #0a66c2;
+      --primary-hover: #004182;
+      --primary-light: #dbeafe;
+      --primary-glow: rgba(10,102,194,0.08);
+      --accent: #057642;
+      --accent-light: #dcfce7;
+      --warn: #d97706;
+      --warn-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 4px;
+      --nav-h: 60px;
+      --max-w: 1240px;
+      --font-d: 'Outfit', -apple-system, system-ui, sans-serif;
+      --font-b: 'DM Sans', -apple-system, system-ui, sans-serif;
+      --font-m: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+      --mod-blue: #0a66c2;
+      --mod-purple: #7c3aed;
+      --mod-amber: #d97706;
+      --mod-green: #059669;
+      --mod-red: #dc2626;
+      --mod-gray: #64748b;
+      --mod-teal: #0891b2;
+      --mod-indigo: #4f46e5;
+    }
+    [data-theme="dark"] {
+      --bg: #0a101e;
+      --grid-color: rgba(88,166,255,0.025);
+      --surface: #111827;
+      --surface-hover: #1e293b;
+      --text: #e2e8f0;
+      --text-sec: #94a3b8;
+      --text-muted: #475569;
+      --text-inv: #0a101e;
+      --primary: #58a6ff;
+      --primary-hover: #79b8ff;
+      --primary-light: #172554;
+      --primary-glow: rgba(88,166,255,0.1);
+      --accent: #4ade80;
+      --accent-light: #052e16;
+      --warn: #fbbf24;
+      --warn-light: #422006;
+      --danger: #f87171;
+      --danger-light: #450a0a;
+      --border: #1e293b;
+      --border-strong: #334155;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 24px); }
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Map grid overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none; z-index: 0;
+    }
+    /* Ambient top glow */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; height: 500px;
+      background: linear-gradient(180deg, var(--primary-glow) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* --- Typography --- */
+    h1, h2, h3, h4, h5 { font-family: var(--font-d); line-height: 1.25; color: var(--text); }
+    h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.025em; }
+    h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 1rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+    h4 { font-size: 0.95rem; font-weight: 600; }
+    p { color: var(--text-sec); max-width: 72ch; }
+    a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--primary-hover); text-decoration: underline; }
+    code {
+      font-family: var(--font-m); font-size: 0.84em;
+      background: var(--primary-light); color: var(--primary);
+      padding: 2px 7px; border-radius: var(--radius-xs);
+    }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-m); font-size: 0.84rem; line-height: 1.7;
+    }
+    pre code { background: none; padding: 0; color: var(--text); font-size: 1em; }
+
+    /* --- Layout --- */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .page-content { padding: calc(var(--nav-h) + 2rem) 0 4rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    @media (max-width: 900px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      h1 { font-size: 1.75rem; }
+      .container { padding: 0 1rem; }
+    }
+
+    /* --- Nav --- */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      z-index: 100; display: flex; align-items: center;
+    }
+    [data-theme="dark"] nav { background: rgba(10,16,30,0.82); }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem;
+      width: 100%; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-brand {
+      font-family: var(--font-d); font-weight: 700; font-size: 1.05rem;
+      color: var(--primary); margin-right: 1.5rem; white-space: nowrap;
+      display: flex; align-items: center; gap: 0.5rem; text-decoration: none;
+    }
+    .nav-brand:hover { text-decoration: none; color: var(--primary); }
+    .nav-brand svg { width: 24px; height: 24px; fill: currentColor; flex-shrink: 0; }
+    .nav-links { display: flex; gap: 0.25rem; overflow-x: auto; flex: 1; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a {
+      padding: 0.4rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.82rem; font-weight: 500; white-space: nowrap;
+      color: var(--text-sec); transition: all 0.2s; text-decoration: none;
+    }
+    .nav-links a:hover { background: var(--primary-light); color: var(--primary); text-decoration: none; }
+    .nav-links a[aria-current="page"] {
+      background: var(--primary); color: var(--text-inv) !important;
+    }
+    .theme-toggle {
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 20px; cursor: pointer; padding: 6px 12px;
+      font-size: 0.95rem; display: flex; align-items: center; gap: 4px;
+      transition: all 0.25s; margin-left: auto; flex-shrink: 0; line-height: 1;
+    }
+    .theme-toggle:hover { border-color: var(--primary); background: var(--primary-light); }
+    @media (max-width: 768px) {
+      .nav-links a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+      .nav-brand { font-size: 0.9rem; margin-right: 0.75rem; }
+      .nav-brand span { display: none; }
+    }
+
+    /* --- Hero --- */
+    .hero {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2.5rem;
+      margin-bottom: 2rem; position: relative; overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: heroIn 0.6s ease forwards;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -50px; right: -50px;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 { margin-bottom: 0.75rem; position: relative; }
+    .hero p { font-size: 1.05rem; position: relative; }
+    .hero .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-top: 0.25rem; }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Stats Strip --- */
+    .stats-strip { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; position: relative; }
+    .stat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.75rem 1.25rem; background: var(--primary-light);
+      border-radius: var(--radius-sm); min-width: 90px;
+    }
+    .stat-value {
+      font-family: var(--font-d); font-size: 1.5rem; font-weight: 700;
+      color: var(--primary); line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 0.72rem; color: var(--text-sec); font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;
+    }
+
+    /* --- Card --- */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); transition: all 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+    .card-accent { border-left: 4px solid var(--primary); }
+    .card h3 { margin-bottom: 0.5rem; }
+    .card p { font-size: 0.9rem; }
+
+    /* --- Section --- */
+    .section { margin-bottom: 2.5rem; }
+    .section-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-header h2 { margin-bottom: 0; }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    /* --- Accordion --- */
+    .accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .accordion-item { border-bottom: 1px solid var(--border); }
+    .accordion-item:last-child { border-bottom: none; }
+    .accordion-trigger {
+      width: 100%; padding: 0.85rem 1.25rem; background: var(--surface);
+      border: none; cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; font-family: var(--font-b);
+      font-size: 0.92rem; font-weight: 500; color: var(--text);
+      transition: background 0.2s; text-align: left;
+    }
+    .accordion-trigger:hover { background: var(--surface-hover); }
+    .accordion-trigger .arrow {
+      transition: transform 0.3s; font-size: 0.75rem; color: var(--text-muted);
+      flex-shrink: 0; margin-left: 0.75rem;
+    }
+    .accordion-trigger[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+    .accordion-content {
+      max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    }
+    .accordion-body { padding: 1rem 1.25rem; background: var(--surface-hover); }
+
+    /* --- Table --- */
+    .table-wrap {
+      overflow-x: auto; border: 1px solid var(--border);
+      border-radius: var(--radius); background: var(--surface);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    th {
+      text-align: left; padding: 0.7rem 1rem;
+      background: var(--surface-hover); font-weight: 600;
+      font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-sec); border-bottom: 2px solid var(--border);
+      position: sticky; top: 0;
+    }
+    td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+
+    /* --- Badge --- */
+    .badge {
+      display: inline-flex; padding: 2px 8px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: var(--accent-light); color: var(--accent); }
+    .badge-amber { background: var(--warn-light); color: var(--warn); }
+    .badge-red { background: var(--danger-light); color: var(--danger); }
+    .badge-purple { background: #ede9fe; color: #7c3aed; }
+    .badge-gray { background: #f1f5f9; color: #64748b; }
+    [data-theme="dark"] .badge-purple { background: #2e1065; }
+    [data-theme="dark"] .badge-gray { background: #1e293b; }
+
+    /* --- Search --- */
+    .search-box { position: relative; max-width: 400px; }
+    .search-box input {
+      width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-family: var(--font-b);
+      font-size: 0.87rem; color: var(--text); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute; left: 0.85rem; top: 50%;
+      transform: translateY(-50%); color: var(--text-muted);
+      font-size: 0.9rem; pointer-events: none;
+    }
+
+    /* --- Filter Chips --- */
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .chip {
+      padding: 0.4rem 0.85rem; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: all 0.2s; color: var(--text-sec); font-family: var(--font-b);
+    }
+    .chip:hover, .chip.active {
+      background: var(--primary); color: var(--text-inv); border-color: var(--primary);
+    }
+
+    /* --- Tooltip --- */
+    [data-tip] { position: relative; cursor: help; }
+    [data-tip]::after {
+      content: attr(data-tip);
+      visibility: hidden; opacity: 0;
+      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%);
+      background: var(--text); color: var(--bg); padding: 4px 10px;
+      border-radius: var(--radius-xs); font-size: 0.76rem;
+      white-space: nowrap; transition: all 0.2s; z-index: 50;
+      pointer-events: none;
+    }
+    [data-tip]:hover::after { visibility: visible; opacity: 1; }
+
+    /* --- SVG Diagram --- */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; overflow-x: auto;
+    }
+    .diagram-wrap svg { max-width: 100%; height: auto; display: block; }
+    .diagram-wrap svg text {
+      font-family: var(--font-d); fill: var(--text);
+    }
+
+    /* --- Slide-out Panel --- */
+    .panel-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+      z-index: 89; opacity: 0; visibility: hidden; transition: all 0.3s;
+    }
+    .panel-overlay.open { opacity: 1; visibility: visible; }
+    .detail-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 400px; max-width: 90vw; background: var(--surface);
+      border-left: 1px solid var(--border); box-shadow: var(--shadow-lg);
+      transform: translateX(100%); transition: transform 0.3s ease;
+      z-index: 90; overflow-y: auto; padding: calc(var(--nav-h) + 1.5rem) 1.5rem 1.5rem;
+    }
+    .detail-panel.open { transform: translateX(0); }
+    .panel-close {
+      position: absolute; top: calc(var(--nav-h) + 0.75rem); right: 1rem;
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: 50%; width: 32px; height: 32px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--text-sec); transition: all 0.2s;
+    }
+    .panel-close:hover { background: var(--danger-light); color: var(--danger); }
+
+    /* --- Quick Links --- */
+    .quick-links { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; position: relative; }
+    .quick-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+    }
+    .quick-link:hover {
+      border-color: var(--primary); color: var(--primary);
+      background: var(--primary-light); text-decoration: none;
+    }
+
+    /* --- Flow Strip --- */
+    .flow-strip {
+      display: flex; align-items: center; gap: 0; overflow-x: auto;
+      padding: 1rem 0; scrollbar-width: none;
+    }
+    .flow-strip::-webkit-scrollbar { display: none; }
+    .flow-step {
+      padding: 0.45rem 0.9rem; background: var(--primary-light);
+      color: var(--primary); font-size: 0.8rem; font-weight: 600;
+      white-space: nowrap; border-radius: var(--radius-xs);
+    }
+    .flow-arrow {
+      color: var(--text-muted); padding: 0 0.4rem;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    /* --- Sidebar Layout --- */
+    .with-sidebar {
+      display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem;
+    }
+    .sidebar {
+      position: sticky; top: calc(var(--nav-h) + 1.5rem);
+      align-self: start; height: fit-content;
+    }
+    .sidebar-nav a {
+      display: block; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+      font-size: 0.87rem; color: var(--text-sec); border-left: 3px solid transparent;
+      transition: all 0.2s; text-decoration: none; margin-bottom: 2px;
+    }
+    .sidebar-nav a:hover { background: var(--surface-hover); color: var(--text); text-decoration: none; }
+    .sidebar-nav a.active {
+      background: var(--primary-light); color: var(--primary);
+      border-left-color: var(--primary); font-weight: 600;
+    }
+    @media (max-width: 900px) {
+      .with-sidebar { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static; display: flex; gap: 0.5rem; overflow-x: auto;
+        padding-bottom: 0.5rem; scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar-nav { display: flex; gap: 0.25rem; }
+      .sidebar-nav a { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; margin-bottom: 0; }
+      .sidebar-nav a.active { border-bottom-color: var(--primary); border-left-color: transparent; }
+    }
+
+    /* --- Animations --- */
+    .fade-in {
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in:nth-child(2) { transition-delay: 0.05s; }
+    .fade-in:nth-child(3) { transition-delay: 0.1s; }
+    .fade-in:nth-child(4) { transition-delay: 0.15s; }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* --- Footer --- */
+    footer {
+      border-top: 1px solid var(--border); padding: 2rem 0;
+      text-align: center; color: var(--text-muted); font-size: 0.82rem;
+      position: relative; z-index: 1;
+    }
+    footer a { color: var(--text-sec); }
+
+    /* --- Utility --- */
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+    .mt-4 { margin-top: 2rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .gap-sm { gap: 0.5rem; }
+    .gap-md { gap: 1rem; }
+    .text-sm { font-size: 0.85rem; }
+    .text-xs { font-size: 0.78rem; }
+    .font-mono { font-family: var(--font-m); }
+    .font-display { font-family: var(--font-d); }
+    .fw-600 { font-weight: 600; }
+    .color-blue { color: var(--mod-blue); }
+    .color-purple { color: var(--mod-purple); }
+    .color-amber { color: var(--mod-amber); }
+    .color-green { color: var(--mod-green); }
+    .color-red { color: var(--mod-red); }
+    .color-gray { color: var(--mod-gray); }
+    .color-teal { color: var(--mod-teal); }
+    .color-indigo { color: var(--mod-indigo); }
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    /* =============================================
+       PAGE-SPECIFIC STYLES: Geo Entity Model
+       ============================================= */
+
+    /* SVG interactive hierarchy */
+    .hierarchy-node {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .hierarchy-node:hover rect,
+    .hierarchy-node:hover .node-box {
+      filter: brightness(0.92);
+    }
+    .hierarchy-node.selected rect,
+    .hierarchy-node.selected .node-box {
+      stroke-width: 3;
+      filter: drop-shadow(0 2px 8px rgba(10,102,194,0.3));
+    }
+
+    /* Tooltip for SVG nodes */
+    .svg-tooltip {
+      position: absolute;
+      background: var(--text);
+      color: var(--bg);
+      padding: 8px 14px;
+      border-radius: var(--radius-xs);
+      font-size: 0.8rem;
+      pointer-events: none;
+      z-index: 60;
+      opacity: 0;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+      font-family: var(--font-b);
+    }
+    .svg-tooltip.visible {
+      opacity: 1;
+    }
+
+    /* Locale chips */
+    .locale-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .locale-chip {
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 0.82rem;
+      font-weight: 500;
+      font-family: var(--font-m);
+      color: var(--text-sec);
+      transition: all 0.2s;
+    }
+    .locale-chip.default {
+      background: var(--primary);
+      color: var(--text-inv);
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* BID-to-LID flow */
+    .mapping-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      overflow-x: auto;
+      padding: 1.5rem 0;
+      scrollbar-width: none;
+    }
+    .mapping-flow::-webkit-scrollbar { display: none; }
+    .mapping-step {
+      flex: 1;
+      min-width: 180px;
+      padding: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      position: relative;
+    }
+    .mapping-step .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--text-inv);
+      font-family: var(--font-d);
+      font-weight: 700;
+      font-size: 0.82rem;
+      margin-bottom: 0.5rem;
+    }
+    .mapping-step h4 {
+      margin-bottom: 0.35rem;
+    }
+    .mapping-step p {
+      font-size: 0.82rem;
+      max-width: none;
+    }
+    .mapping-arrow {
+      display: flex;
+      align-items: center;
+      padding: 0 0.5rem;
+      color: var(--primary);
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    /* Info card */
+    .info-card {
+      background: var(--primary-light);
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .info-card .info-icon {
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      margin-top: 2px;
+    }
+    .info-card p {
+      font-size: 0.85rem;
+      color: var(--text);
+      max-width: none;
+    }
+
+    /* Entity example cards */
+    .entity-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.25s;
+    }
+    .entity-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-strong);
+    }
+    .entity-card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .entity-card-header h3 {
+      margin-bottom: 0;
+    }
+    .entity-card-body {
+      padding: 1.25rem 1.5rem;
+    }
+    .entity-field {
+      display: flex;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .entity-field:last-child {
+      border-bottom: none;
+    }
+    .entity-field-label {
+      width: 120px;
+      flex-shrink: 0;
+      font-weight: 600;
+      color: var(--text-sec);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .entity-field-value {
+      color: var(--text);
+      font-family: var(--font-m);
+      font-size: 0.82rem;
+      word-break: break-all;
+    }
+    .entity-field-value .locale-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      margin: 2px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      font-family: var(--font-b);
+    }
+    .entity-card.virtual .entity-card-header {
+      border-left: 4px solid var(--mod-purple);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="1-overview.html">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        <span>bingo-offline</span>
+      </a>
+      <div class="nav-links">
+        <a href="1-overview.html">Overview</a>
+        <a href="2-pipeline.html">Pipeline</a>
+        <a href="3-modules.html">Modules</a>
+        <a href="4-geo-entity.html" aria-current="page">Geo Entity</a>
+        <a href="5-datasets.html">Datasets</a>
+        <a href="6-operations.html">Operations</a>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+        <span class="theme-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="page-content">
+    <div class="container">
+
+      <!-- Hero -->
+      <div class="hero">
+        <h1>Geo Entity Model</h1>
+        <p>Understanding the GeoEntity schema, entity type hierarchy, relationships, and the BID-to-LID mapping system that powers LinkedIn's geographic data.</p>
+        <div class="stats-strip">
+          <div class="stat">
+            <span class="stat-value">~120K</span>
+            <span class="stat-label">Active Entities</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">12</span>
+            <span class="stat-label">Entity Types</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">24</span>
+            <span class="stat-label">Locales</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">110M</span>
+            <span class="stat-label">LID Range</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 1: GeoEntity Schema -->
+      <div class="section fade-in" id="schema">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--primary-light); color: var(--primary);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <h2>GeoEntity Schema</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td><span class="badge badge-blue">long</span></td>
+                <td>LinkedIn ID (LID) &mdash; unique identifier in range 90,000,000 &ndash; 200,000,000</td>
+              </tr>
+              <tr>
+                <td><code>bingId</code></td>
+                <td><span class="badge badge-gray">string</span></td>
+                <td>Original Microsoft Bing entity ID (BID)</td>
+              </tr>
+              <tr>
+                <td><code>name</code></td>
+                <td><span class="badge badge-gray">string</span></td>
+                <td>Primary display name (en_US locale, nameRole=1)</td>
+              </tr>
+              <tr>
+                <td><code>entityType</code></td>
+                <td><span class="badge badge-purple">enum GeoType</span></td>
+                <td>Type: CONTINENT, COUNTRY_REGION, ADMIN_DIVISION_1, ADMIN_DIVISION_2, ADMIN_DIVISION_3, POPULATED_PLACE, POSTCODE_1, POSTCODE_2, NEIGHBORHOOD, MARKET_AREA, TARGET_AREA, COUNTRY_CLUSTER</td>
+              </tr>
+              <tr>
+                <td><code>localizedNames</code></td>
+                <td><span class="badge badge-green">List[LocalizedName]</span></td>
+                <td>Names in 24 locales. Each has: <code>name</code> (string), <code>locale</code> (string), <code>nameRole</code> (int: 1=canonical, 2=alias, 3=officialAbbr, 4=mapAbbr, 5=isoCode)</td>
+              </tr>
+              <tr>
+                <td><code>latLong</code></td>
+                <td><span class="badge badge-amber">LatLong</span></td>
+                <td>Latitude/longitude coordinates (float, float)</td>
+              </tr>
+              <tr>
+                <td><code>adminChain</code></td>
+                <td><span class="badge badge-blue">List[long]</span></td>
+                <td>Ordered list of ancestor LIDs from immediate parent up to continent</td>
+              </tr>
+              <tr>
+                <td><code>countryCode</code></td>
+                <td><span class="badge badge-gray">string</span></td>
+                <td>ISO country code (e.g., "US", "GB", "DE")</td>
+              </tr>
+              <tr>
+                <td><code>population</code></td>
+                <td><span class="badge badge-blue">long</span></td>
+                <td>Population count</td>
+              </tr>
+              <tr>
+                <td><code>timeZoneId</code></td>
+                <td><span class="badge badge-gray">string</span></td>
+                <td>IANA timezone identifier (e.g., "America/Los_Angeles")</td>
+              </tr>
+              <tr>
+                <td><code>geoTags</code></td>
+                <td><span class="badge badge-green">List[string]</span></td>
+                <td>Tags: GDPR country, postcode country flags</td>
+              </tr>
+              <tr>
+                <td><code>isCity</code></td>
+                <td><span class="badge badge-amber">boolean</span></td>
+                <td>Whether entity is classified as a city</td>
+              </tr>
+              <tr>
+                <td><code>relatedEntities</code></td>
+                <td><span class="badge badge-green">List[long]</span></td>
+                <td>LIDs of related entities (overlap, market area membership)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 2: Entity Type Hierarchy -->
+      <div class="section fade-in" id="hierarchy">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--accent-light); color: var(--accent);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="14"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="19" r="3"/><line x1="12" y1="14" x2="6" y2="16"/><line x1="12" y1="14" x2="18" y2="16"/></svg>
+          </div>
+          <h2>Entity Type Hierarchy</h2>
+        </div>
+        <p class="mb-2">Click on any entity type to see its ordering value and description. Dashed borders indicate virtual types that are not part of the geographic admin chain.</p>
+        <div class="diagram-wrap" style="position: relative;">
+          <div class="svg-tooltip" id="hierarchy-tooltip"></div>
+          <svg id="hierarchy-svg" viewBox="0 0 960 520" xmlns="http://www.w3.org/2000/svg">
+            <!-- Connector lines -->
+            <g class="connectors" stroke="var(--border-strong)" stroke-width="1.5" fill="none">
+              <!-- CONTINENT -> COUNTRY_REGION -->
+              <line x1="140" y1="50" x2="140" y2="100"/>
+              <!-- COUNTRY_REGION -> ADMIN_DIVISION_1 -->
+              <line x1="140" y1="130" x2="200" y2="180"/>
+              <!-- COUNTRY_REGION -> COUNTRY_CLUSTER -->
+              <line x1="140" y1="130" x2="440" y2="180" stroke-dasharray="6,4"/>
+              <!-- ADMIN_DIVISION_1 -> ADMIN_DIVISION_2 -->
+              <line x1="200" y1="210" x2="200" y2="260"/>
+              <!-- ADMIN_DIVISION_1 -> POPULATED_PLACE (directly under AD1) -->
+              <line x1="200" y1="210" x2="420" y2="260"/>
+              <!-- ADMIN_DIVISION_2 -> ADMIN_DIVISION_3 -->
+              <line x1="200" y1="290" x2="100" y2="340"/>
+              <!-- ADMIN_DIVISION_2 -> POPULATED_PLACE -->
+              <line x1="200" y1="290" x2="260" y2="340"/>
+              <!-- ADMIN_DIVISION_2 -> POSTCODE_1 -->
+              <line x1="200" y1="290" x2="420" y2="340"/>
+              <!-- ADMIN_DIVISION_2 -> NEIGHBORHOOD -->
+              <line x1="200" y1="290" x2="580" y2="340"/>
+              <!-- POSTCODE_1 -> POSTCODE_2 -->
+              <line x1="420" y1="370" x2="420" y2="420"/>
+            </g>
+
+            <!-- CONTINENT -->
+            <g class="hierarchy-node" data-type="CONTINENT" data-order="12" data-desc="Top-level geographic division (e.g., North America, Europe)" onclick="selectNode(this)" transform="translate(40, 20)">
+              <rect class="node-box" x="0" y="0" width="200" height="30" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+              <text x="100" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--primary)">CONTINENT (12)</text>
+            </g>
+
+            <!-- COUNTRY_REGION -->
+            <g class="hierarchy-node" data-type="COUNTRY_REGION" data-order="10" data-desc="Sovereign nation or territory (e.g., United States, Germany)" onclick="selectNode(this)" transform="translate(40, 100)">
+              <rect class="node-box" x="0" y="0" width="200" height="30" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+              <text x="100" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--primary)">COUNTRY_REGION (10)</text>
+            </g>
+
+            <!-- ADMIN_DIVISION_1 -->
+            <g class="hierarchy-node" data-type="ADMIN_DIVISION_1" data-order="9" data-desc="First-level administrative division (e.g., California, Bavaria)" onclick="selectNode(this)" transform="translate(80, 180)">
+              <rect class="node-box" x="0" y="0" width="230" height="30" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+              <text x="115" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--primary)">ADMIN_DIVISION_1 (9)</text>
+            </g>
+
+            <!-- COUNTRY_CLUSTER -->
+            <g class="hierarchy-node" data-type="COUNTRY_CLUSTER" data-order="11" data-desc="Virtual grouping of countries (e.g., Benelux, Nordic Countries)" onclick="selectNode(this)" transform="translate(360, 180)">
+              <rect class="node-box" x="0" y="0" width="230" height="30" rx="6" fill="#ede9fe" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <text x="115" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--mod-purple)">COUNTRY_CLUSTER (11)</text>
+            </g>
+
+            <!-- ADMIN_DIVISION_2 -->
+            <g class="hierarchy-node" data-type="ADMIN_DIVISION_2" data-order="6" data-desc="Second-level admin division (e.g., San Francisco County)" onclick="selectNode(this)" transform="translate(80, 260)">
+              <rect class="node-box" x="0" y="0" width="230" height="30" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+              <text x="115" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--primary)">ADMIN_DIVISION_2 (6)</text>
+            </g>
+
+            <!-- POPULATED_PLACE (under AD1) -->
+            <g class="hierarchy-node" data-type="POPULATED_PLACE" data-order="4" data-desc="City or town — the most common entity type in member profiles" onclick="selectNode(this)" transform="translate(340, 260)">
+              <rect class="node-box" x="0" y="0" width="230" height="30" rx="6" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="1.5"/>
+              <text x="115" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent)">POPULATED_PLACE (4)</text>
+            </g>
+
+            <!-- ADMIN_DIVISION_3 -->
+            <g class="hierarchy-node" data-type="ADMIN_DIVISION_3" data-order="5" data-desc="Third-level admin division (e.g., Arrondissement, Bezirk)" onclick="selectNode(this)" transform="translate(0, 340)">
+              <rect class="node-box" x="0" y="0" width="230" height="30" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+              <text x="115" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--primary)">ADMIN_DIVISION_3 (5)</text>
+            </g>
+
+            <!-- POPULATED_PLACE (under AD2) -->
+            <g class="hierarchy-node" data-type="POPULATED_PLACE" data-order="4" data-desc="City or town — the most common entity type in member profiles" onclick="selectNode(this)" transform="translate(170, 340)">
+              <rect class="node-box" x="0" y="0" width="200" height="30" rx="6" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="1.5"/>
+              <text x="100" y="20" text-anchor="middle" font-size="12" font-weight="600" fill="var(--accent)">POPULATED_PLACE (4)</text>
+            </g>
+
+            <!-- POSTCODE_1 -->
+            <g class="hierarchy-node" data-type="POSTCODE_1" data-order="1" data-desc="Primary postal code region (e.g., 94105)" onclick="selectNode(this)" transform="translate(340, 340)">
+              <rect class="node-box" x="0" y="0" width="180" height="30" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+              <text x="90" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--primary)">POSTCODE_1 (1)</text>
+            </g>
+
+            <!-- NEIGHBORHOOD -->
+            <g class="hierarchy-node" data-type="NEIGHBORHOOD" data-order="3" data-desc="Sub-city neighborhood (e.g., SoMa, Mission District)" onclick="selectNode(this)" transform="translate(510, 340)">
+              <rect class="node-box" x="0" y="0" width="200" height="30" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+              <text x="100" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--primary)">NEIGHBORHOOD (3)</text>
+            </g>
+
+            <!-- POSTCODE_2 -->
+            <g class="hierarchy-node" data-type="POSTCODE_2" data-order="2" data-desc="Secondary postal code subdivision (e.g., 94105-1234)" onclick="selectNode(this)" transform="translate(340, 420)">
+              <rect class="node-box" x="0" y="0" width="180" height="30" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+              <text x="90" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--primary)">POSTCODE_2 (2)</text>
+            </g>
+
+            <!-- MARKET_AREA -->
+            <g class="hierarchy-node" data-type="MARKET_AREA" data-order="7" data-desc="Virtual market area grouping (e.g., San Francisco Bay Area, Greater Boston)" onclick="selectNode(this)" transform="translate(640, 100)">
+              <rect class="node-box" x="0" y="0" width="200" height="30" rx="6" fill="#ede9fe" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <text x="100" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--mod-purple)">MARKET_AREA (7)</text>
+            </g>
+
+            <!-- TARGET_AREA -->
+            <g class="hierarchy-node" data-type="TARGET_AREA" data-order="8" data-desc="Virtual target area for advertising (e.g., SF-Oakland-San Jose DMA)" onclick="selectNode(this)" transform="translate(640, 150)">
+              <rect class="node-box" x="0" y="0" width="200" height="30" rx="6" fill="#ede9fe" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <text x="100" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="var(--mod-purple)">TARGET_AREA (8)</text>
+            </g>
+
+            <!-- Legend -->
+            <g transform="translate(640, 220)">
+              <text x="0" y="0" font-size="11" font-weight="600" fill="var(--text-sec)">LEGEND</text>
+              <rect x="0" y="12" width="16" height="10" rx="2" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1"/>
+              <text x="24" y="21" font-size="11" fill="var(--text-sec)">Physical entity type</text>
+              <rect x="0" y="32" width="16" height="10" rx="2" fill="#ede9fe" stroke="var(--mod-purple)" stroke-width="1" stroke-dasharray="4,3"/>
+              <text x="24" y="41" font-size="11" fill="var(--text-sec)">Virtual entity type</text>
+              <rect x="0" y="52" width="16" height="10" rx="2" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="1"/>
+              <text x="24" y="61" font-size="11" fill="var(--text-sec)">City (isCity=true)</text>
+              <text x="0" y="82" font-size="10" fill="var(--text-muted)">(n) = GeoType ordering value</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Section 3: Relationship Types -->
+      <div class="section fade-in" id="relationships">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--warn-light); color: var(--warn);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <h2>Relationship Types</h2>
+        </div>
+        <p class="mb-2">Geo entities are connected through parent/ancestor chains and overlap relationships. This example uses San Francisco to illustrate all relationship types.</p>
+
+        <div class="grid-2 mt-3">
+          <!-- Parent Relationships -->
+          <div class="card card-accent">
+            <h3>Parent Relationships (Admin Chain)</h3>
+            <p class="mb-2">Each entity has an ordered chain of ancestors forming a strict hierarchy from child to continent.</p>
+            <div class="diagram-wrap" style="padding: 1rem;">
+              <svg viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg">
+                <!-- Arrows -->
+                <defs>
+                  <marker id="arrowUp" markerWidth="8" markerHeight="6" refX="4" refY="6" orient="auto">
+                    <path d="M0,6 L4,0 L8,6" fill="none" stroke="var(--primary)" stroke-width="1.5"/>
+                  </marker>
+                </defs>
+                <line x1="190" y1="55" x2="190" y2="80" stroke="var(--primary)" stroke-width="1.5" marker-start="url(#arrowUp)"/>
+                <line x1="190" y1="125" x2="190" y2="150" stroke="var(--primary)" stroke-width="1.5" marker-start="url(#arrowUp)"/>
+                <line x1="190" y1="195" x2="190" y2="220" stroke="var(--primary)" stroke-width="1.5" marker-start="url(#arrowUp)"/>
+
+                <!-- Labels -->
+                <text x="210" y="72" font-size="10" fill="var(--text-muted)">parent</text>
+                <text x="210" y="142" font-size="10" fill="var(--text-muted)">parent</text>
+                <text x="210" y="212" font-size="10" fill="var(--text-muted)">parent</text>
+
+                <!-- North America -->
+                <rect x="80" y="18" width="220" height="36" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+                <text x="190" y="42" text-anchor="middle" font-size="12" font-weight="600" fill="var(--primary)">North America</text>
+                <text x="320" y="42" font-size="9" fill="var(--text-muted)">CONTINENT</text>
+
+                <!-- United States -->
+                <rect x="80" y="88" width="220" height="36" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+                <text x="190" y="112" text-anchor="middle" font-size="12" font-weight="600" fill="var(--primary)">United States</text>
+                <text x="320" y="112" font-size="9" fill="var(--text-muted)">COUNTRY</text>
+
+                <!-- California -->
+                <rect x="80" y="158" width="220" height="36" rx="6" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.5"/>
+                <text x="190" y="182" text-anchor="middle" font-size="12" font-weight="600" fill="var(--primary)">California</text>
+                <text x="320" y="182" font-size="9" fill="var(--text-muted)">ADMIN_1</text>
+
+                <!-- San Francisco -->
+                <rect x="80" y="228" width="220" height="36" rx="6" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="2"/>
+                <text x="190" y="252" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">San Francisco</text>
+                <text x="320" y="252" font-size="9" fill="var(--text-muted)">CITY</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Overlap Relationships -->
+          <div class="card" style="border-left: 4px solid var(--mod-purple);">
+            <h3>Overlap Relationships</h3>
+            <p class="mb-2">Virtual entities (Market Areas, Target Areas) connect to physical entities through bidirectional overlap relationships.</p>
+            <div class="diagram-wrap" style="padding: 1rem;">
+              <svg viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg">
+                <!-- San Francisco center -->
+                <rect x="90" y="110" width="200" height="40" rx="6" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="2"/>
+                <text x="190" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">San Francisco</text>
+                <text x="190" y="100" text-anchor="middle" font-size="10" fill="var(--text-muted)">LID: 102095887</text>
+
+                <!-- Market Area -->
+                <rect x="45" y="20" width="290" height="36" rx="6" fill="#ede9fe" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4"/>
+                <text x="190" y="44" text-anchor="middle" font-size="11" font-weight="600" fill="var(--mod-purple)">SF Bay Area (MARKET_AREA)</text>
+
+                <!-- Target Area -->
+                <rect x="30" y="200" width="320" height="36" rx="6" fill="#ede9fe" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4"/>
+                <text x="190" y="224" text-anchor="middle" font-size="11" font-weight="600" fill="var(--mod-purple)">SF-Oakland-San Jose, CA (TARGET_AREA)</text>
+
+                <!-- Bidirectional arrows -->
+                <defs>
+                  <marker id="arrowBoth" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6" fill="var(--mod-purple)"/>
+                  </marker>
+                  <marker id="arrowBothRev" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto-start-reverse">
+                    <path d="M0,0 L8,3 L0,6" fill="var(--mod-purple)"/>
+                  </marker>
+                </defs>
+
+                <line x1="150" y1="56" x2="150" y2="110" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowBoth)"/>
+                <line x1="230" y1="110" x2="230" y2="56" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowBoth)"/>
+
+                <line x1="150" y1="150" x2="150" y2="200" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowBoth)"/>
+                <line x1="230" y1="200" x2="230" y2="150" stroke="var(--mod-purple)" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowBoth)"/>
+
+                <text x="130" y="86" font-size="9" fill="var(--mod-purple)">overlap</text>
+                <text x="236" y="86" font-size="9" fill="var(--mod-purple)">overlap</text>
+                <text x="130" y="178" font-size="9" fill="var(--mod-purple)">overlap</text>
+                <text x="236" y="178" font-size="9" fill="var(--mod-purple)">overlap</text>
+
+                <!-- Note -->
+                <text x="190" y="260" text-anchor="middle" font-size="10" fill="var(--text-muted)">Overlap = bidirectional, stored in relatedEntities</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: BID to LID Mapping -->
+      <div class="section fade-in" id="bid-lid">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--accent-light); color: var(--accent);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+          </div>
+          <h2>BID &rarr; LID Mapping</h2>
+        </div>
+        <p class="mb-2">Every geographic entity begins its life as a Bing entity with a BID and gets assigned a permanent LinkedIn ID (LID) during pipeline processing.</p>
+
+        <div class="mapping-flow">
+          <div class="mapping-step" style="border-top: 3px solid var(--mod-gray);">
+            <div class="step-num">1</div>
+            <h4>Raw Bing Data</h4>
+            <p>Microsoft assigns a BID</p>
+            <code style="margin-top: 0.5rem; display: inline-block;">BID: "106258524"</code>
+          </div>
+          <div class="mapping-arrow">&rarr;</div>
+          <div class="mapping-step" style="border-top: 3px solid var(--mod-blue);">
+            <div class="step-num">2</div>
+            <h4>GenerateGeoEntities</h4>
+            <p>Creates initial entity with BID, name, type, coordinates</p>
+          </div>
+          <div class="mapping-arrow">&rarr;</div>
+          <div class="mapping-step" style="border-top: 3px solid var(--mod-green);">
+            <div class="step-num">3</div>
+            <h4>PopulateLid</h4>
+            <p>Looks up <code>id_mapping_with_history</code>, assigns LID</p>
+            <div style="margin-top: 0.5rem; font-size: 0.78rem; color: var(--text-sec);">
+              Range: <strong>90M &ndash; 200M</strong><br>
+              New entities &rarr; next available LID<br>
+              Purged entities retain their LID
+            </div>
+          </div>
+          <div class="mapping-arrow">&rarr;</div>
+          <div class="mapping-step" style="border-top: 3px solid var(--mod-purple);">
+            <div class="step-num">4</div>
+            <h4>URN Format</h4>
+            <p>Entity is addressable via URN</p>
+            <code style="margin-top: 0.5rem; display: inline-block; font-size: 0.75rem;">urn:li:geo:102095887</code>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <span class="info-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </span>
+          <p>The LID range 90M&ndash;200M provides ~110M possible entity IDs. Current entities: ~120K active. LIDs are permanent &mdash; once assigned, they never change even if the entity is later purged.</p>
+        </div>
+      </div>
+
+      <!-- Section 5: Locales Reference -->
+      <div class="section fade-in" id="locales">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--warn-light); color: var(--warn);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h2>Supported Locales</h2>
+        </div>
+        <p class="mb-2">GeoEntity names are localized across 24 locales. The highlighted locale (<code>en_US</code>) is the default used for primary display names.</p>
+        <div class="locale-grid">
+          <span class="locale-chip">ar_AE</span>
+          <span class="locale-chip">cs_CZ</span>
+          <span class="locale-chip">da_DK</span>
+          <span class="locale-chip">de_DE</span>
+          <span class="locale-chip default">en_US</span>
+          <span class="locale-chip">es_ES</span>
+          <span class="locale-chip">fr_FR</span>
+          <span class="locale-chip">hi_IN</span>
+          <span class="locale-chip">in_ID</span>
+          <span class="locale-chip">it_IT</span>
+          <span class="locale-chip">ja_JP</span>
+          <span class="locale-chip">ko_KR</span>
+          <span class="locale-chip">ms_MY</span>
+          <span class="locale-chip">nl_NL</span>
+          <span class="locale-chip">no_NO</span>
+          <span class="locale-chip">pl_PL</span>
+          <span class="locale-chip">pt_BR</span>
+          <span class="locale-chip">ro_RO</span>
+          <span class="locale-chip">ru_RU</span>
+          <span class="locale-chip">sv_SE</span>
+          <span class="locale-chip">th_TH</span>
+          <span class="locale-chip">tr_TR</span>
+          <span class="locale-chip">zh_CN</span>
+          <span class="locale-chip">zh_TW</span>
+        </div>
+      </div>
+
+      <!-- Section 6: Name Roles Reference -->
+      <div class="section fade-in" id="name-roles">
+        <div class="section-header">
+          <div class="section-icon" style="background: #ede9fe; color: var(--mod-purple);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+          </div>
+          <h2>Name Roles Reference</h2>
+        </div>
+        <p class="mb-2">Each localized name has a role value that determines how the name is used across LinkedIn products.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Value</th>
+                <th>Role</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>0</code></td>
+                <td><strong>Official</strong></td>
+                <td>Official name of a political entity</td>
+              </tr>
+              <tr>
+                <td><code>1</code></td>
+                <td><strong>Canonical (MapDisplay)</strong> <span class="badge badge-green">PRIMARY</span></td>
+                <td>Primary display name &mdash; used in LinkedIn products</td>
+              </tr>
+              <tr>
+                <td><code>2</code></td>
+                <td><strong>Variant / Alias</strong></td>
+                <td>Alternate names for search (not for display)</td>
+              </tr>
+              <tr>
+                <td><code>3</code></td>
+                <td><strong>OfficialAbbr</strong></td>
+                <td>Abbreviation of official name</td>
+              </tr>
+              <tr>
+                <td><code>4</code></td>
+                <td><strong>MapAbbr</strong></td>
+                <td>Map abbreviation</td>
+              </tr>
+              <tr>
+                <td><code>5</code></td>
+                <td><strong>ISO Code</strong></td>
+                <td>ISO 3166 code</td>
+              </tr>
+              <tr>
+                <td><code>6</code></td>
+                <td><strong>MapSecondary</strong></td>
+                <td>Secondary map display name</td>
+              </tr>
+              <tr>
+                <td><code>7</code></td>
+                <td><strong>Unknown</strong></td>
+                <td>All other names</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 7: Example Entity Cards -->
+      <div class="section fade-in" id="examples">
+        <div class="section-header">
+          <div class="section-icon" style="background: var(--danger-light); color: var(--danger);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h2>Example Entity Cards</h2>
+        </div>
+        <p class="mb-3">Real-world examples showing how GeoEntity data looks in practice.</p>
+
+        <div class="grid-2">
+          <!-- San Francisco -->
+          <div class="entity-card">
+            <div class="entity-card-header">
+              <span class="badge badge-green">POPULATED_PLACE</span>
+              <h3>San Francisco</h3>
+            </div>
+            <div class="entity-card-body">
+              <div class="entity-field">
+                <span class="entity-field-label">LID</span>
+                <span class="entity-field-value">102095887</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">BID</span>
+                <span class="entity-field-value">106258524</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Type</span>
+                <span class="entity-field-value" style="font-family: var(--font-b);">POPULATED_PLACE</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Country</span>
+                <span class="entity-field-value">US</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">LatLong</span>
+                <span class="entity-field-value">37.7749, -122.4194</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Admin Chain</span>
+                <span class="entity-field-value" style="font-size: 0.76rem;">
+                  102095887 &rarr;
+                  <span data-tip="California">102277331</span> &rarr;
+                  <span data-tip="United States">103644278</span> &rarr;
+                  <span data-tip="North America">102221843</span>
+                </span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">URN</span>
+                <span class="entity-field-value">urn:li:geo:102095887</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Names</span>
+                <span class="entity-field-value" style="font-family: var(--font-b);">
+                  <span class="locale-badge"><strong>en_US</strong> San Francisco</span>
+                  <span class="locale-badge"><strong>ja_JP</strong> &#12469;&#12531;&#12501;&#12521;&#12531;&#12471;&#12473;&#12467;</span>
+                  <span class="locale-badge"><strong>zh_CN</strong> &#26087;&#37329;&#23665;</span>
+                  <span class="locale-badge"><strong>ar_AE</strong> &#1587;&#1575;&#1606; &#1601;&#1585;&#1575;&#1606;&#1587;&#1610;&#1587;&#1603;&#1608;</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Greater Boston -->
+          <div class="entity-card virtual">
+            <div class="entity-card-header">
+              <span class="badge badge-purple">MARKET_AREA</span>
+              <h3>Greater Boston</h3>
+              <span class="badge badge-gray" style="margin-left: auto;">VIRTUAL</span>
+            </div>
+            <div class="entity-card-body">
+              <div class="entity-field">
+                <span class="entity-field-label">LID</span>
+                <span class="entity-field-value">90000007</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Type</span>
+                <span class="entity-field-value" style="font-family: var(--font-b);">MARKET_AREA (virtual)</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Country</span>
+                <span class="entity-field-value">US</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Population</span>
+                <span class="entity-field-value">8,233,270</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">URN</span>
+                <span class="entity-field-value">urn:li:geo:90000007</span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Aliases</span>
+                <span class="entity-field-value" style="font-family: var(--font-b);">
+                  <span class="locale-badge">Boston Metropolitan Area</span>
+                  <span class="locale-badge">Greater Boston Area</span>
+                </span>
+              </div>
+              <div class="entity-field">
+                <span class="entity-field-label">Children</span>
+                <span class="entity-field-value" style="font-size: 0.76rem;">
+                  100183986, 100890906, 100900920, ... (20+ cities)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Munich -->
+          <div class="entity-card" style="grid-column: 1 / -1;">
+            <div class="entity-card-header">
+              <span class="badge badge-green">POPULATED_PLACE</span>
+              <h3>Munich</h3>
+            </div>
+            <div class="entity-card-body">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 2rem;">
+                <div>
+                  <div class="entity-field">
+                    <span class="entity-field-label">LID</span>
+                    <span class="entity-field-value">100477049</span>
+                  </div>
+                  <div class="entity-field">
+                    <span class="entity-field-label">BID</span>
+                    <span class="entity-field-value">100477049</span>
+                  </div>
+                  <div class="entity-field">
+                    <span class="entity-field-label">Type</span>
+                    <span class="entity-field-value" style="font-family: var(--font-b);">POPULATED_PLACE</span>
+                  </div>
+                  <div class="entity-field">
+                    <span class="entity-field-label">Country</span>
+                    <span class="entity-field-value">DE</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="entity-field">
+                    <span class="entity-field-label">LatLong</span>
+                    <span class="entity-field-value">48.1351, 11.5820</span>
+                  </div>
+                  <div class="entity-field">
+                    <span class="entity-field-label">Timezone</span>
+                    <span class="entity-field-value">Europe/Berlin</span>
+                  </div>
+                  <div class="entity-field">
+                    <span class="entity-field-label">Names</span>
+                    <span class="entity-field-value" style="font-family: var(--font-b);">
+                      <span class="locale-badge"><strong>en_US</strong> Munich</span>
+                      <span class="locale-badge"><strong>de_DE</strong> M&uuml;nchen</span>
+                      <span class="locale-badge"><strong>ja_JP</strong> &#12511;&#12517;&#12531;&#12504;&#12531;</span>
+                      <span class="locale-badge"><strong>zh_CN</strong> &#24917;&#23612;&#40657;</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      bingo-offline tutorial &middot; LinkedIn Geo Infrastructure &middot;
+      <a href="http://go/projbingo">go/projbingo</a> &middot;
+      <a href="http://go/offlinegeo">go/offlinegeo</a>
+    </div>
+  </footer>
+
+  <script>
+    /* === Dark mode === */
+    (function() {
+      var saved = localStorage.getItem('bingo-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', 'dark');
+      updateIcon();
+    })();
+    function toggleTheme() {
+      var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('bingo-theme', t);
+      updateIcon();
+    }
+    function updateIcon() {
+      var el = document.querySelector('.theme-icon');
+      if (el) el.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+    }
+
+    /* === Accordion === */
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.accordion-trigger').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!expanded));
+          var content = btn.nextElementSibling;
+          if (expanded) { content.style.maxHeight = '0'; }
+          else { content.style.maxHeight = content.scrollHeight + 'px'; }
+        });
+      });
+
+      /* === Scroll fade-in === */
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.fade-in').forEach(function(el) { obs.observe(el); });
+    });
+
+    /* === Hierarchy node click === */
+    var selectedNode = null;
+    function selectNode(el) {
+      // Deselect previous
+      if (selectedNode) selectedNode.classList.remove('selected');
+      // Select new
+      if (selectedNode === el) {
+        selectedNode = null;
+        hideTooltip();
+        return;
+      }
+      selectedNode = el;
+      el.classList.add('selected');
+      showTooltip(el);
+    }
+
+    function showTooltip(el) {
+      var tooltip = document.getElementById('hierarchy-tooltip');
+      var type = el.getAttribute('data-type');
+      var order = el.getAttribute('data-order');
+      var desc = el.getAttribute('data-desc');
+      tooltip.innerHTML = '<strong>' + type + '</strong> &mdash; ordering: ' + order + '<br>' + desc;
+      tooltip.classList.add('visible');
+
+      // Position relative to the diagram wrapper
+      var wrap = el.closest('.diagram-wrap');
+      var wrapRect = wrap.getBoundingClientRect();
+      var rect = el.getBoundingClientRect();
+      tooltip.style.left = (rect.left - wrapRect.left + rect.width / 2) + 'px';
+      tooltip.style.top = (rect.top - wrapRect.top - 50) + 'px';
+      tooltip.style.transform = 'translateX(-50%)';
+      tooltip.style.whiteSpace = 'normal';
+      tooltip.style.maxWidth = '320px';
+    }
+
+    function hideTooltip() {
+      var tooltip = document.getElementById('hierarchy-tooltip');
+      tooltip.classList.remove('visible');
+    }
+  </script>
+</body>
+</html>
