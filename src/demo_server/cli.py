@@ -15,8 +15,9 @@ def cli():
 @cli.command()
 @click.option("-p", "--port", default=5566, type=int, help="Port to listen on.")
 @click.option("--public", is_flag=True, help="Bind to all interfaces (0.0.0.0) instead of localhost.")
+@click.option("--no-daemon", is_flag=True, help="Run in foreground without daemonizing (for launchd/systemd).")
 @click.argument("path", type=click.Path(exists=True))
-def start(port: int, public: bool, path: str):
+def start(port: int, public: bool, no_daemon: bool, path: str):
     """Start the demo server as a daemon."""
     import uvicorn
     from demo_server.server import create_app
@@ -29,10 +30,14 @@ def start(port: int, public: bool, path: str):
     click.echo(f"Starting demo-server on http://{hostname}:{port}")
     click.echo(f"  Serving: {path}")
     click.echo(f"  Bind:    {host}")
-    click.echo(f"  Logs:    ~/.demo-server/logs/server.log")
-    click.echo(f"  PID:     ~/.demo-server/daemon.pid")
+    if no_daemon:
+        click.echo(f"  Mode:    foreground")
+    else:
+        click.echo(f"  Logs:    ~/.demo-server/logs/server.log")
+        click.echo(f"  PID:     ~/.demo-server/daemon.pid")
 
-    daemonize()
+    if not no_daemon:
+        daemonize()
 
     app = create_app(path)
     uvicorn.run(app, host=host, port=port, log_level="info")
@@ -47,8 +52,9 @@ def stop():
 @cli.command()
 @click.option("-p", "--port", default=5566, type=int, help="Port to listen on.")
 @click.option("--public", is_flag=True, help="Bind to all interfaces (0.0.0.0) instead of localhost.")
+@click.option("--no-daemon", is_flag=True, help="Run in foreground without daemonizing (for launchd/systemd).")
 @click.argument("path", type=click.Path(exists=True))
-def restart(port: int, public: bool, path: str):
+def restart(port: int, public: bool, no_daemon: bool, path: str):
     """Restart the demo server."""
     pid, running = daemon_status()
     if running:
@@ -60,7 +66,7 @@ def restart(port: int, public: bool, path: str):
         PID_FILE.unlink(missing_ok=True)
 
     ctx = click.Context(start, info_name="start")
-    ctx.params = {"port": port, "public": public, "path": path}
+    ctx.params = {"port": port, "public": public, "no_daemon": no_daemon, "path": path}
     start.invoke(ctx)
 
 
