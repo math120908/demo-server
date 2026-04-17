@@ -241,11 +241,7 @@ def create_app(base_path: str) -> FastAPI:
         if not module_dir.is_dir():
             return HTMLResponse("Not found", status_code=404)
 
-        # Block access to ignored modules
-        config = _load_config(base)
-        ignored = set(config.get("ignore-modules", []))
-        if module in ignored:
-            return HTMLResponse("Not found", status_code=404)
+        # `ignore-modules` only hides from the /all/ listing; direct URL access is allowed.
 
         if not path or path.endswith("/"):
             path = path + "index.html"
