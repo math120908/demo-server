@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <style>
+    /* Minimal — Typography-focused theme */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.7;
+      color: #2c2c2c;
+      background: #fafafa;
+      -webkit-font-smoothing: antialiased;
+    }
+    .md-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 5rem;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 2em;
+      margin-bottom: 0.5em;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #111;
+    }
+    h1 { font-size: 2rem; margin-top: 0; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.2rem; }
+
+    p { margin-bottom: 1.2em; }
+    a { color: #2563eb; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: #1d4ed8; }
+    strong { font-weight: 600; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 2em 0; }
+
+    ul, ol { margin-bottom: 1.2em; padding-left: 1.5em; }
+    li { margin-bottom: 0.3em; }
+    li input[type="checkbox"] { margin-right: 0.35em; }
+
+    blockquote {
+      border-left: 3px solid #ccc;
+      padding: 0 1em;
+      margin: 1.2em 0;
+      color: #555;
+    }
+    blockquote p:last-child { margin-bottom: 0; }
+
+    code {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.85em;
+      background: #f0f0f0;
+      padding: 0.15em 0.35em;
+      border-radius: 3px;
+    }
+    pre {
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1.2em 0;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      font-size: 0.85em;
+      line-height: 1.6;
+    }
+
+    {{ highlight_css }}
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.2em 0;
+      font-size: 0.95em;
+    }
+    th, td {
+      padding: 0.5em 0.8em;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th { font-weight: 600; border-bottom-width: 2px; }
+
+    .md-card {
+      background: linear-gradient(135deg, var(--card-bg, #f8fafc) 0%, var(--card-bg2, #f1f5f9) 100%);
+      border: 1px solid var(--card-border, #94a3b8);
+      border-radius: 6px; padding: 20px 24px; margin: 1.2em 0; position: relative;
+    }
+    .md-card .card-label {
+      position: absolute; top: -11px; left: 20px;
+      background: var(--card-badge-bg, #64748b); color: var(--card-badge-text, #fff);
+      padding: 3px 10px; border-radius: 999px; font-size: 11px;
+      font-family: "SF Mono", Menlo, monospace; letter-spacing: 0.06em; font-weight: 600;
+    }
+    .md-card .card-label:not(:empty) + * { margin-top: 6px; }
+    .md-card h2, .md-card h3 { color: var(--card-text, #111); border: none; }
+    .md-callout {
+      background: #fff; border: 1px dashed var(--card-border, #ccc);
+      border-radius: 4px; padding: 12px 16px; margin: 1em 0;
+    }
+    .md-callout > *:first-child { margin-top: 0; }
+    .md-callout > *:last-child { margin-bottom: 0; }
+
+    details.fold-block {
+      border: 1px solid #ddd; border-radius: 4px;
+      padding: 0; margin: 1.2em 0; overflow: hidden;
+    }
+    details.fold-block summary {
+      padding: 0.6em 1em; cursor: pointer; font-weight: 600;
+      list-style: none; color: #2563eb;
+    }
+    details.fold-block summary::-webkit-details-marker { display: none; }
+    details.fold-block summary::before { content: "▶ "; font-size: 0.75em; }
+    details.fold-block[open] summary::before { content: "▼ "; }
+    details.fold-block[open] summary { border-bottom: 1px solid #ddd; background: #f5f5f5; }
+    details.fold-block > *:not(summary) { padding: 0 1em; }
+    details.fold-block > p:last-child { padding-bottom: 0.6em; }
+
+    img { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <div class="md-container">
+    {{ content }}
+  </div>
+</body>
+</html>

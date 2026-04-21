@@ -12,6 +12,10 @@ dependencies = [
     "click",
     "python-multipart",
     "itsdangerous",
+    "markdown-it-py[plugins]",
+    "pygments",
+    "jinja2",
+    "pyyaml",
 ]
 
 [project.scripts]
@@ -19,3 +23,6 @@ demo-server = "demo_server.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+demo_server = ["themes/**/*.html"]

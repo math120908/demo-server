@@ -244,7 +244,14 @@ def create_app(base_path: str) -> FastAPI:
         # `ignore-modules` only hides from the /all/ listing; direct URL access is allowed.
 
         if not path or path.endswith("/"):
-            path = path + "index.html"
+            html_index = module_dir / (path + "index.html")
+            md_index = module_dir / (path + "index.md")
+            if html_index.is_file():
+                path = path + "index.html"
+            elif md_index.is_file():
+                path = path + "index.md"
+            else:
+                path = path + "index.html"  # fall through to 404
 
         # Hidden file check
         for part in Path(path).parts:
@@ -272,6 +279,11 @@ def create_app(base_path: str) -> FastAPI:
 
         if not file_path.is_file():
             return HTMLResponse("Not found", status_code=404)
+
+        if file_path.suffix == ".md":
+            from demo_server.markdown_render import render_md_file
+            html_content = render_md_file(file_path)
+            return HTMLResponse(html_content)
 
         return FileResponse(file_path)
 
