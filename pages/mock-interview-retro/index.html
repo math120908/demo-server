@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock Interview Retro</title>
+  <style>
+    /* ── Meridian tokens ── */
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+      --border: #30363d; --text: #e6edf3; --text2: #8b949e; --text3: #6e7681;
+      --primary: #58a6ff; --ok: #3fb950; --warn: #d29922; --danger: #f85149;
+      --accent: #bc8cff;
+      --fs-xs: 0.72rem; --fs-sm: 0.85rem; --fs-base: 1rem;
+      --fs-lg: 1.125rem; --fs-xl: 1.25rem; --fs-2xl: 1.5rem; --fs-3xl: 2rem;
+      --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+      --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+      --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
+    }
+    [data-theme="light"] {
+      --bg: #ffffff; --surface: #f6f8fa; --surface2: #eaeef2;
+      --border: #d0d7de; --text: #1f2328; --text2: #656d76; --text3: #9198a1;
+      --primary: #0969da; --ok: #1a7f37; --warn: #9a6700; --danger: #cf222e;
+      --accent: #8250df;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: var(--fs-base); line-height: 1.6; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sp-6); height: 52px;
+    }
+    .topbar-brand { font-weight: 600; font-size: var(--fs-lg); display: flex; align-items: center; gap: var(--sp-2); text-decoration: none; color: var(--text); }
+    .topbar-right { display: flex; align-items: center; gap: var(--sp-3); }
+    .theme-btn {
+      background: none; border: 1px solid var(--border); color: var(--text2);
+      border-radius: var(--radius-sm); padding: var(--sp-1) var(--sp-3);
+      cursor: pointer; font-size: var(--fs-sm);
+    }
+    .theme-btn:hover { color: var(--text); border-color: var(--text3); }
+    .home-link { font-size: var(--fs-sm); color: var(--text2); text-decoration: none; }
+    .home-link:hover { color: var(--primary); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: var(--sp-10) var(--sp-6) var(--sp-8);
+      max-width: 900px; margin: 0 auto;
+    }
+    .hero .eyebrow { font-size: var(--fs-sm); color: var(--text2); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: var(--sp-3); display: block; }
+    .hero h1 { font-size: var(--fs-3xl); font-weight: 700; line-height: 1.25; margin-bottom: var(--sp-4); }
+    .hero .subtitle { font-size: var(--fs-lg); color: var(--text2); max-width: 560px; }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: flex; gap: var(--sp-4); flex-wrap: wrap;
+      max-width: 900px; margin: 0 auto var(--sp-8); padding: 0 var(--sp-6);
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: var(--sp-4) var(--sp-5);
+      min-width: 130px; flex: 1;
+    }
+    .stat-label { font-size: var(--fs-xs); color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--sp-1); }
+    .stat-val { font-size: var(--fs-2xl); font-weight: 700; color: var(--primary); }
+
+    /* ── Sections ── */
+    .section { max-width: 900px; margin: 0 auto var(--sp-10); padding: 0 var(--sp-6); }
+    .section-header {
+      display: flex; align-items: center; gap: var(--sp-3);
+      margin-bottom: var(--sp-5); border-bottom: 1px solid var(--border); padding-bottom: var(--sp-4);
+    }
+    .section-header h2 { font-size: var(--fs-2xl); font-weight: 600; }
+    .track-badge { font-size: var(--fs-xs); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px; color: var(--text2); }
+
+    /* ── Timeline cards ── */
+    .timeline { display: flex; flex-direction: column; gap: var(--sp-4); }
+    .session-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: var(--sp-5) var(--sp-6);
+      display: flex; gap: var(--sp-5); align-items: flex-start;
+      text-decoration: none; color: inherit; transition: border-color 0.15s;
+      position: relative;
+    }
+    a.session-card:hover { border-color: var(--primary); }
+    .session-card.wip { cursor: default; opacity: 0.75; }
+
+    .card-date { text-align: center; min-width: 52px; }
+    .card-date .md { font-size: var(--fs-xl); font-weight: 700; display: block; color: var(--primary); line-height: 1; }
+    .card-date .yr { font-size: var(--fs-xs); color: var(--text3); }
+
+    .card-body { flex: 1; min-width: 0; }
+    .card-title-row { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-2); }
+    .card-title { font-size: var(--fs-lg); font-weight: 600; }
+    .seq-badge { font-size: var(--fs-xs); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; color: var(--text3); white-space: nowrap; }
+    .meta-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+    .tag { font-size: var(--fs-xs); border-radius: 20px; padding: 2px 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); white-space: nowrap; }
+    .tag.expert { border-color: var(--accent); color: var(--accent); }
+    .tag.focus { border-color: var(--primary); color: var(--primary); }
+    .tag.wip-tag { border-color: var(--warn); color: var(--warn); }
+    .card-desc { font-size: var(--fs-sm); color: var(--text2); line-height: 1.65; }
+
+    .card-score { text-align: right; min-width: 60px; }
+    .score-num { font-size: var(--fs-xl); font-weight: 700; }
+    .score-label { font-size: var(--fs-xs); color: var(--text3); }
+    .score-warn { color: var(--warn); }
+    .score-good { color: var(--ok); }
+    .score-high { color: var(--accent); }
+    .score-low { color: var(--danger); }
+
+    /* ── Actions badge + drawer ── */
+    .actions-badge {
+      position: absolute; top: var(--sp-3); right: var(--sp-3);
+      background: none; border: 1px solid var(--warn); color: var(--warn);
+      border-radius: 20px; padding: 2px 10px; font-size: var(--fs-xs);
+      cursor: pointer; font-family: inherit;
+    }
+    .actions-badge:hover { background: var(--warn); color: var(--bg); }
+
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 199;
+      background: rgba(0,0,0,0.25);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    [data-theme="light"] .drawer-overlay { background: rgba(0,0,0,0.15); }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+    .action-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 200;
+      width: 320px; background: var(--surface); border-left: 1px solid var(--border);
+      transform: translateX(100%); transition: transform 0.22s ease;
+      display: flex; flex-direction: column; padding: var(--sp-5);
+    }
+    .action-drawer.open { transform: translateX(0); }
+    .drawer-title { font-weight: 600; font-size: var(--fs-lg); margin-bottom: var(--sp-4); padding-bottom: var(--sp-3); border-bottom: 1px solid var(--border); }
+    .drawer-items { display: flex; flex-direction: column; gap: var(--sp-3); overflow-y: auto; }
+    .drawer-item { font-size: var(--fs-sm); }
+    .drawer-item a { color: var(--primary); }
+    .drawer-close {
+      margin-top: auto; padding-top: var(--sp-5);
+      background: none; border: 1px solid var(--border);
+      color: var(--text2); border-radius: var(--radius-sm);
+      padding: var(--sp-2) var(--sp-4); cursor: pointer; font-family: inherit;
+      font-size: var(--fs-sm);
+    }
+    .drawer-close:hover { color: var(--text); border-color: var(--text3); }
+
+    /* ── Upcoming ── */
+    .upcoming-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: var(--sp-4) var(--sp-5);
+      border-style: dashed; opacity: 0.6;
+    }
+    .upcoming-label { font-size: var(--fs-sm); font-weight: 600; color: var(--text2); margin-bottom: var(--sp-1); }
+    .upcoming-desc { font-size: var(--fs-sm); color: var(--text3); }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border); padding: var(--sp-6);
+      text-align: center; font-size: var(--fs-xs); color: var(--text3);
+    }
+    .footer a { color: var(--text3); text-decoration: none; }
+    .footer a:hover { color: var(--primary); }
+
+    /* ── Scroll fade-in ── */
+    .fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.45s ease, transform 0.45s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .session-card { flex-direction: column; gap: var(--sp-3); }
+      .card-score { text-align: left; }
+      .stats-strip { gap: var(--sp-3); }
+    }
+  </style>
+</head>
+<body>
+  <!-- FOUC prevention -->
+  <script>
+    (function() {
+      var t = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
+  <nav class="topbar">
+    <a href="/" class="topbar-brand">Mock Interview Retro</a>
+    <div class="topbar-right">
+      <a href="/" class="home-link">Home</a>
+      <button class="theme-btn" id="theme-toggle">Light</button>
+    </div>
+  </nav>
+
+  <div class="hero fade-in">
+    <span class="eyebrow">Anthropic Interview Prep · CK</span>
+    <h1>Mock Session Retros</h1>
+    <p class="subtitle">Coding, system design, and behavioral mock sessions — scored debrief with coaching notes and drills.</p>
+  </div>
+
+  <div class="stats-strip fade-in">
+    <div class="stat-card">
+      <div class="stat-label">Coding 場次</div>
+      <div class="stat-val" id="stat-coding">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sys Design 場次</div>
+      <div class="stat-val" id="stat-sysdesign">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Behavioral 場次</div>
+      <div class="stat-val" id="stat-behavioral">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Latest Coding Score</div>
+      <div class="stat-val" id="stat-latest-score">—</div>
+    </div>
+  </div>
+
+  <section class="section fade-in">
+    <div class="section-header">
+      <h2>Coding Mocks</h2>
+      <span class="track-badge">Q bank · Anthropic style</span>
+    </div>
+    <div class="timeline" id="timeline-coding"></div>
+  </section>
+
+  <section class="section fade-in">
+    <div class="section-header">
+      <h2>System Design Mocks</h2>
+      <span class="track-badge">Distributed systems · Architecture</span>
+    </div>
+    <div class="timeline" id="timeline-sysdesign"></div>
+  </section>
+
+  <section class="section fade-in">
+    <div class="section-header">
+      <h2>Behavioral Mocks</h2>
+      <span class="track-badge">Leadership · Conflict · Growth</span>
+    </div>
+    <div class="timeline" id="timeline-behavioral"></div>
+  </section>
+
+  <!-- Drawer overlay -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <!-- Drawer (lazy built) -->
+  <div class="action-drawer" id="action-drawer">
+    <div class="drawer-title" id="drawer-title">Action Items</div>
+    <div class="drawer-items" id="drawer-items"></div>
+    <button class="drawer-close" id="drawer-close">Close</button>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2026 CK &mdash; <a href="/">Main Index</a></p>
+  </footer>
+
+  <script>
+    // ── Theme toggle ──
+    (function() {
+      var btn = document.getElementById('theme-toggle');
+      function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('theme', t);
+        btn.textContent = t === 'dark' ? 'Light' : 'Dark';
+      }
+      applyTheme(localStorage.getItem('theme') || 'dark');
+      btn.addEventListener('click', function() {
+        applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      });
+    })();
+
+    // ── Scroll fade-in ──
+    (function() {
+      var els = document.querySelectorAll('.fade-in');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(function(el) { el.classList.add('visible'); });
+        return;
+      }
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+      }, { threshold: 0.08 });
+      els.forEach(function(el) { obs.observe(el); });
+    })();
+
+    // ── Session data ──
+    var codingSessions = [
+      {
+        date: "05-03", year: "2026", seq: "S01",
+        title: "Distributed Mode and Median — Self-Mock",
+        href: null, wip: true,
+        meta: [
+          { text: "🐓 Blaziken", cls: "expert" },
+          { text: "Self Mock · distributed systems", cls: "focus" },
+          { text: "L1-L3 all attempted", cls: "" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "前面超順、後面 binary search 稍卡（太久沒寫）。avg 3.8，design thinking 4 分 — L3 從 first principles 推導出 binary search on value space 是亮點。Top gap：merge_mode 用 &（intersection）而非 |（union），且每 level 結束沒跑 pre-done trace。Action：trace ritual + merge invariant drill + 複習 mode counter 溢位處理。",
+        score: 3.8,
+        actions: []
+      },
+      {
+        date: "05-02", year: "2026", seq: "S01",
+        title: "Agent Loop / Tool Calls — Self-Mock",
+        href: null, wip: true,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Self Mock · Agent Loop", cls: "focus" },
+          { text: "L1✓ L2✓ L3 partial", cls: "" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "順暢有手感的一場！三個 level 都有觸及（L1 parallel tool calls ✓、L2 caching ✓、L3 retry partial），avg 3.7。最大 gap：cache.set 存了 value_maybe（None）而非 result，review pass 沒抓到。Action: variable-trace drill、exponential backoff 公式複習。",
+        score: 3.7,
+        actions: []
+      },
+      {
+        date: "04-30", year: "2026", seq: "S01",
+        title: "File Deduplication — Self-Mock",
+        href: null, wip: true,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Self Mock · File Dedup", cls: "focus" },
+          { text: "L1✓ L2 partial", cls: "" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "最高分場次（avg 4.0）— 3-stage 去重架構（size → chunk-hash → full-hash）乾淨，class decomposition staff-level。Recurring gap：pre-done trace ritual 仍缺，os.walk tuple 解包出錯。Python execution 仍有約 13 個 compiler-catchable bugs。",
+        score: 4.0,
+        actions: []
+      },
+      {
+        date: "04-28", year: "2026", seq: "S01",
+        title: "Batch Image Processor — Self-Mock",
+        href: "2026-04-28-S01.html", wip: false,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Self Mock · Batch Image", cls: "focus" },
+          { text: "L1✓ L2✓ L3 design", cls: "" }
+        ],
+        descHtml: "第二高分（avg 3.6）。MVP-first 意識明顯改善，L3 PENDING sentinel + lock 設計是 staff-grade 思路。Gap：as_completed 不保證順序 — 兩次 probe 都沒有修正 code。honest self-disclosure（「不熟 syntax 但我可以 wrap」）是真實面試的正確信號。",
+        score: 3.6,
+        actions: []
+      },
+      {
+        date: "04-24", year: "2026", seq: "S01",
+        title: "Agentic AI System Design — Samira Mock",
+        href: null, wip: true,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Samira Mock · Agentic AI", cls: "focus" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "與 Samira 的 agentic AI system design mock。尚未生成 retro 頁面。",
+        score: null,
+        actions: [
+          { type: "link", label: "ai-agent-sandbox session notes", href: "../ai-learning-notes/20260426-ai-agent-sandbox/" },
+          { type: "link", label: "agent-loop-terminology reference", href: "../ai-learning-notes/20260426-ai-agent-sandbox/agent-loop-terminology.html" },
+          { type: "meta", label: "Vocabulary gap 是 trigger — 補足 ReAct / tool-call / multi-agent 詞彙" }
+        ]
+      },
+      {
+        date: "04-19", year: "2026", seq: "S01",
+        title: "Web Crawler — Attempt 2",
+        href: "2026-04-19-S01.html", wip: false,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Self Mock · Web Crawler", cls: "focus" },
+          { text: "L1✓ L2✓ L3✓", cls: "" }
+        ],
+        descHtml: "最初 retro 基準場（avg 3.9，當時最高）。Staff-level concurrency design：I/O→threading 選擇、grey-state graph coloring、sliding window rate limiter。第一次在 session 中自己 catch self. bugs。Python execution bugs persist。",
+        score: 3.9,
+        actions: []
+      },
+      {
+        date: "04-13", year: "2026", seq: "S01",
+        title: "Banking Service — Attempt 1",
+        href: null, wip: true,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Self Mock · Banking", cls: "focus" },
+          { text: "L1✓ L2 partial", cls: "" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "avg 3.1。Design instinct staff-level（thread safety、transaction atomicity、binary search optimization），但 execution junior-level。ALL BankSystem methods 缺 self（第 3 次）。L1 over-engineering（enums/Lock/context manager）耗時 33 分鐘。",
+        score: 3.1,
+        actions: []
+      },
+      {
+        date: "04-09", year: "2026", seq: "S01",
+        title: "Web Crawler — Attempt 1",
+        href: null, wip: true,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Self Mock · Web Crawler", cls: "focus" },
+          { text: "L1✓ L2 design only", cls: "" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "avg 2.7。Algorithm thinking 強（BFS、depth tracking、race condition analysis），但 Python stdlib 是瓶頸 — deque method 全錯、缺 self.。Critical root URL bug 需 interviewer 引導才抓到。",
+        score: 2.7,
+        actions: []
+      },
+      {
+        date: "04-06", year: "2026", seq: "S01",
+        title: "In-Memory Database — Attempt 1",
+        href: null, wip: true,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Self Mock · In-Memory DB", cls: "focus" },
+          { text: "L1✓ L2✓ L3✓", cls: "" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "avg 3.3。Systems thinking 強（TTL absolute timestamp + lazy expiration、thread-safety analysis）。Python syntax precision 是瓶頸（===、missing self.、missing imports）。Completed 3/4 levels。",
+        score: 3.3,
+        actions: []
+      },
+      {
+        date: "04-05", year: "2026", seq: "S01",
+        title: "LRU Cache — Attempt 1",
+        href: null, wip: true,
+        meta: [
+          { text: "Blaziken", cls: "expert" },
+          { text: "Self Mock · LRU Cache", cls: "focus" },
+          { text: "L1 incomplete", cls: "" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "avg 2.8。Strong planning phase，但 execution 慢。Decorator pattern 未在時限內完成。Python syntax gaps（OrderedDict、decorator closure）和 interface-first practice 缺失是主要 blocker。",
+        score: 2.8,
+        actions: []
+      }
+    ];
+
+    var sysdesignSessions = [
+      {
+        date: "待", year: "排程", seq: "S01",
+        title: "System Design — 待安排",
+        href: null, wip: true,
+        meta: [
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "尚未有 system design mock 場次記錄。",
+        score: null,
+        actions: []
+      }
+    ];
+
+    var behavioralSessions = [
+      {
+        date: "05-01", year: "2026", seq: "S01",
+        title: "Behavioral Mock — Alakazam",
+        href: null, wip: true,
+        meta: [
+          { text: "Alakazam", cls: "expert" },
+          { text: "Behavioral Mock", cls: "focus" },
+          { text: "Retro 建構中", cls: "wip-tag" }
+        ],
+        descHtml: "2026-05-01 Alakazam behavioral mock session。Retro 尚未生成。",
+        score: null,
+        actions: []
+      }
+    ];
+
+    // ── Upcoming blocks ──
+    var upcoming = {
+      coding: { label: "Next: Distributed Mode and Median or Cloud Storage System", descHtml: "Q bank 中下一個未嘗試的題目。" },
+      sysdesign: { label: "Next: Distributed Cache Design", descHtml: "待安排 — 基礎 distributed systems vocab 補完後。" },
+      behavioral: { label: "Next: More Behavioral Sessions", descHtml: "待安排。" }
+    };
+
+    // ── Score color class ──
+    function scoreClass(s) {
+      if (s === null) return '';
+      if (s >= 4.5) return 'score-high';
+      if (s >= 4.0) return 'score-good';
+      if (s >= 3.0) return 'score-warn';
+      return 'score-low';
+    }
+
+    // ── Drawer state ──
+    var drawerOpen = false;
+    var drawerEl = document.getElementById('action-drawer');
+    var overlayEl = document.getElementById('drawer-overlay');
+    var drawerItemsEl = document.getElementById('drawer-items');
+    var drawerTitleEl = document.getElementById('drawer-title');
+
+    function openDrawer(title, actions) {
+      // clear previous
+      while (drawerItemsEl.firstChild) { drawerItemsEl.removeChild(drawerItemsEl.firstChild); }
+      drawerTitleEl.textContent = title + ' — Actions';
+      actions.forEach(function(item) {
+        var div = document.createElement('div');
+        div.className = 'drawer-item';
+        if (item.type === 'link') {
+          var a = document.createElement('a');
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.href = item.href;
+          a.textContent = item.label;
+          div.appendChild(a);
+        } else {
+          var span = document.createElement('span');
+          span.textContent = item.label;
+          div.appendChild(span);
+        }
+        drawerItemsEl.appendChild(div);
+      });
+      drawerEl.classList.add('open');
+      overlayEl.classList.add('open');
+      drawerOpen = true;
+    }
+
+    function closeDrawer() {
+      drawerEl.classList.remove('open');
+      overlayEl.classList.remove('open');
+      drawerOpen = false;
+    }
+
+    document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+    overlayEl.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && drawerOpen) closeDrawer(); });
+
+    // ── Render timeline ──
+    function renderTimeline(sessions, containerId, upcomingData) {
+      var container = document.getElementById(containerId);
+
+      sessions.forEach(function(s) {
+        var isLink = s.href && !s.wip;
+        var card = document.createElement(isLink ? 'a' : 'div');
+        card.className = 'session-card fade-in' + (s.wip ? ' wip' : '');
+        if (isLink) { card.href = s.href; }
+
+        // date column
+        var dateCol = document.createElement('div');
+        dateCol.className = 'card-date';
+        var mdSpan = document.createElement('span');
+        mdSpan.className = 'md';
+        mdSpan.textContent = s.date;
+        var yrSpan = document.createElement('span');
+        yrSpan.className = 'yr';
+        yrSpan.textContent = s.year;
+        dateCol.appendChild(mdSpan);
+        dateCol.appendChild(yrSpan);
+
+        // body column
+        var body = document.createElement('div');
+        body.className = 'card-body';
+
+        var titleRow = document.createElement('div');
+        titleRow.className = 'card-title-row';
+        var titleSpan = document.createElement('span');
+        titleSpan.className = 'card-title';
+        titleSpan.textContent = s.title;
+        var seqSpan = document.createElement('span');
+        seqSpan.className = 'seq-badge';
+        seqSpan.textContent = s.seq;
+        titleRow.appendChild(titleSpan);
+        titleRow.appendChild(seqSpan);
+
+        var metaRow = document.createElement('div');
+        metaRow.className = 'meta-row';
+        (s.meta || []).forEach(function(m) {
+          var tag = document.createElement('span');
+          tag.className = 'tag' + (m.cls ? ' ' + m.cls : '');
+          tag.textContent = m.text;
+          metaRow.appendChild(tag);
+        });
+
+        var desc = document.createElement('div');
+        desc.className = 'card-desc';
+        // descHtml is static controlled data — safe to use insertAdjacentHTML
+        desc.insertAdjacentHTML('beforeend', s.descHtml);
+
+        body.appendChild(titleRow);
+        body.appendChild(metaRow);
+        body.appendChild(desc);
+
+        // score column
+        var scoreCol = document.createElement('div');
+        scoreCol.className = 'card-score';
+        if (s.score !== null && s.score !== undefined) {
+          var scoreNum = document.createElement('div');
+          scoreNum.className = 'score-num ' + scoreClass(s.score);
+          scoreNum.textContent = s.score.toFixed(1);
+          var scoreLbl = document.createElement('div');
+          scoreLbl.className = 'score-label';
+          scoreLbl.textContent = '/ 5';
+          scoreCol.appendChild(scoreNum);
+          scoreCol.appendChild(scoreLbl);
+        }
+
+        card.appendChild(dateCol);
+        card.appendChild(body);
+        card.appendChild(scoreCol);
+
+        // actions badge
+        if (s.actions && s.actions.length > 0) {
+          var badge = document.createElement('button');
+          badge.type = 'button';
+          badge.className = 'actions-badge';
+          badge.setAttribute('aria-label', 'Open action items');
+          badge.textContent = '\u26A1 ' + s.actions.length;
+          var capturedTitle = s.title;
+          var capturedActions = s.actions;
+          badge.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openDrawer(capturedTitle, capturedActions);
+          });
+          card.appendChild(badge);
+        }
+
+        container.appendChild(card);
+      });
+
+      // upcoming
+      if (upcomingData) {
+        var upDiv = document.createElement('div');
+        upDiv.className = 'upcoming-card fade-in';
+        var upLabel = document.createElement('div');
+        upLabel.className = 'upcoming-label';
+        upLabel.textContent = upcomingData.label;
+        var upDesc = document.createElement('div');
+        upDesc.className = 'upcoming-desc';
+        upDesc.insertAdjacentHTML('beforeend', upcomingData.descHtml);
+        upDiv.appendChild(upLabel);
+        upDiv.appendChild(upDesc);
+        container.appendChild(upDiv);
+      }
+    }
+
+    // ── Render stats ──
+    function renderStats() {
+      var scoredCoding = codingSessions.filter(function(s) { return s.score !== null && s.score !== undefined; });
+      document.getElementById('stat-coding').textContent = codingSessions.length;
+      document.getElementById('stat-sysdesign').textContent = sysdesignSessions.filter(function(s) { return !s.wip || s.date !== '待'; }).length;
+      document.getElementById('stat-behavioral').textContent = behavioralSessions.length;
+      if (scoredCoding.length > 0) {
+        var latest = scoredCoding[0];
+        var el = document.getElementById('stat-latest-score');
+        el.textContent = latest.score.toFixed(1);
+        el.className = 'stat-val ' + scoreClass(latest.score);
+      }
+    }
+
+    // ── Init ──
+    renderTimeline(codingSessions, 'timeline-coding', upcoming.coding);
+    renderTimeline(sysdesignSessions, 'timeline-sysdesign', upcoming.sysdesign);
+    renderTimeline(behavioralSessions, 'timeline-behavioral', upcoming.behavioral);
+    renderStats();
+
+    // Re-init fade-in for dynamically inserted cards
+    (function() {
+      var newEls = document.querySelectorAll('.fade-in:not(.visible)');
+      if (!('IntersectionObserver' in window)) {
+        newEls.forEach(function(el) { el.classList.add('visible'); });
+        return;
+      }
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+      }, { threshold: 0.05 });
+      newEls.forEach(function(el) { obs.observe(el); });
+    })();
+  </script>
+</body>
+</html>
