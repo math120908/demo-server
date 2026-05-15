@@ -273,6 +273,43 @@
     [data-theme="dark"] .slide svg line[stroke="#94A3B8"] { stroke: var(--text-muted); }
     [data-theme="dark"] .slide svg line[stroke="#E2E8F0"] { stroke: var(--border); }
     [data-theme="dark"] .slide svg rect[stroke="#CBD5E1"] { stroke: var(--border-strong); }
+    /* Dark mode overrides for team-structure SVG */
+    [data-theme="dark"] .slide svg rect[fill="#EEF4FB"],
+    [data-theme="dark"] .slide svg rect[fill="#E0EDFB"],
+    [data-theme="dark"] .slide svg rect[fill="#D8F0EB"],
+    [data-theme="dark"] .slide svg rect[fill="#E4E8F0"],
+    [data-theme="dark"] .slide svg rect[fill="#EBF0FA"] { fill: var(--surface); }
+    [data-theme="dark"] .slide svg rect[fill="#E8F8F5"] { fill: #0a2725; }
+    [data-theme="dark"] .slide svg rect[fill="#F0FDFA"] { fill: #0a2725; }
+    [data-theme="dark"] .slide svg rect[fill="#FFF9E6"] { fill: #2a2310; }
+    [data-theme="dark"] .slide svg text[fill="#1E3A5F"],
+    [data-theme="dark"] .slide svg text[fill="#154360"],
+    [data-theme="dark"] .slide svg text[fill="#1A5276"],
+    [data-theme="dark"] .slide svg text[fill="#1B2631"],
+    [data-theme="dark"] .slide svg text[fill="#1B2641"] { fill: var(--text); }
+    [data-theme="dark"] .slide svg text[fill="#2C3E80"] { fill: #7c9cff; }
+    [data-theme="dark"] .slide svg text[fill="#134E4A"],
+    [data-theme="dark"] .slide svg text[fill="#0E6655"] { fill: var(--teal); }
+    [data-theme="dark"] .slide svg text[fill="#5F6B7A"],
+    [data-theme="dark"] .slide svg text[fill="#4A7BA0"],
+    [data-theme="dark"] .slide svg text[fill="#1E8449"] { fill: var(--text-sec); }
+    [data-theme="dark"] .slide svg text[fill="#8B6914"],
+    [data-theme="dark"] .slide svg text[fill="#A68B3C"] { fill: var(--warn); }
+    [data-theme="dark"] .slide svg rect[fill="#1E3A5F"] { fill: #2a4a6f; }
+    [data-theme="dark"] .slide svg rect[fill="#1A5276"] { fill: #1a5276; }
+    [data-theme="dark"] .slide svg rect[fill="#2471A3"] { fill: #2471a3; }
+    [data-theme="dark"] .slide svg rect[fill="#2C3E80"] { fill: #2c3e80; }
+    [data-theme="dark"] .slide svg rect[fill="#4A5580"] { fill: #4a5580; }
+    [data-theme="dark"] .slide svg rect[fill="#1B2641"] { fill: #1b2641; }
+    [data-theme="dark"] .slide svg line[stroke="#CBD5E1"] { stroke: var(--border-strong); }
+    [data-theme="dark"] .slide svg rect[stroke="#E2E8F0"] { stroke: var(--border); }
+    [data-theme="dark"] .slide svg rect[stroke="#B0D4F1"] { stroke: #1e4a6f; }
+    [data-theme="dark"] .slide svg rect[stroke="#8EC4F0"] { stroke: #1e4a6f; }
+    [data-theme="dark"] .slide svg rect[stroke="#7DC4B5"] { stroke: #0d6b5e; }
+    [data-theme="dark"] .slide svg rect[stroke="#9AACCF"] { stroke: #3a5a7f; }
+    [data-theme="dark"] .slide svg rect[fill="#64748B"] { fill: #64748b; }
+    [data-theme="dark"] .slide svg line[stroke="#6B7B8D"] { stroke: var(--text-muted); }
+    [data-theme="dark"] .slide svg rect[stroke="#F0C75E"] { stroke: #8b6914; }
 
     /* --- Goal Callout --- */
     .goal-callout {
@@ -293,6 +330,85 @@
       border-radius: var(--radius);
       background: var(--surface);
       padding: 16px;
+    }
+
+    /* --- Split Layout --- */
+    .split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+      margin-top: 24px;
+    }
+    @media (max-width: 900px) {
+      .split-layout { grid-template-columns: 1fr; }
+    }
+
+    /* --- Card Grid --- */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .card-grid .card { padding: 20px; }
+    .card-grid .card h4 {
+      font-family: var(--font-d);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .card-grid .card p { font-size: 0.9rem; margin: 0; }
+    @media (max-width: 768px) {
+      .card-grid { grid-template-columns: 1fr; }
+    }
+
+    /* --- Card with colored left border --- */
+    .card-border-teal { border-left: 4px solid var(--teal); }
+    .card-border-blue { border-left: 4px solid var(--primary); }
+
+    /* --- Bullet list inside cards --- */
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0 0;
+    }
+    .card ul li {
+      font-size: 0.95rem;
+      color: var(--text-sec);
+      padding: 3px 0 3px 16px;
+      position: relative;
+    }
+    .card ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border-strong);
+      transform: translateY(-50%);
+    }
+    .card .card-title {
+      font-family: var(--font-d);
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .card .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+    .stacked-cards { display: flex; flex-direction: column; gap: 16px; }
+    .team-note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+      text-align: center;
     }
 
     /* --- Fullscreen hint --- */
@@ -512,6 +628,252 @@
       </div>
       <div class="goal-callout">
         <p><strong>Goal (Q1+Q2):</strong> From zero &rarr; 1T raw tokens &middot; 3 months of activity data &middot; 100M members &middot; Major surfaces (Feed, Job, Notification, Network, Search)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Team & My Role -->
+  <div class="slide" data-slide="2">
+    <div class="slide-content">
+      <h2>Team &amp; My Role</h2>
+      <div class="split-layout">
+        <div class="svg-container" style="padding: 12px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" width="100%" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
+            <defs>
+              <filter id="ts-shadow" x="-4%" y="-4%" width="108%" height="112%">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.08"/>
+              </filter>
+              <filter id="ts-ck-glow" x="-6%" y="-6%" width="112%" height="116%">
+                <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#0D9488" flood-opacity="0.25"/>
+              </filter>
+              <marker id="ts-arrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#94A3B8"/>
+              </marker>
+            </defs>
+            <rect width="960" height="500" fill="#FAFBFC" rx="0"/>
+            <rect x="330" y="24" width="300" height="44" rx="22" fill="#1E3A5F" filter="url(#ts-shadow)"/>
+            <text x="480" y="52" text-anchor="middle" fill="#FFFFFF" font-size="16" font-weight="600">360Brew Initiative</text>
+            <line x1="480" y1="68" x2="480" y2="100" stroke="#CBD5E1" stroke-width="1.5"/>
+            <line x1="160" y1="100" x2="800" y2="100" stroke="#CBD5E1" stroke-width="1.5"/>
+            <line x1="160" y1="100" x2="160" y2="118" stroke="#CBD5E1" stroke-width="1.5"/>
+            <line x1="480" y1="100" x2="480" y2="118" stroke="#CBD5E1" stroke-width="1.5"/>
+            <line x1="800" y1="100" x2="800" y2="118" stroke="#CBD5E1" stroke-width="1.5"/>
+            <g>
+              <rect x="30" y="118" width="260" height="248" rx="12" fill="#FFFFFF" stroke="#0D9488" stroke-width="2" filter="url(#ts-shadow)"/>
+              <rect x="30" y="118" width="260" height="42" rx="12" fill="#0D9488"/>
+              <rect x="30" y="148" width="260" height="12" fill="#0D9488"/>
+              <text x="160" y="145" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="600">Data Team (Datazilla)</text>
+              <rect x="50" y="170" width="220" height="40" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+              <text x="66" y="185" fill="#1E3A5F" font-size="11.5" font-weight="600">Albert</text>
+              <text x="66" y="200" fill="#5F6B7A" font-size="10">Overall Tech Lead (ML/Quality)</text>
+              <rect x="50" y="220" width="220" height="40" rx="8" fill="#F0FDFA" stroke="#0D9488" stroke-width="1.5" filter="url(#ts-ck-glow)"/>
+              <circle cx="70" cy="240" r="10" fill="#0D9488"/>
+              <text x="70" y="244" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="700">CK</text>
+              <text x="86" y="235" fill="#134E4A" font-size="11.5" font-weight="600">CK</text>
+              <text x="86" y="250" fill="#5F6B7A" font-size="10">System Architect + PM</text>
+              <rect x="50" y="300" width="220" height="36" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 2"/>
+              <text x="160" y="323" text-anchor="middle" fill="#64748B" font-size="11">+ 6 Engineers</text>
+            </g>
+            <g>
+              <rect x="350" y="118" width="260" height="180" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" filter="url(#ts-shadow)"/>
+              <rect x="350" y="118" width="260" height="42" rx="12" fill="#1E3A5F"/>
+              <rect x="350" y="148" width="260" height="12" fill="#1E3A5F"/>
+              <text x="480" y="145" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="600">Model Team</text>
+              <text x="480" y="195" text-anchor="middle" fill="#475569" font-size="13">360Brew Model Training</text>
+              <text x="480" y="218" text-anchor="middle" fill="#94A3B8" font-size="11">Fine-tuning + inference pipeline</text>
+              <rect x="455" y="238" width="50" height="36" rx="6" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+              <text x="480" y="261" text-anchor="middle" fill="#94A3B8" font-size="18">&#9881;</text>
+            </g>
+            <g>
+              <rect x="670" y="118" width="260" height="180" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" filter="url(#ts-shadow)"/>
+              <rect x="670" y="118" width="260" height="42" rx="12" fill="#1E3A5F"/>
+              <rect x="670" y="148" width="260" height="12" fill="#1E3A5F"/>
+              <text x="800" y="145" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="600">Benchmark Team</text>
+              <text x="800" y="195" text-anchor="middle" fill="#475569" font-size="13">Evaluation</text>
+              <text x="800" y="218" text-anchor="middle" fill="#94A3B8" font-size="11">Quality metrics + benchmarks</text>
+              <rect x="775" y="238" width="50" height="36" rx="6" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+              <text x="800" y="261" text-anchor="middle" fill="#94A3B8" font-size="18">&#9733;</text>
+            </g>
+            <path d="M 290 230 C 320 230, 320 220, 350 220" fill="none" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ts-arrow)" marker-start="url(#ts-arrow)"/>
+            <rect x="296" y="210" width="78" height="18" rx="9" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+            <text x="335" y="223" text-anchor="middle" fill="#64748B" font-size="9" font-weight="500">collaborate</text>
+            <path d="M 290 280 Q 480 340 670 240" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="6 3" marker-end="url(#ts-arrow)" marker-start="url(#ts-arrow)"/>
+            <rect x="440" y="296" width="78" height="18" rx="9" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+            <text x="479" y="309" text-anchor="middle" fill="#64748B" font-size="9" font-weight="500">collaborate</text>
+            <rect x="310" y="410" width="340" height="60" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6 3" filter="url(#ts-shadow)"/>
+            <text x="480" y="436" text-anchor="middle" fill="#475569" font-size="13" font-weight="600">Partner Teams</text>
+            <text x="480" y="456" text-anchor="middle" fill="#94A3B8" font-size="11.5">Feed Team, Trust Team, etc.</text>
+            <line x1="480" y1="298" x2="480" y2="410" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6 3"/>
+            <text x="492" y="358" fill="#94A3B8" font-size="10" font-style="italic">cross-team</text>
+          </svg>
+        </div>
+        <div class="stacked-cards">
+          <div class="card card-border-teal">
+            <div class="card-title">CK &mdash; System Architect + Project Manager</div>
+            <ul>
+              <li>Platform design &amp; pipeline architecture</li>
+              <li>Schema design &amp; data serving</li>
+              <li>Task delegation &amp; milestone tracking</li>
+            </ul>
+          </div>
+          <div class="card card-border-blue">
+            <div class="card-title">Albert &mdash; Overall Tech Lead</div>
+            <ul>
+              <li>ML decisions &amp; data quality</li>
+              <li>Summarization pipeline</li>
+              <li>Model team alignment</li>
+            </ul>
+          </div>
+          <p class="team-note">Data Team: 2 leads + 6 engineers</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Technical Architecture -->
+  <div class="slide" data-slide="3">
+    <div class="slide-content">
+      <h2>Technical Architecture</h2>
+      <p class="tag" style="margin-bottom: 16px;">The Full Pipeline</p>
+      <div class="svg-container" style="padding: 12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" width="100%" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
+          <defs>
+            <filter id="arch-shadow" x="-3%" y="-3%" width="106%" height="110%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.08"/>
+            </filter>
+            <marker id="arch-arrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#6B7B8D"/>
+            </marker>
+            <marker id="arch-arrowTeal" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#0D9488"/>
+            </marker>
+          </defs>
+          <rect width="1200" height="520" fill="#FAFBFC"/>
+          <rect x="20" y="30" width="200" height="460" rx="14" fill="#EEF4FB" stroke="#B0D4F1" stroke-width="1" filter="url(#arch-shadow)"/>
+          <text x="120" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#1A5276">DATA SOURCES</text>
+          <rect x="36" y="80" width="168" height="200" rx="10" fill="#FFFFFF" stroke="#3B82F6" stroke-width="1.5" filter="url(#arch-shadow)"/>
+          <rect x="36" y="80" width="168" height="32" rx="10" fill="#3B82F6"/>
+          <rect x="36" y="100" width="168" height="12" fill="#3B82F6"/>
+          <text x="120" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#FFFFFF">Member Activities</text>
+          <rect x="52" y="122" width="136" height="34" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+          <text x="120" y="144" text-anchor="middle" font-size="12" font-weight="500" fill="#475569">Feed</text>
+          <rect x="52" y="164" width="136" height="34" rx="6" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+          <text x="120" y="186" text-anchor="middle" font-size="12" font-weight="500" fill="#475569">Job</text>
+          <rect x="52" y="206" width="136" height="34" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="5 3"/>
+          <text x="120" y="228" text-anchor="middle" font-size="12" fill="#94A3B8">... 11 more surfaces</text>
+          <rect x="130" y="248" width="60" height="24" rx="12" fill="#3B82F6"/>
+          <text x="160" y="265" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">13 total</text>
+          <rect x="36" y="300" width="168" height="70" rx="10" fill="#FFFFFF" stroke="#8B5CF6" stroke-width="1.5" filter="url(#arch-shadow)"/>
+          <rect x="36" y="300" width="168" height="32" rx="10" fill="#8B5CF6"/>
+          <rect x="36" y="320" width="168" height="12" fill="#8B5CF6"/>
+          <text x="120" y="322" text-anchor="middle" font-size="13" font-weight="600" fill="#FFFFFF">Member Profile</text>
+          <text x="120" y="352" text-anchor="middle" font-size="11" fill="#64748B">Skills, Experience, etc.</text>
+          <rect x="36" y="388" width="168" height="86" rx="10" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1" filter="url(#arch-shadow)"/>
+          <rect x="36" y="388" width="168" height="32" rx="10" fill="#64748B"/>
+          <rect x="36" y="408" width="168" height="12" fill="#64748B"/>
+          <text x="120" y="410" text-anchor="middle" font-size="13" font-weight="600" fill="#FFFFFF">Entity Metadata</text>
+          <text x="120" y="440" text-anchor="middle" font-size="11" fill="#64748B">Org, Course, Product</text>
+          <text x="120" y="458" text-anchor="middle" font-size="11" fill="#64748B">Job Posting, Feed Info</text>
+          <line x1="220" y1="260" x2="270" y2="260" stroke="#6B7B8D" stroke-width="2" marker-end="url(#arch-arrow)"/>
+          <rect x="280" y="30" width="200" height="460" rx="14" fill="#E0EDFB" stroke="#8EC4F0" stroke-width="1" filter="url(#arch-shadow)"/>
+          <text x="380" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#154360">DAILY COLLECTION</text>
+          <text x="380" y="80" text-anchor="middle" font-size="11" fill="#4A7BA0">Automated daily pipeline</text>
+          <rect x="296" y="100" width="168" height="140" rx="10" fill="#FFFFFF" stroke="#2471A3" stroke-width="1.5" filter="url(#arch-shadow)"/>
+          <rect x="296" y="100" width="168" height="32" rx="10" fill="#2471A3"/>
+          <rect x="296" y="120" width="168" height="12" fill="#2471A3"/>
+          <text x="380" y="122" text-anchor="middle" font-size="12" font-weight="600" fill="#FFFFFF">Raw Activity Collection</text>
+          <text x="380" y="158" text-anchor="middle" font-size="12" fill="#475569">13 surface-specific</text>
+          <text x="380" y="176" text-anchor="middle" font-size="12" fill="#475569">Spark jobs</text>
+          <text x="380" y="200" text-anchor="middle" font-size="11" fill="#94A3B8">(one per surface, daily)</text>
+          <rect x="296" y="260" width="168" height="120" rx="10" fill="#FFFFFF" stroke="#1A5276" stroke-width="1.5" filter="url(#arch-shadow)"/>
+          <rect x="296" y="260" width="168" height="32" rx="10" fill="#1A5276"/>
+          <rect x="296" y="280" width="168" height="12" fill="#1A5276"/>
+          <text x="380" y="282" text-anchor="middle" font-size="12" font-weight="600" fill="#FFFFFF">Entity Collection</text>
+          <text x="380" y="318" text-anchor="middle" font-size="12" fill="#475569">Profile, Org, Job</text>
+          <text x="380" y="338" text-anchor="middle" font-size="12" fill="#475569">Feed Info, Search Info</text>
+          <rect x="310" y="405" width="140" height="50" rx="10" fill="#FFF9E6" stroke="#F0C75E" stroke-width="1.5" filter="url(#arch-shadow)"/>
+          <text x="380" y="428" text-anchor="middle" font-size="12" font-weight="600" fill="#8B6914">OpenHouse Tables</text>
+          <text x="380" y="446" text-anchor="middle" font-size="10" fill="#A68B3C">intermediate storage</text>
+          <line x1="480" y1="260" x2="530" y2="260" stroke="#6B7B8D" stroke-width="2" marker-end="url(#arch-arrow)"/>
+          <rect x="540" y="30" width="380" height="460" rx="14" fill="#D8F0EB" stroke="#7DC4B5" stroke-width="1" filter="url(#arch-shadow)"/>
+          <text x="730" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#0E6655">AGGREGATION</text>
+          <text x="730" y="80" text-anchor="middle" font-size="11" fill="#1E8449">Configurable Workflow</text>
+          <rect x="560" y="96" width="340" height="44" rx="8" fill="#FFFFFF" stroke="#7DC4B5" stroke-width="1" filter="url(#arch-shadow)"/>
+          <text x="730" y="124" text-anchor="middle" font-size="13" font-weight="600" fill="#0E6655">Activity Extraction + Search Pre-processing</text>
+          <line x1="730" y1="140" x2="730" y2="165" stroke="#0D9488" stroke-width="2" marker-end="url(#arch-arrowTeal)"/>
+          <rect x="560" y="170" width="340" height="240" rx="10" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.5" filter="url(#arch-shadow)"/>
+          <rect x="560" y="170" width="340" height="36" rx="10" fill="#0D9488"/>
+          <rect x="560" y="194" width="340" height="12" fill="#0D9488"/>
+          <text x="730" y="195" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">9 Parallel Feature Join Jobs</text>
+          <g transform="translate(576, 218)">
+            <rect x="0" y="0" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="48" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Job</text>
+            <rect x="110" y="0" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="158" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Feed</text>
+            <rect x="220" y="0" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="268" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Notification</text>
+            <rect x="0" y="50" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="48" y="76" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Search</text>
+            <rect x="110" y="50" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="158" y="76" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">PYMK</text>
+            <rect x="220" y="50" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="268" y="76" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Follow</text>
+            <rect x="0" y="100" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="48" y="126" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Ads</text>
+            <rect x="110" y="100" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="158" y="126" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Organization</text>
+            <rect x="220" y="100" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+            <text x="268" y="126" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Course</text>
+          </g>
+          <rect x="620" y="380" width="220" height="24" rx="12" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
+          <text x="730" y="397" text-anchor="middle" font-size="11" font-weight="600" fill="#0E6655">400 executors x 128 GB</text>
+          <line x1="730" y1="410" x2="730" y2="430" stroke="#0D9488" stroke-width="2" marker-end="url(#arch-arrowTeal)"/>
+          <rect x="560" y="434" width="340" height="40" rx="8" fill="#0D9488" filter="url(#arch-shadow)"/>
+          <text x="730" y="460" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Publish &amp; Aggregate</text>
+          <line x1="920" y1="260" x2="970" y2="260" stroke="#6B7B8D" stroke-width="2" marker-end="url(#arch-arrow)"/>
+          <rect x="980" y="30" width="200" height="460" rx="14" fill="#E4E8F0" stroke="#9AACCF" stroke-width="1" filter="url(#arch-shadow)"/>
+          <text x="1080" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#1B2631">OUTPUT</text>
+          <rect x="996" y="90" width="168" height="90" rx="10" fill="#FFFFFF" stroke="#2C3E80" stroke-width="1.5" filter="url(#arch-shadow)"/>
+          <rect x="996" y="90" width="168" height="32" rx="10" fill="#2C3E80"/>
+          <rect x="996" y="110" width="168" height="12" fill="#2C3E80"/>
+          <text x="1080" y="112" text-anchor="middle" font-size="12" font-weight="600" fill="#FFFFFF">Pre-training Data</text>
+          <text x="1080" y="148" text-anchor="middle" font-size="11" fill="#475569">&rarr; 360Brew Model Team</text>
+          <text x="1080" y="168" text-anchor="middle" font-size="11" font-weight="600" fill="#2C3E80">8.6T tokens</text>
+          <rect x="996" y="200" width="168" height="80" rx="10" fill="#FFFFFF" stroke="#4A5580" stroke-width="1.5" filter="url(#arch-shadow)"/>
+          <rect x="996" y="200" width="168" height="32" rx="10" fill="#4A5580"/>
+          <rect x="996" y="220" width="168" height="12" fill="#4A5580"/>
+          <text x="1080" y="222" text-anchor="middle" font-size="12" font-weight="600" fill="#FFFFFF">Benchmark Data</text>
+          <text x="1080" y="258" text-anchor="middle" font-size="11" fill="#475569">&rarr; Benchmark Team</text>
+          <rect x="996" y="300" width="168" height="160" rx="10" fill="#FFFFFF" stroke="#1B2641" stroke-width="1.5" filter="url(#arch-shadow)"/>
+          <rect x="996" y="300" width="168" height="32" rx="10" fill="#1B2641"/>
+          <rect x="996" y="320" width="168" height="12" fill="#1B2641"/>
+          <text x="1080" y="322" text-anchor="middle" font-size="12" font-weight="600" fill="#FFFFFF">Daily Serving</text>
+          <rect x="1012" y="348" width="136" height="28" rx="6" fill="#EBF0FA" stroke="#CBD5E1" stroke-width="1"/>
+          <text x="1080" y="368" text-anchor="middle" font-size="11" font-weight="500" fill="#1B2641">LMS AI</text>
+          <rect x="1012" y="384" width="136" height="28" rx="6" fill="#EBF0FA" stroke="#CBD5E1" stroke-width="1"/>
+          <text x="1080" y="404" text-anchor="middle" font-size="11" font-weight="500" fill="#1B2641">Retention AI</text>
+          <rect x="1012" y="420" width="136" height="28" rx="6" fill="#EBF0FA" stroke="#CBD5E1" stroke-width="1"/>
+          <text x="1080" y="440" text-anchor="middle" font-size="11" font-weight="500" fill="#1B2641">inGen</text>
+          <text x="600" y="510" text-anchor="middle" font-size="10" fill="#94A3B8" font-weight="500" letter-spacing="2">SOURCES  ──►  COLLECTION  ──►  AGGREGATION  ──►  OUTPUT</text>
+        </svg>
+      </div>
+      <h3 style="margin-top: 28px; margin-bottom: 4px;">3 Dimensions of Scaling</h3>
+      <div class="card-grid">
+        <div class="card" style="text-align: center;">
+          <div class="icon-badge blue" style="margin: 0 auto 12px;">&#9881;</div>
+          <h4>D1: Data Volume</h4>
+          <p>Daily collection + parallel joins</p>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div class="icon-badge purple" style="margin: 0 auto 12px;">&#9878;</div>
+          <h4>D2: Data Size</h4>
+          <p>Schema partitioning + downsampling</p>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div class="icon-badge teal" style="margin: 0 auto 12px;">&#9872;</div>
+          <h4>D3: Customers</h4>
+          <p>JSON-driven configurable workflow</p>
+        </div>
       </div>
     </div>
   </div>
