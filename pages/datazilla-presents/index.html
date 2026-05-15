@@ -369,6 +369,48 @@
     .card-border-blue { border-left: 4px solid var(--primary); }
     .card-border-danger { border-left: 4px solid var(--danger); }
     .card-border-accent { border-left: 4px solid var(--accent); }
+    .card-border-warn { border-left: 4px solid var(--warn); }
+    .card-border-purple { border-left: 4px solid var(--purple); }
+    .card-border-green { border-left: 4px solid var(--accent); }
+
+    /* --- Big Number Card --- */
+    .big-number {
+      font-family: var(--font-d);
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+    .big-number-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* --- Quote Card --- */
+    .card-quote {
+      background: var(--primary-glow);
+      border-left: 4px solid var(--primary);
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--text-sec);
+      line-height: 1.7;
+    }
+
+    /* --- Card Grid 2-col / 4-col variants --- */
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 768px) {
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .card-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* --- Card separator --- */
+    .card-sep {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 14px 0;
+    }
 
     /* --- Summary Table --- */
     .summary-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -1660,6 +1702,76 @@
             <h4 style="font-family: var(--font-d); font-weight: 600; margin-bottom: 4px;">Process Building</h4>
             <p style="font-size: 0.95rem; color: var(--text-sec); margin: 0;">Tooling, runbook, oncall rotation, dev guidelines, tech debt tracking</p>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: The Hard Part — Leadership Challenges -->
+  <div class="slide" data-slide="9">
+    <div class="slide-content">
+      <h2>The Hard Part</h2>
+      <span class="tag" style="margin-bottom: 20px;">Leadership Challenges</span>
+      <div class="card-grid card-grid-2" style="margin-top: 20px;">
+        <div class="card card-border-danger">
+          <h3>Partner Dynamics</h3>
+          <ul>
+            <li>Model team: credit asymmetry &mdash; model works = their success; doesn&rsquo;t work = data&rsquo;s fault</li>
+            <li>Delayed feedback &mdash; looked at our February data only in April</li>
+            <li>Published paper without including anyone from the data team</li>
+          </ul>
+          <hr class="card-sep">
+          <p style="margin: 0; font-size: 0.9rem;"><strong style="color: var(--text);">My response:</strong> Proactively sought 3 alternative customers (Retention AI, Ads, Jobs) despite leadership saying to &ldquo;focus&rdquo;</p>
+        </div>
+        <div class="card card-border-warn">
+          <h3>People</h3>
+          <ul>
+            <li>Team wanted ML work, not data engineering</li>
+            <li>Frustration with model team dynamics</li>
+            <li>Learned helplessness &rarr; 3 people left the team</li>
+          </ul>
+          <hr class="card-sep">
+          <p style="margin: 0; font-size: 0.9rem;"><strong style="color: var(--text);">My response:</strong> Gave ownership not just tasks. Coaching mindset. Listened, advised, stood with them. 1 teammate got promoted.</p>
+        </div>
+      </div>
+      <div class="card card-quote" style="margin-top: 20px; padding: 24px 28px;">
+        &ldquo;The hardest part wasn&rsquo;t scaling the data &mdash; it was keeping the team motivated when our customer treated us as a service, not a partner.&rdquo;
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Results & Impact -->
+  <div class="slide" data-slide="10">
+    <div class="slide-content">
+      <h2>Results &amp; Impact</h2>
+      <div class="card-grid card-grid-4">
+        <div class="card" style="text-align: center; padding: 28px 16px;">
+          <div class="big-number">8.6T</div>
+          <div class="big-number-subtitle">tokens (v0.7.5)</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 28px 16px;">
+          <div class="big-number">13</div>
+          <div class="big-number-subtitle">surfaces</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 28px 16px;">
+          <div class="big-number">47.5M</div>
+          <div class="big-number-subtitle">unique members (v0.8)</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 28px 16px;">
+          <div class="big-number">8-10x</div>
+          <div class="big-number-subtitle">perf improvement</div>
+        </div>
+      </div>
+      <h3 style="margin-top: 28px;">Downstream Impact</h3>
+      <div class="card-grid">
+        <div class="card card-border-green">
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--accent);">EON:</strong> Dynamic Ranking reduced egregious job recommendations by 8%</p>
+        </div>
+        <div class="card card-border-blue">
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--primary);">LMS AI / Retention AI / inGen:</strong> Daily data serving via Configurable Workflow</p>
+        </div>
+        <div class="card card-border-purple">
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--purple);">Platformization:</strong> From project-specific pipeline to multi-team data platform</p>
         </div>
       </div>
     </div>
