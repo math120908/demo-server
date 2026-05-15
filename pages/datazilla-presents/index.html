@@ -631,6 +631,80 @@
       h1 { font-size: 2rem; }
       h2 { font-size: 1.5rem; }
     }
+    /* --- Q&A slide --- */
+    .qa-slide {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 60vh;
+    }
+    .qa-slide h2 {
+      font-size: 3rem;
+      margin-bottom: 24px;
+    }
+    .qa-pulse {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-bottom: 32px;
+    }
+    .qa-pulse .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+    .qa-topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .qa-topics .pill {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      color: var(--text-sec);
+    }
+
+    /* --- Reflection cards --- */
+    .reflection-card {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: left;
+    }
+    .reflection-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+    .reflection-card p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-sec);
+      line-height: 1.6;
+    }
+    .reflection-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
   </style>
 </head>
 <body>
@@ -1773,6 +1847,52 @@
         <div class="card card-border-purple">
           <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--purple);">Platformization:</strong> From project-specific pipeline to multi-team data platform</p>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="11">
+    <div class="slide-content">
+      <h2>What I'd Do Differently</h2>
+      <div class="reflection-stack">
+        <div class="reflection-card">
+          <div class="icon-badge blue" style="flex-shrink: 0;">&#128101;</div>
+          <div>
+            <h3>Collaboration</h3>
+            <p>The friction with our model team came from not deeply understanding their pain points. If I'd invested more time understanding WHY they needed the all-in-one schema, I might have found a compromise earlier instead of months of workarounds.</p>
+          </div>
+        </div>
+        <div class="reflection-card">
+          <div class="icon-badge green" style="flex-shrink: 0;">&#9878;</div>
+          <div>
+            <h3>Data Quality</h3>
+            <p>Data quality is like SLA &mdash; nobody prioritizes it until it breaks. Direction and commitment to quality matter more than any single fix. I'd establish it as a first-class objective from day one, not something we retrofit.</p>
+          </div>
+        </div>
+        <div class="reflection-card">
+          <div class="icon-badge purple" style="flex-shrink: 0;">&#127793;</div>
+          <div>
+            <h3>Personal Growth</h3>
+            <p>My bias for execution meant I'd power through anything. But I learned that always saying yes burns out the team. The real skill is knowing when to push back and cut scope.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="12">
+    <div class="slide-content qa-slide">
+      <h2>Q&amp;A</h2>
+      <div class="qa-pulse">
+        <span class="dot"></span>
+        <span>Ready for discussion</span>
+      </div>
+      <p style="color: var(--text-sec); margin-bottom: 16px;">Topics I'm happy to dive deeper on:</p>
+      <div class="qa-topics">
+        <span class="pill">Schema evolution philosophy</span>
+        <span class="pill">Quality vs quantity trade-offs</span>
+        <span class="pill">CFW extensibility design</span>
+        <span class="pill">Cross-team coordination</span>
       </div>
     </div>
   </div>
