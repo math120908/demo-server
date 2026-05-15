@@ -411,6 +411,52 @@
       text-align: center;
     }
 
+    /* --- Highlight Box (warn style) --- */
+    .highlight-box {
+      background: var(--warn-light);
+      border: 1px solid var(--warn);
+      border-left: 4px solid var(--warn);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      margin-top: 20px;
+    }
+    .highlight-box p { margin: 0 0 8px 0; font-size: 0.95rem; color: var(--text-sec); }
+    .highlight-box p:last-child { margin-bottom: 0; }
+    .highlight-box strong { color: var(--warn); }
+    .highlight-box .small-italic { font-size: 0.85rem; font-style: italic; color: var(--text-muted); margin-top: 8px; }
+
+    /* --- Dark mode: pipeline-scaling SVG --- */
+    [data-theme="dark"] .slide svg rect[fill="#FFF5F5"] { fill: #2a1515; }
+    [data-theme="dark"] .slide svg rect[fill="#FED7D7"] { fill: #3a1c1c; }
+    [data-theme="dark"] .slide svg rect[fill="#FEB2B2"] { fill: #4a2020; }
+    [data-theme="dark"] .slide svg rect[fill="#F0FFF4"] { fill: #0a2a14; }
+    [data-theme="dark"] .slide svg rect[fill="#C6F6D5"] { fill: #0d3a1a; }
+    [data-theme="dark"] .slide svg rect[fill="#EDF2F7"] { fill: var(--surface); }
+    [data-theme="dark"] .slide svg rect[fill="#2D3748"] { fill: #1a2332; }
+    [data-theme="dark"] .slide svg text[fill="#4A5568"] { fill: var(--text-sec); }
+    [data-theme="dark"] .slide svg text[fill="#276749"] { fill: #48bb78; }
+    [data-theme="dark"] .slide svg text[fill="#22543D"] { fill: #68d391; }
+    [data-theme="dark"] .slide svg text[fill="#9B2C2C"] { fill: #fc8181; }
+    [data-theme="dark"] .slide svg text[fill="#742A2A"] { fill: #feb2b2; }
+    [data-theme="dark"] .slide svg text[fill="#2D3748"] { fill: var(--text); }
+    [data-theme="dark"] .slide svg text[fill="#C53030"] { fill: #fc8181; }
+    [data-theme="dark"] .slide svg text[fill="#A0AEC0"] { fill: var(--text-muted); }
+    [data-theme="dark"] .slide svg text[fill="#718096"] { fill: var(--text-muted); }
+    [data-theme="dark"] .slide svg line[stroke="#CBD5E0"] { stroke: var(--border-strong); }
+    [data-theme="dark"] .slide svg line[stroke="#4A5568"] { stroke: var(--border-strong); }
+    [data-theme="dark"] .slide svg line[stroke="#FEB2B2"] { stroke: #5a2020; }
+    /* --- Dark mode: schema-evolution SVG --- */
+    [data-theme="dark"] .slide svg rect[fill="#EBF8FF"] { fill: #0a1a2a; }
+    [data-theme="dark"] .slide svg rect[fill="#BEE3F8"] { fill: #1a3a5a; }
+    [data-theme="dark"] .slide svg text[fill="#2B6CB0"] { fill: #63b3ed; }
+    [data-theme="dark"] .slide svg rect[stroke="#63B3ED"] { stroke: #3182ce; }
+    [data-theme="dark"] .slide svg rect[stroke="#FEB2B2"] { stroke: #5a2020; }
+    [data-theme="dark"] .slide svg rect[stroke="#9AE6B4"] { stroke: #276749; }
+    [data-theme="dark"] .slide svg rect[stroke="#48BB78"] { stroke: #276749; }
+    [data-theme="dark"] .slide svg rect[stroke="#E53E3E"] { stroke: #c53030; }
+    [data-theme="dark"] .slide svg rect[stroke="#38A169"] { stroke: #276749; }
+    [data-theme="dark"] .slide svg polygon[fill="#718096"] { fill: var(--text-muted); }
+
     /* --- Fullscreen hint --- */
     .fullscreen-hint {
       position: fixed;
@@ -874,6 +920,371 @@
           <h4>D3: Customers</h4>
           <p>JSON-driven configurable workflow</p>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Decision 1 — Pipeline Architecture -->
+  <div class="slide" data-slide="4">
+    <div class="slide-content">
+      <p class="tag" style="margin-bottom: 16px;">Scaling Data Volume</p>
+      <h2>Decision 1: Daily Collection + Decoupled Joins</h2>
+      <div class="svg-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="100%" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif">
+          <defs>
+            <linearGradient id="ps-beforeBg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFF5F5"/>
+              <stop offset="100%" stop-color="#FED7D7"/>
+            </linearGradient>
+            <linearGradient id="ps-afterBg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#F0FFF4"/>
+              <stop offset="100%" stop-color="#C6F6D5"/>
+            </linearGradient>
+            <linearGradient id="ps-redArrow" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#E53E3E"/>
+              <stop offset="100%" stop-color="#C53030"/>
+            </linearGradient>
+            <linearGradient id="ps-greenFlow" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#38A169"/>
+              <stop offset="100%" stop-color="#2F855A"/>
+            </linearGradient>
+            <filter id="ps-shadow" x="-4%" y="-4%" width="108%" height="116%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000018"/>
+            </filter>
+            <filter id="ps-shadowHeavy" x="-4%" y="-4%" width="108%" height="116%">
+              <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000025"/>
+            </filter>
+            <marker id="ps-arrowRed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#C53030"/>
+            </marker>
+            <marker id="ps-arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#2F855A"/>
+            </marker>
+            <marker id="ps-arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#718096"/>
+            </marker>
+          </defs>
+
+          <rect width="960" height="600" fill="#FAFBFC" rx="0"/>
+
+          <!-- BEFORE SECTION (top half) -->
+          <rect x="24" y="16" width="912" height="252" rx="12" fill="url(#ps-beforeBg)" stroke="#FEB2B2" stroke-width="1" filter="url(#ps-shadow)"/>
+          <text x="52" y="48" font-size="13" font-weight="700" fill="#9B2C2C" letter-spacing="1.5">BEFORE</text>
+          <text x="112" y="48" font-size="13" font-weight="500" fill="#C53030" letter-spacing="0.5">Batch Processing</text>
+
+          <!-- Source block -->
+          <rect x="60" y="90" width="160" height="72" rx="8" fill="#FFFFFF" stroke="#E53E3E" stroke-width="2" filter="url(#ps-shadow)"/>
+          <text x="140" y="120" text-anchor="middle" font-size="13" font-weight="600" fill="#C53030">3 Months</text>
+          <text x="140" y="138" text-anchor="middle" font-size="13" font-weight="600" fill="#C53030">of Data</text>
+
+          <line x1="220" y1="126" x2="330" y2="126" stroke="#C53030" stroke-width="3" marker-end="url(#ps-arrowRed)"/>
+
+          <!-- Single batch job -->
+          <rect x="340" y="74" width="220" height="104" rx="10" fill="#E53E3E" filter="url(#ps-shadowHeavy)"/>
+          <rect x="340" y="74" width="220" height="104" rx="10" fill="#FFFFFF" fill-opacity="0.12"/>
+          <line x1="356" y1="86" x2="544" y2="86" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>
+          <line x1="356" y1="98" x2="544" y2="98" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1"/>
+          <line x1="356" y1="152" x2="544" y2="152" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1"/>
+          <line x1="356" y1="164" x2="544" y2="164" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>
+          <text x="450" y="121" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">Single Batch Job</text>
+          <text x="450" y="143" text-anchor="middle" font-size="11" fill="#FED7D7">Monolithic Process</text>
+
+          <line x1="560" y1="126" x2="670" y2="126" stroke="#C53030" stroke-width="3" marker-end="url(#ps-arrowRed)"/>
+
+          <!-- Output block -->
+          <rect x="680" y="90" width="120" height="72" rx="8" fill="#FFFFFF" stroke="#E53E3E" stroke-width="2" filter="url(#ps-shadow)"/>
+          <text x="740" y="131" text-anchor="middle" font-size="14" font-weight="600" fill="#C53030">Output</text>
+
+          <!-- Warning icon -->
+          <circle cx="830" cy="126" r="18" fill="#FEB2B2" stroke="#E53E3E" stroke-width="1.5"/>
+          <line x1="822" y1="118" x2="838" y2="134" stroke="#C53030" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="838" y1="118" x2="822" y2="134" stroke="#C53030" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- Before annotations -->
+          <rect x="60" y="190" width="172" height="28" rx="14" fill="#FEB2B2" fill-opacity="0.5"/>
+          <text x="146" y="209" text-anchor="middle" font-size="11" font-weight="600" fill="#9B2C2C">900 executors x 128GB</text>
+          <rect x="256" y="190" width="140" height="28" rx="14" fill="#FEB2B2" fill-opacity="0.5"/>
+          <text x="326" y="209" text-anchor="middle" font-size="11" font-weight="600" fill="#9B2C2C">3+ days runtime</text>
+          <rect x="420" y="190" width="172" height="28" rx="14" fill="#FEB2B2" fill-opacity="0.5"/>
+          <text x="506" y="209" text-anchor="middle" font-size="11" font-weight="600" fill="#9B2C2C">Frequent OOM failures</text>
+
+          <!-- DIVIDER -->
+          <line x1="80" y1="290" x2="880" y2="290" stroke="#CBD5E0" stroke-width="1" stroke-dasharray="6,4"/>
+          <rect x="380" y="275" width="200" height="30" rx="15" fill="#4A5568" filter="url(#ps-shadow)"/>
+          <text x="480" y="295" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF" letter-spacing="1">DECOUPLING</text>
+
+          <!-- AFTER SECTION (bottom half) -->
+          <rect x="24" y="320" width="912" height="264" rx="12" fill="url(#ps-afterBg)" stroke="#9AE6B4" stroke-width="1" filter="url(#ps-shadow)"/>
+          <text x="52" y="352" font-size="13" font-weight="700" fill="#276749" letter-spacing="1.5">AFTER</text>
+          <text x="102" y="352" font-size="13" font-weight="500" fill="#2F855A" letter-spacing="0.5">Daily Collection + Decoupled Joins</text>
+
+          <!-- Stage 1: Daily Collection -->
+          <rect x="52" y="380" width="180" height="80" rx="8" fill="#FFFFFF" stroke="#38A169" stroke-width="2" filter="url(#ps-shadow)"/>
+          <text x="60" y="398" font-size="9" font-weight="700" fill="#38A169" letter-spacing="1">STAGE 1</text>
+          <text x="142" y="418" text-anchor="middle" font-size="14" font-weight="600" fill="#276749">Daily Collection</text>
+          <rect x="76" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
+          <rect x="102" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
+          <rect x="128" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
+          <rect x="154" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
+          <rect x="180" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
+          <text x="142" y="455" text-anchor="middle" font-size="9" fill="#48BB78">day1  day2  day3  day4  day5</text>
+
+          <line x1="232" y1="420" x2="296" y2="420" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
+
+          <!-- Stage 2: Split by Surface -->
+          <rect x="306" y="380" width="180" height="80" rx="8" fill="#FFFFFF" stroke="#38A169" stroke-width="2" filter="url(#ps-shadow)"/>
+          <text x="314" y="398" font-size="9" font-weight="700" fill="#38A169" letter-spacing="1">STAGE 2</text>
+          <text x="396" y="418" text-anchor="middle" font-size="14" font-weight="600" fill="#276749">Split by Surface</text>
+          <line x1="376" y1="436" x2="356" y2="450" stroke="#48BB78" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+          <line x1="396" y1="436" x2="396" y2="452" stroke="#48BB78" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+          <line x1="416" y1="436" x2="436" y2="450" stroke="#48BB78" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+
+          <!-- Fan-out arrows -->
+          <line x1="486" y1="400" x2="570" y2="383" stroke="#2F855A" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+          <line x1="486" y1="420" x2="570" y2="420" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
+          <line x1="486" y1="440" x2="570" y2="457" stroke="#2F855A" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+
+          <!-- Stage 3: 9 Parallel Join Jobs -->
+          <rect x="580" y="365" width="200" height="110" rx="8" fill="#FFFFFF" stroke="#38A169" stroke-width="2" filter="url(#ps-shadow)"/>
+          <text x="588" y="383" font-size="9" font-weight="700" fill="#38A169" letter-spacing="1">STAGE 3</text>
+          <text x="680" y="403" text-anchor="middle" font-size="14" font-weight="600" fill="#276749">9 Parallel Join Jobs</text>
+          <rect x="600" y="414" width="144" height="10" rx="3" fill="#48BB78" opacity="0.9"/>
+          <rect x="600" y="428" width="130" height="10" rx="3" fill="#48BB78" opacity="0.75"/>
+          <rect x="600" y="442" width="152" height="10" rx="3" fill="#48BB78" opacity="0.6"/>
+          <rect x="600" y="456" width="120" height="10" rx="3" fill="#48BB78" opacity="0.45"/>
+
+          <line x1="780" y1="420" x2="830" y2="420" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
+
+          <!-- Output block -->
+          <rect x="840" y="392" width="72" height="56" rx="8" fill="#FFFFFF" stroke="#38A169" stroke-width="2" filter="url(#ps-shadow)"/>
+          <text x="876" y="425" text-anchor="middle" font-size="13" font-weight="600" fill="#276749">Output</text>
+
+          <!-- Green checkmark -->
+          <circle cx="876" cy="365" r="16" fill="#C6F6D5" stroke="#38A169" stroke-width="1.5"/>
+          <polyline points="867,365 874,372 886,358" fill="none" stroke="#276749" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- After annotations -->
+          <rect x="52" y="492" width="148" height="28" rx="14" fill="#C6F6D5" fill-opacity="0.6"/>
+          <text x="126" y="511" text-anchor="middle" font-size="11" font-weight="600" fill="#276749">Daily checkpoints</text>
+          <rect x="220" y="492" width="162" height="28" rx="14" fill="#C6F6D5" fill-opacity="0.6"/>
+          <text x="301" y="511" text-anchor="middle" font-size="11" font-weight="600" fill="#276749">Each step bounded</text>
+          <rect x="402" y="492" width="260" height="28" rx="14" fill="#C6F6D5" fill-opacity="0.6"/>
+          <text x="532" y="511" text-anchor="middle" font-size="11" font-weight="600" fill="#276749">Add surface = add one parallel job</text>
+
+          <!-- Bottom principle -->
+          <rect x="280" y="548" width="400" height="38" rx="6" fill="#EDF2F7" stroke="#A0AEC0" stroke-width="1" filter="url(#ps-shadow)"/>
+          <text x="480" y="572" text-anchor="middle" font-size="13" fill="#4A5568">
+            <tspan font-weight="400">Core Principle: </tspan>
+            <tspan font-weight="700" fill="#2D3748">Decompose time + decompose space = tractable pipeline</tspan>
+          </text>
+        </svg>
+      </div>
+      <div class="card card-border-teal" style="margin-top: 20px;">
+        <ul>
+          <li><strong>Day-1 decision:</strong> collect daily, not batch.</li>
+          <li><strong>Tradeoff accepted:</strong> data duplication across days</li>
+          <li><strong>Upside:</strong> preprocessing checkpoints + easily extensible</li>
+          <li><strong>Adding a surface</strong> = adding one parallel job, no redesign needed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Decision 2 — Schema Evolution -->
+  <div class="slide" data-slide="5">
+    <div class="slide-content">
+      <p class="tag" style="margin-bottom: 16px;">Scaling Data Size</p>
+      <h2>Decision 2: Fighting the &lsquo;All-in-One&rsquo; Problem</h2>
+      <div class="svg-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="100%" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif">
+          <defs>
+            <linearGradient id="se-beforeBg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFF5F5"/>
+              <stop offset="100%" stop-color="#FED7D7"/>
+            </linearGradient>
+            <linearGradient id="se-afterBg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#F0FFF4"/>
+              <stop offset="100%" stop-color="#C6F6D5"/>
+            </linearGradient>
+            <filter id="se-shadow" x="-4%" y="-4%" width="108%" height="112%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000018"/>
+            </filter>
+            <filter id="se-shadowSm" x="-4%" y="-4%" width="108%" height="112%">
+              <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#00000012"/>
+            </filter>
+          </defs>
+
+          <rect width="960" height="600" fill="#FAFBFC"/>
+
+          <!-- LEFT HALF: BEFORE -->
+          <g transform="translate(0, 0)">
+            <rect x="16" y="16" width="452" height="480" rx="12" fill="url(#se-beforeBg)" stroke="#FEB2B2" stroke-width="1"/>
+            <text x="242" y="52" text-anchor="middle" font-size="13" font-weight="600" fill="#C53030" letter-spacing="1.5">BEFORE</text>
+            <text x="242" y="74" text-anchor="middle" font-size="17" font-weight="700" fill="#9B2C2C">All-in-One Schema</text>
+
+            <!-- Giant record box -->
+            <rect x="48" y="94" width="388" height="310" rx="8" fill="#FFFFFF" stroke="#E53E3E" stroke-width="1.5" filter="url(#se-shadow)"/>
+            <rect x="48" y="94" width="388" height="36" rx="8" fill="#E53E3E"/>
+            <rect x="48" y="118" width="388" height="12" fill="#E53E3E"/>
+            <text x="242" y="117" text-anchor="middle" font-size="13" font-weight="600" fill="#FFFFFF">Member ID: 12345</text>
+            <text x="242" y="152" text-anchor="middle" font-size="11" font-weight="600" fill="#9B2C2C">90 days x ALL surfaces x ALL entity info</text>
+
+            <g font-size="11" fill="#4A5568">
+              <line x1="64" y1="166" x2="420" y2="166" stroke="#FED7D7" stroke-width="0.5"/>
+              <rect x="64" y="172" width="356" height="28" rx="4" fill="#FFF5F5" stroke="#FEB2B2" stroke-width="0.5"/>
+              <text x="76" y="190" font-weight="500" fill="#742A2A">Feed activities</text>
+              <text x="380" y="190" text-anchor="end" font-size="10" fill="#E53E3E" font-weight="600">~3,000 rows</text>
+              <rect x="64" y="206" width="356" height="28" rx="4" fill="#FFF5F5" stroke="#FEB2B2" stroke-width="0.5"/>
+              <text x="76" y="224" font-weight="500" fill="#742A2A">Job activities</text>
+              <text x="380" y="224" text-anchor="end" font-size="10" fill="#E53E3E" font-weight="600">~800 rows</text>
+              <rect x="64" y="240" width="356" height="28" rx="4" fill="#FFF5F5" stroke="#FEB2B2" stroke-width="0.5"/>
+              <text x="76" y="258" font-weight="500" fill="#742A2A">Search queries</text>
+              <text x="380" y="258" text-anchor="end" font-size="10" fill="#E53E3E" font-weight="600">~500 rows</text>
+              <rect x="64" y="274" width="356" height="28" rx="4" fill="#FFF5F5" stroke="#FEB2B2" stroke-width="0.5"/>
+              <text x="76" y="292" font-weight="500" fill="#742A2A">Profile entity info</text>
+              <text x="380" y="292" text-anchor="end" font-size="10" fill="#C53030">duplicated 90x</text>
+              <rect x="64" y="308" width="356" height="28" rx="4" fill="#FFF5F5" stroke="#FEB2B2" stroke-width="0.5"/>
+              <text x="76" y="326" font-weight="500" fill="#742A2A">Org / company info</text>
+              <text x="380" y="326" text-anchor="end" font-size="10" fill="#C53030">duplicated 90x</text>
+              <rect x="64" y="342" width="356" height="28" rx="4" fill="#FFF5F5" stroke="#FEB2B2" stroke-width="0.5"/>
+              <text x="76" y="360" font-weight="500" fill="#742A2A">Ads interactions, messaging, ...</text>
+              <text x="380" y="360" text-anchor="end" font-size="10" fill="#E53E3E" font-weight="600">~400 rows</text>
+            </g>
+
+            <rect x="64" y="378" width="356" height="20" rx="3" fill="#FED7D7"/>
+            <text x="242" y="392" text-anchor="middle" font-size="10" font-weight="700" fill="#9B2C2C">SINGLE RECORD: UP TO 50 MB PER MEMBER</text>
+
+            <!-- Warning annotations -->
+            <g transform="translate(48, 416)">
+              <g transform="translate(0, 0)">
+                <circle cx="10" cy="10" r="10" fill="#E53E3E"/>
+                <text x="10" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#FFF">!</text>
+                <text x="26" y="14" font-size="11" font-weight="500" fill="#742A2A">Record too large  &#8594;  OOM in Spark</text>
+              </g>
+              <g transform="translate(0, 26)">
+                <circle cx="10" cy="10" r="10" fill="#E53E3E"/>
+                <text x="10" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#FFF">!</text>
+                <text x="26" y="14" font-size="11" font-weight="500" fill="#742A2A">Expanding time window  &#8594;  schema break</text>
+              </g>
+              <g transform="translate(0, 52)">
+                <circle cx="10" cy="10" r="10" fill="#E53E3E"/>
+                <text x="10" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#FFF">!</text>
+                <text x="26" y="14" font-size="11" font-weight="500" fill="#742A2A">Consumers must dedupe entity info</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- RIGHT HALF: AFTER -->
+          <g transform="translate(492, 0)">
+            <rect x="0" y="16" width="452" height="480" rx="12" fill="url(#se-afterBg)" stroke="#9AE6B4" stroke-width="1"/>
+            <text x="226" y="52" text-anchor="middle" font-size="13" font-weight="600" fill="#276749" letter-spacing="1.5">AFTER</text>
+            <text x="226" y="74" text-anchor="middle" font-size="17" font-weight="700" fill="#22543D">Daily-Partitioned Schema</text>
+
+            <!-- Daily partition cards -->
+            <g filter="url(#se-shadowSm)">
+              <rect x="32" y="94" width="388" height="52" rx="6" fill="#FFFFFF" stroke="#48BB78" stroke-width="1.2"/>
+              <rect x="32" y="94" width="80" height="52" rx="6" fill="#48BB78"/>
+              <rect x="106" y="94" width="6" height="52" fill="#48BB78"/>
+              <text x="72" y="116" text-anchor="middle" font-size="9" font-weight="600" fill="#FFFFFF">2024-01-01</text>
+              <text x="72" y="130" text-anchor="middle" font-size="8" fill="#C6F6D5">partition</text>
+              <text x="124" y="114" font-size="11" font-weight="600" fill="#22543D">Member 12345</text>
+              <text x="124" y="132" font-size="10" fill="#4A5568">Today's activities only  --  bounded size</text>
+              <circle cx="396" cy="120" r="10" fill="#C6F6D5"/>
+              <polyline points="390,120 394,124 402,116" fill="none" stroke="#276749" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <g filter="url(#se-shadowSm)">
+              <rect x="32" y="156" width="388" height="52" rx="6" fill="#FFFFFF" stroke="#48BB78" stroke-width="1.2"/>
+              <rect x="32" y="156" width="80" height="52" rx="6" fill="#48BB78"/>
+              <rect x="106" y="156" width="6" height="52" fill="#48BB78"/>
+              <text x="72" y="178" text-anchor="middle" font-size="9" font-weight="600" fill="#FFFFFF">2024-01-02</text>
+              <text x="72" y="192" text-anchor="middle" font-size="8" fill="#C6F6D5">partition</text>
+              <text x="124" y="176" font-size="11" font-weight="600" fill="#22543D">Member 12345</text>
+              <text x="124" y="194" font-size="10" fill="#4A5568">Today's activities only  --  bounded size</text>
+              <circle cx="396" cy="182" r="10" fill="#C6F6D5"/>
+              <polyline points="390,182 394,186 402,178" fill="none" stroke="#276749" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+
+            <text x="226" y="230" text-anchor="middle" font-size="18" fill="#A0AEC0" letter-spacing="8">. . .</text>
+
+            <g filter="url(#se-shadowSm)">
+              <rect x="32" y="244" width="388" height="52" rx="6" fill="#FFFFFF" stroke="#48BB78" stroke-width="1.2"/>
+              <rect x="32" y="244" width="80" height="52" rx="6" fill="#48BB78"/>
+              <rect x="106" y="244" width="6" height="52" fill="#48BB78"/>
+              <text x="72" y="266" text-anchor="middle" font-size="9" font-weight="600" fill="#FFFFFF">2024-03-31</text>
+              <text x="72" y="280" text-anchor="middle" font-size="8" fill="#C6F6D5">partition</text>
+              <text x="124" y="264" font-size="11" font-weight="600" fill="#22543D">Member 12345</text>
+              <text x="124" y="282" font-size="10" fill="#4A5568">Today's activities only  --  bounded size</text>
+              <circle cx="396" cy="270" r="10" fill="#C6F6D5"/>
+              <polyline points="390,270 394,274 402,266" fill="none" stroke="#276749" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+
+            <!-- Entity info separate block -->
+            <rect x="32" y="312" width="388" height="48" rx="6" fill="#EBF8FF" stroke="#63B3ED" stroke-width="1" filter="url(#se-shadowSm)"/>
+            <text x="48" y="336" font-size="11" font-weight="600" fill="#2B6CB0">Entity Info</text>
+            <text x="48" y="350" font-size="10" fill="#4A5568">Deduped snapshots stored separately  --  join on read</text>
+            <rect x="356" y="322" width="52" height="20" rx="4" fill="#BEE3F8"/>
+            <text x="382" y="336" text-anchor="middle" font-size="9" font-weight="600" fill="#2B6CB0">1 copy</text>
+
+            <!-- Success annotations -->
+            <g transform="translate(32, 378)">
+              <g transform="translate(0, 0)">
+                <circle cx="10" cy="10" r="10" fill="#48BB78"/>
+                <polyline points="5,10 9,14 16,6" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="26" y="14" font-size="11" font-weight="500" fill="#22543D">Each partition bounded  --  no OOM</text>
+              </g>
+              <g transform="translate(0, 26)">
+                <circle cx="10" cy="10" r="10" fill="#48BB78"/>
+                <polyline points="5,10 9,14 16,6" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="26" y="14" font-size="11" font-weight="500" fill="#22543D">No breaking changes as window grows</text>
+              </g>
+              <g transform="translate(0, 52)">
+                <circle cx="10" cy="10" r="10" fill="#48BB78"/>
+                <polyline points="5,10 9,14 16,6" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="26" y="14" font-size="11" font-weight="500" fill="#22543D">Consumers query by date range</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- CENTER ARROW -->
+          <g transform="translate(468, 240)">
+            <line x1="0" y1="0" x2="0" y2="80" stroke="#CBD5E0" stroke-width="1" stroke-dasharray="4,3"/>
+          </g>
+          <g transform="translate(458, 268)">
+            <polygon points="10,0 20,12 14,12 14,24 6,24 6,12 0,12" fill="#718096"/>
+            <animateTransform attributeName="transform" type="translate" values="458,264;458,272;458,264" dur="2s" repeatCount="indefinite"/>
+          </g>
+
+          <!-- BOTTOM TIMELINE CALLOUT -->
+          <rect x="16" y="510" width="928" height="74" rx="10" fill="#2D3748" filter="url(#se-shadow)"/>
+          <line x1="60" y1="540" x2="900" y2="540" stroke="#4A5568" stroke-width="2"/>
+          <circle cx="120" cy="540" r="8" fill="#48BB78"/>
+          <text x="120" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">1</text>
+          <text x="120" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#68D391">CK proposed</text>
+          <text x="120" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">daily partition</text>
+          <circle cx="340" cy="540" r="8" fill="#E53E3E"/>
+          <text x="340" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">2</text>
+          <text x="340" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#FC8181">Rejected</text>
+          <text x="340" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">by model team</text>
+          <circle cx="560" cy="540" r="8" fill="#ED8936"/>
+          <text x="560" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">3</text>
+          <text x="560" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#FBD38D">Tried 4 alternatives</text>
+          <text x="560" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">all hit limits</text>
+          <circle cx="780" cy="540" r="8" fill="#48BB78"/>
+          <text x="780" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">4</text>
+          <text x="780" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#68D391">Eventually adopted</text>
+          <text x="780" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">CK's original design</text>
+          <line x1="128" y1="540" x2="332" y2="540" stroke="#FC8181" stroke-width="2"/>
+          <line x1="348" y1="540" x2="552" y2="540" stroke="#FBD38D" stroke-width="2"/>
+          <line x1="568" y1="540" x2="772" y2="540" stroke="#68D391" stroke-width="2"/>
+          <text x="900" y="544" text-anchor="end" font-size="8" fill="#718096" font-style="italic">Leadership</text>
+          <text x="900" y="556" text-anchor="end" font-size="8" fill="#718096" font-style="italic">through</text>
+          <text x="900" y="568" text-anchor="end" font-size="8" fill="#718096" font-style="italic">persistence</text>
+        </svg>
+      </div>
+      <div class="highlight-box" style="margin-top: 20px;">
+        <p><strong>The Leadership Arc</strong></p>
+        <p>Proposed daily-partitioned schema early &rarr; Rejected by model team &rarr; Tried 4 alternatives &rarr; Kept pushing &rarr; Eventually adopted</p>
+        <p class="small-italic">The right technical answer doesn't always win on the first try.</p>
       </div>
     </div>
   </div>
