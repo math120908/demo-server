@@ -705,6 +705,43 @@
       flex-direction: column;
       gap: 16px;
     }
+
+    /* --- Side TOC --- */
+    .side-toc {
+      position: fixed;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+    }
+    .side-toc:hover { opacity: 0.85; }
+    .side-toc.hidden { opacity: 0; pointer-events: none; }
+    .side-toc-item {
+      font-family: var(--font-b);
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 0 4px 10px;
+      border-left: 2px solid transparent;
+      opacity: 0.35;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      cursor: default;
+      line-height: 1.3;
+    }
+    .side-toc-item.active {
+      color: var(--primary);
+      font-weight: 700;
+      border-left-color: var(--primary);
+      opacity: 1;
+    }
+    @media (max-width: 900px) {
+      .side-toc { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -714,6 +751,14 @@
   <span id="themeIcon">&#9790;</span>
 </button>
 
+<nav class="side-toc hidden" id="sideToc">
+  <div class="side-toc-item" data-toc-section="context">Context &amp; Goals</div>
+  <div class="side-toc-item" data-toc-section="arch">Technical Architecture</div>
+  <div class="side-toc-item" data-toc-section="exec">Execution</div>
+  <div class="side-toc-item" data-toc-section="lead">Leadership</div>
+  <div class="side-toc-item" data-toc-section="outcomes">Outcomes &amp; Reflection</div>
+</nav>
+
 <div class="slides-wrapper">
 
   <!-- Slide 1: Title -->
@@ -721,7 +766,7 @@
     <div class="slide-content title-slide">
       <p class="tag" style="margin-bottom: 16px;">Technical Project Presentation</p>
       <h1>Datazilla: Building LinkedIn's<br>Data Platform for Foundation Models</h1>
-      <p class="subtitle">From zero to 8.6 trillion tokens in 10 months</p>
+      <p class="subtitle">From zero to 8.6 trillion tokens in 6 months</p>
       <div class="title-meta">
         <span>Chih-Chung Kuo</span>
         <span>&middot;</span>
@@ -743,7 +788,6 @@
             <strong>Context &amp; Goals</strong>
             <div class="agenda-note">Why this project? Why now?</div>
           </div>
-          <span class="agenda-time">3 min</span>
         </div>
         <div class="agenda-item">
           <div class="num-badge">2</div>
@@ -751,7 +795,6 @@
             <strong>Technical Architecture &amp; Decisions</strong>
             <div class="agenda-note">3 dimensions of scaling</div>
           </div>
-          <span class="agenda-time">7 min</span>
         </div>
         <div class="agenda-item">
           <div class="num-badge">3</div>
@@ -759,7 +802,6 @@
             <strong>Execution &amp; Leadership</strong>
             <div class="agenda-note">Iteration + the hard part</div>
           </div>
-          <span class="agenda-time">5 min</span>
         </div>
         <div class="agenda-item">
           <div class="num-badge">4</div>
@@ -767,7 +809,6 @@
             <strong>Outcomes &amp; Reflection</strong>
             <div class="agenda-note">Results + what I'd do differently</div>
           </div>
-          <span class="agenda-time">5 min</span>
         </div>
       </div>
       <p class="agenda-footer">20 minutes presentation &middot; followed by discussion</p>
@@ -779,6 +820,7 @@
     <div class="slide-content">
       <h2>Context &amp; Problem</h2>
       <div class="card card-accent" style="margin-bottom: 24px;">
+        <h3 style="margin-bottom: 8px; color: var(--primary);">Story</h3>
         <p style="margin: 0; font-size: 1.05rem; font-style: italic; line-height: 1.7;">"In January 2024, my team was told: build a data platform for LinkedIn's new foundation model. We had no spec, no staffing plan, and the model team couldn't tell us what they needed. The only thing clear: we were the blocker."</p>
       </div>
       <div class="svg-container">
@@ -930,7 +972,7 @@
         </svg>
       </div>
       <div class="goal-callout">
-        <p><strong>Goal (Q1+Q2):</strong> From zero &rarr; 1T raw tokens &middot; 3 months of activity data &middot; 100M members &middot; Major surfaces (Feed, Job, Notification, Network, Search)</p>
+        <p><strong>Goal (6 months):</strong> From zero &rarr; 1T raw tokens &middot; 3 months of activity data &middot; 100M members &middot; 5 Surfaces (Feed, Job, Notification, Network, Search)</p>
       </div>
     </div>
   </div>
@@ -939,9 +981,8 @@
   <div class="slide" data-slide="3">
     <div class="slide-content">
       <h2>Team &amp; My Role</h2>
-      <div class="split-layout">
-        <div class="svg-container" style="padding: 12px;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" width="100%" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
+      <div class="svg-container" style="padding: 8px 0; margin-bottom: 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" width="100%" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
             <defs>
               <filter id="ts-shadow" x="-4%" y="-4%" width="108%" height="112%">
                 <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.08"/>
@@ -1009,27 +1050,26 @@
             <line x1="480" y1="298" x2="480" y2="410" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6 3"/>
             <text x="492" y="358" fill="#94A3B8" font-size="10" font-style="italic">cross-team</text>
           </svg>
+      </div>
+      <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="card card-border-teal">
+          <div class="card-title">CK &mdash; System Architect + Project Manager</div>
+          <ul>
+            <li>Platform design &amp; pipeline architecture</li>
+            <li>Schema design &amp; data serving</li>
+            <li>Task delegation &amp; milestone tracking</li>
+          </ul>
         </div>
-        <div class="stacked-cards">
-          <div class="card card-border-teal">
-            <div class="card-title">CK &mdash; System Architect + Project Manager</div>
-            <ul>
-              <li>Platform design &amp; pipeline architecture</li>
-              <li>Schema design &amp; data serving</li>
-              <li>Task delegation &amp; milestone tracking</li>
-            </ul>
-          </div>
-          <div class="card card-border-blue">
-            <div class="card-title">Albert &mdash; Overall Tech Lead</div>
-            <ul>
-              <li>ML decisions &amp; data quality</li>
-              <li>Summarization pipeline</li>
-              <li>Model team alignment</li>
-            </ul>
-          </div>
-          <p class="team-note">Data Team: 2 leads + 6 engineers</p>
+        <div class="card card-border-blue">
+          <div class="card-title">Albert &mdash; Overall Tech Lead</div>
+          <ul>
+            <li>ML decisions &amp; data quality</li>
+            <li>Summarization pipeline</li>
+            <li>Model team alignment</li>
+          </ul>
         </div>
       </div>
+      <p class="team-note">Data Team: 2 leads + 6 engineers</p>
     </div>
   </div>
 
@@ -1037,7 +1077,6 @@
   <div class="slide" data-slide="4">
     <div class="slide-content">
       <h2>Technical Architecture</h2>
-      <p class="tag" style="margin-bottom: 16px;">The Full Pipeline</p>
       <div class="svg-container" style="padding: 12px;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" width="100%" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
           <defs>
@@ -1094,9 +1133,7 @@
           <text x="380" y="282" text-anchor="middle" font-size="12" font-weight="600" fill="#FFFFFF">Entity Collection</text>
           <text x="380" y="318" text-anchor="middle" font-size="12" fill="#475569">Profile, Org, Job</text>
           <text x="380" y="338" text-anchor="middle" font-size="12" fill="#475569">Feed Info, Search Info</text>
-          <rect x="310" y="405" width="140" height="50" rx="10" fill="#FFF9E6" stroke="#F0C75E" stroke-width="1.5" filter="url(#arch-shadow)"/>
-          <text x="380" y="428" text-anchor="middle" font-size="12" font-weight="600" fill="#8B6914">OpenHouse Tables</text>
-          <text x="380" y="446" text-anchor="middle" font-size="10" fill="#A68B3C">intermediate storage</text>
+          <!-- OpenHouse removed for simplicity -->
           <line x1="480" y1="260" x2="530" y2="260" stroke="#6B7B8D" stroke-width="2" marker-end="url(#arch-arrow)"/>
           <rect x="540" y="30" width="380" height="460" rx="14" fill="#D8F0EB" stroke="#7DC4B5" stroke-width="1" filter="url(#arch-shadow)"/>
           <text x="730" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#0E6655">AGGREGATION</text>
@@ -1104,7 +1141,7 @@
           <rect x="560" y="96" width="340" height="44" rx="8" fill="#FFFFFF" stroke="#7DC4B5" stroke-width="1" filter="url(#arch-shadow)"/>
           <text x="730" y="124" text-anchor="middle" font-size="13" font-weight="600" fill="#0E6655">Activity Extraction + Search Pre-processing</text>
           <line x1="730" y1="140" x2="730" y2="165" stroke="#0D9488" stroke-width="2" marker-end="url(#arch-arrowTeal)"/>
-          <rect x="560" y="170" width="340" height="240" rx="10" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.5" filter="url(#arch-shadow)"/>
+          <rect x="560" y="170" width="340" height="120" rx="10" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.5" filter="url(#arch-shadow)"/>
           <rect x="560" y="170" width="340" height="36" rx="10" fill="#0D9488"/>
           <rect x="560" y="194" width="340" height="12" fill="#0D9488"/>
           <text x="730" y="195" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">9 Parallel Feature Join Jobs</text>
@@ -1113,26 +1150,12 @@
             <text x="48" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Job</text>
             <rect x="110" y="0" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
             <text x="158" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Feed</text>
-            <rect x="220" y="0" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
-            <text x="268" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Notification</text>
-            <rect x="0" y="50" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
-            <text x="48" y="76" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Search</text>
-            <rect x="110" y="50" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
-            <text x="158" y="76" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">PYMK</text>
-            <rect x="220" y="50" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
-            <text x="268" y="76" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Follow</text>
-            <rect x="0" y="100" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
-            <text x="48" y="126" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Ads</text>
-            <rect x="110" y="100" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
-            <text x="158" y="126" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Organization</text>
-            <rect x="220" y="100" width="96" height="40" rx="6" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
-            <text x="268" y="126" text-anchor="middle" font-size="12" font-weight="600" fill="#0E6655">Course</text>
+            <rect x="220" y="0" width="96" height="40" rx="6" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1" stroke-dasharray="5 3"/>
+            <text x="268" y="26" text-anchor="middle" font-size="12" fill="#94A3B8">... +7 more</text>
           </g>
-          <rect x="620" y="380" width="220" height="24" rx="12" fill="#E8F8F5" stroke="#0D9488" stroke-width="1"/>
-          <text x="730" y="397" text-anchor="middle" font-size="11" font-weight="600" fill="#0E6655">400 executors x 128 GB</text>
-          <line x1="730" y1="410" x2="730" y2="430" stroke="#0D9488" stroke-width="2" marker-end="url(#arch-arrowTeal)"/>
-          <rect x="560" y="434" width="340" height="40" rx="8" fill="#0D9488" filter="url(#arch-shadow)"/>
-          <text x="730" y="460" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Publish &amp; Aggregate</text>
+          <line x1="730" y1="295" x2="730" y2="315" stroke="#0D9488" stroke-width="2" marker-end="url(#arch-arrowTeal)"/>
+          <rect x="560" y="320" width="340" height="40" rx="8" fill="#0D9488" filter="url(#arch-shadow)"/>
+          <text x="730" y="346" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Publish &amp; Aggregate</text>
           <line x1="920" y1="260" x2="970" y2="260" stroke="#6B7B8D" stroke-width="2" marker-end="url(#arch-arrow)"/>
           <rect x="980" y="30" width="200" height="460" rx="14" fill="#E4E8F0" stroke="#9AACCF" stroke-width="1" filter="url(#arch-shadow)"/>
           <text x="1080" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#1B2631">OUTPUT</text>
@@ -1186,155 +1209,146 @@
     <div class="slide-content">
       <p class="tag" style="margin-bottom: 16px;">Scaling Data Volume</p>
       <h2>Decision 1: Daily Collection + Decoupled Joins</h2>
-      <div class="svg-container">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="100%" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif">
-          <defs>
-            <linearGradient id="ps-beforeBg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#FFF5F5"/>
-              <stop offset="100%" stop-color="#FED7D7"/>
-            </linearGradient>
-            <linearGradient id="ps-afterBg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#F0FFF4"/>
-              <stop offset="100%" stop-color="#C6F6D5"/>
-            </linearGradient>
-            <linearGradient id="ps-redArrow" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#E53E3E"/>
-              <stop offset="100%" stop-color="#C53030"/>
-            </linearGradient>
-            <linearGradient id="ps-greenFlow" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#38A169"/>
-              <stop offset="100%" stop-color="#2F855A"/>
-            </linearGradient>
-            <filter id="ps-shadow" x="-4%" y="-4%" width="108%" height="116%">
-              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000018"/>
-            </filter>
-            <filter id="ps-shadowHeavy" x="-4%" y="-4%" width="108%" height="116%">
-              <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#00000025"/>
-            </filter>
-            <marker id="ps-arrowRed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#C53030"/>
-            </marker>
-            <marker id="ps-arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#2F855A"/>
-            </marker>
-            <marker id="ps-arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-              <polygon points="0 0, 8 3, 0 6" fill="#718096"/>
-            </marker>
-          </defs>
+      <div class="svg-container" style="max-width: 80%; margin: 0 auto;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="ps-beforeBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF5F5"/>
+      <stop offset="100%" stop-color="#FEE2E2"/>
+    </linearGradient>
+    <linearGradient id="ps-afterBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0FFF4"/>
+      <stop offset="100%" stop-color="#DCFCE7"/>
+    </linearGradient>
+    <filter id="ps-shadow" x="-4%" y="-8%" width="108%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00000012"/>
+    </filter>
+    <marker id="ps-arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#C53030"/>
+    </marker>
+    <marker id="ps-arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2F855A"/>
+    </marker>
+  </defs>
 
-          <rect width="960" height="600" fill="#FAFBFC" rx="0"/>
+  <!-- Background -->
+  <rect width="960" height="420" fill="#FAFBFC"/>
 
-          <!-- BEFORE SECTION (top half) -->
-          <rect x="24" y="16" width="912" height="252" rx="12" fill="url(#ps-beforeBg)" stroke="#FEB2B2" stroke-width="1" filter="url(#ps-shadow)"/>
-          <text x="52" y="48" font-size="13" font-weight="700" fill="#9B2C2C" letter-spacing="1.5">BEFORE</text>
-          <text x="112" y="48" font-size="13" font-weight="500" fill="#C53030" letter-spacing="0.5">Batch Processing</text>
+  <!-- ======================== -->
+  <!-- BEFORE SECTION (top)     -->
+  <!-- ======================== -->
+  <rect x="20" y="12" width="920" height="172" rx="10" fill="url(#ps-beforeBg)" stroke="#FECACA" stroke-width="1"/>
 
-          <!-- Source block -->
-          <rect x="60" y="90" width="160" height="72" rx="8" fill="#FFFFFF" stroke="#E53E3E" stroke-width="2" filter="url(#ps-shadow)"/>
-          <text x="140" y="120" text-anchor="middle" font-size="13" font-weight="600" fill="#C53030">3 Months</text>
-          <text x="140" y="138" text-anchor="middle" font-size="13" font-weight="600" fill="#C53030">of Data</text>
+  <!-- BEFORE label -->
+  <text x="44" y="38" font-size="11" font-weight="700" fill="#991B1B" letter-spacing="1.5">BEFORE</text>
 
-          <line x1="220" y1="126" x2="330" y2="126" stroke="#C53030" stroke-width="3" marker-end="url(#ps-arrowRed)"/>
+  <!-- Box: 3 Months of Data -->
+  <rect x="60" y="56" width="120" height="50" rx="6" fill="#FFFFFF" stroke="#DC2626" stroke-width="1.5" filter="url(#ps-shadow)"/>
+  <text x="120" y="77" text-anchor="middle" font-size="12" font-weight="600" fill="#991B1B">3 Months</text>
+  <text x="120" y="93" text-anchor="middle" font-size="12" font-weight="600" fill="#991B1B">of Data</text>
 
-          <!-- Single batch job -->
-          <rect x="340" y="74" width="220" height="104" rx="10" fill="#E53E3E" filter="url(#ps-shadowHeavy)"/>
-          <rect x="340" y="74" width="220" height="104" rx="10" fill="#FFFFFF" fill-opacity="0.12"/>
-          <line x1="356" y1="86" x2="544" y2="86" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>
-          <line x1="356" y1="98" x2="544" y2="98" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1"/>
-          <line x1="356" y1="152" x2="544" y2="152" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1"/>
-          <line x1="356" y1="164" x2="544" y2="164" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>
-          <text x="450" y="121" text-anchor="middle" font-size="16" font-weight="700" fill="#FFFFFF">Single Batch Job</text>
-          <text x="450" y="143" text-anchor="middle" font-size="11" fill="#FED7D7">Monolithic Process</text>
+  <!-- Arrow -->
+  <line x1="180" y1="81" x2="270" y2="81" stroke="#C53030" stroke-width="2" marker-end="url(#ps-arrowRed)"/>
 
-          <line x1="560" y1="126" x2="670" y2="126" stroke="#C53030" stroke-width="3" marker-end="url(#ps-arrowRed)"/>
+  <!-- Box: Single Batch Job -->
+  <rect x="280" y="46" width="200" height="70" rx="8" fill="#DC2626" filter="url(#ps-shadow)"/>
+  <text x="380" y="78" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">Single Batch Job</text>
+  <text x="380" y="96" text-anchor="middle" font-size="10" fill="#FEE2E2">Monolithic Process</text>
 
-          <!-- Output block -->
-          <rect x="680" y="90" width="120" height="72" rx="8" fill="#FFFFFF" stroke="#E53E3E" stroke-width="2" filter="url(#ps-shadow)"/>
-          <text x="740" y="131" text-anchor="middle" font-size="14" font-weight="600" fill="#C53030">Output</text>
+  <!-- Arrow -->
+  <line x1="480" y1="81" x2="570" y2="81" stroke="#C53030" stroke-width="2" marker-end="url(#ps-arrowRed)"/>
 
-          <!-- Warning icon -->
-          <circle cx="830" cy="126" r="18" fill="#FEB2B2" stroke="#E53E3E" stroke-width="1.5"/>
-          <line x1="822" y1="118" x2="838" y2="134" stroke="#C53030" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="838" y1="118" x2="822" y2="134" stroke="#C53030" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Box: Output -->
+  <rect x="580" y="56" width="100" height="50" rx="6" fill="#FFFFFF" stroke="#DC2626" stroke-width="1.5" filter="url(#ps-shadow)"/>
+  <text x="630" y="86" text-anchor="middle" font-size="13" font-weight="600" fill="#991B1B">Output</text>
 
-          <!-- Before annotations -->
-          <rect x="60" y="190" width="172" height="28" rx="14" fill="#FEB2B2" fill-opacity="0.5"/>
-          <text x="146" y="209" text-anchor="middle" font-size="11" font-weight="600" fill="#9B2C2C">900 executors x 128GB</text>
-          <rect x="256" y="190" width="140" height="28" rx="14" fill="#FEB2B2" fill-opacity="0.5"/>
-          <text x="326" y="209" text-anchor="middle" font-size="11" font-weight="600" fill="#9B2C2C">3+ days runtime</text>
-          <rect x="420" y="190" width="172" height="28" rx="14" fill="#FEB2B2" fill-opacity="0.5"/>
-          <text x="506" y="209" text-anchor="middle" font-size="11" font-weight="600" fill="#9B2C2C">Frequent OOM failures</text>
+  <!-- Red X icon -->
+  <circle cx="718" cy="81" r="16" fill="#FECACA" stroke="#DC2626" stroke-width="1.5"/>
+  <line x1="710" y1="73" x2="726" y2="89" stroke="#991B1B" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="726" y1="73" x2="710" y2="89" stroke="#991B1B" stroke-width="2.5" stroke-linecap="round"/>
 
-          <!-- DIVIDER -->
-          <line x1="80" y1="290" x2="880" y2="290" stroke="#CBD5E0" stroke-width="1" stroke-dasharray="6,4"/>
-          <rect x="380" y="275" width="200" height="30" rx="15" fill="#4A5568" filter="url(#ps-shadow)"/>
-          <text x="480" y="295" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF" letter-spacing="1">DECOUPLING</text>
+  <!-- Annotation pills -->
+  <rect x="60" y="124" width="168" height="26" rx="13" fill="#FECACA" fill-opacity="0.5"/>
+  <text x="144" y="142" text-anchor="middle" font-size="11" font-weight="600" fill="#991B1B">900 executors x 128GB</text>
 
-          <!-- AFTER SECTION (bottom half) -->
-          <rect x="24" y="320" width="912" height="264" rx="12" fill="url(#ps-afterBg)" stroke="#9AE6B4" stroke-width="1" filter="url(#ps-shadow)"/>
-          <text x="52" y="352" font-size="13" font-weight="700" fill="#276749" letter-spacing="1.5">AFTER</text>
-          <text x="102" y="352" font-size="13" font-weight="500" fill="#2F855A" letter-spacing="0.5">Daily Collection + Decoupled Joins</text>
+  <rect x="244" y="124" width="132" height="26" rx="13" fill="#FECACA" fill-opacity="0.5"/>
+  <text x="310" y="142" text-anchor="middle" font-size="11" font-weight="600" fill="#991B1B">3+ days runtime</text>
 
-          <!-- Stage 1: Daily Collection -->
-          <rect x="52" y="380" width="180" height="80" rx="8" fill="#FFFFFF" stroke="#38A169" stroke-width="2" filter="url(#ps-shadow)"/>
-          <text x="60" y="398" font-size="9" font-weight="700" fill="#38A169" letter-spacing="1">STAGE 1</text>
-          <text x="142" y="418" text-anchor="middle" font-size="14" font-weight="600" fill="#276749">Daily Collection</text>
-          <rect x="76" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
-          <rect x="102" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
-          <rect x="128" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
-          <rect x="154" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
-          <rect x="180" y="432" width="20" height="14" rx="2" fill="#C6F6D5" stroke="#68D391" stroke-width="1"/>
-          <text x="142" y="455" text-anchor="middle" font-size="9" fill="#48BB78">day1  day2  day3  day4  day5</text>
+  <rect x="392" y="124" width="172" height="26" rx="13" fill="#FECACA" fill-opacity="0.5"/>
+  <text x="478" y="142" text-anchor="middle" font-size="11" font-weight="600" fill="#991B1B">Frequent OOM failures</text>
 
-          <line x1="232" y1="420" x2="296" y2="420" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
+  <!-- ======================== -->
+  <!-- DIVIDER                  -->
+  <!-- ======================== -->
+  <line x1="60" y1="203" x2="900" y2="203" stroke="#CBD5E0" stroke-width="1" stroke-dasharray="6,4"/>
 
-          <!-- Stage 2: Split by Surface -->
-          <rect x="306" y="380" width="180" height="80" rx="8" fill="#FFFFFF" stroke="#38A169" stroke-width="2" filter="url(#ps-shadow)"/>
-          <text x="314" y="398" font-size="9" font-weight="700" fill="#38A169" letter-spacing="1">STAGE 2</text>
-          <text x="396" y="418" text-anchor="middle" font-size="14" font-weight="600" fill="#276749">Split by Surface</text>
-          <line x1="376" y1="436" x2="356" y2="450" stroke="#48BB78" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
-          <line x1="396" y1="436" x2="396" y2="452" stroke="#48BB78" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
-          <line x1="416" y1="436" x2="436" y2="450" stroke="#48BB78" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+  <!-- DECOUPLING pill -->
+  <rect x="400" y="189" width="160" height="28" rx="14" fill="#475569" filter="url(#ps-shadow)"/>
+  <text x="480" y="208" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF" letter-spacing="1.2">DECOUPLING</text>
 
-          <!-- Fan-out arrows -->
-          <line x1="486" y1="400" x2="570" y2="383" stroke="#2F855A" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
-          <line x1="486" y1="420" x2="570" y2="420" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
-          <line x1="486" y1="440" x2="570" y2="457" stroke="#2F855A" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+  <!-- ======================== -->
+  <!-- AFTER SECTION (bottom)   -->
+  <!-- ======================== -->
+  <rect x="20" y="228" width="920" height="180" rx="10" fill="url(#ps-afterBg)" stroke="#BBF7D0" stroke-width="1"/>
 
-          <!-- Stage 3: 9 Parallel Join Jobs -->
-          <rect x="580" y="365" width="200" height="110" rx="8" fill="#FFFFFF" stroke="#38A169" stroke-width="2" filter="url(#ps-shadow)"/>
-          <text x="588" y="383" font-size="9" font-weight="700" fill="#38A169" letter-spacing="1">STAGE 3</text>
-          <text x="680" y="403" text-anchor="middle" font-size="14" font-weight="600" fill="#276749">9 Parallel Join Jobs</text>
-          <rect x="600" y="414" width="144" height="10" rx="3" fill="#48BB78" opacity="0.9"/>
-          <rect x="600" y="428" width="130" height="10" rx="3" fill="#48BB78" opacity="0.75"/>
-          <rect x="600" y="442" width="152" height="10" rx="3" fill="#48BB78" opacity="0.6"/>
-          <rect x="600" y="456" width="120" height="10" rx="3" fill="#48BB78" opacity="0.45"/>
+  <!-- AFTER label -->
+  <text x="44" y="254" font-size="11" font-weight="700" fill="#166534" letter-spacing="1.5">AFTER</text>
 
-          <line x1="780" y1="420" x2="830" y2="420" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
+  <!-- Stage 1: Daily Collection -->
+  <rect x="44" y="270" width="150" height="70" rx="6" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.5" filter="url(#ps-shadow)"/>
+  <text x="119" y="292" text-anchor="middle" font-size="12" font-weight="600" fill="#166534">Daily Collection</text>
+  <!-- 5 tiny day-boxes -->
+  <rect x="62" y="302" width="18" height="12" rx="2" fill="#DCFCE7" stroke="#4ADE80" stroke-width="0.8"/>
+  <rect x="84" y="302" width="18" height="12" rx="2" fill="#DCFCE7" stroke="#4ADE80" stroke-width="0.8"/>
+  <rect x="106" y="302" width="18" height="12" rx="2" fill="#DCFCE7" stroke="#4ADE80" stroke-width="0.8"/>
+  <rect x="128" y="302" width="18" height="12" rx="2" fill="#DCFCE7" stroke="#4ADE80" stroke-width="0.8"/>
+  <rect x="150" y="302" width="18" height="12" rx="2" fill="#DCFCE7" stroke="#4ADE80" stroke-width="0.8"/>
+  <text x="119" y="328" text-anchor="middle" font-size="8" fill="#22C55E">d1    d2    d3    d4    d5</text>
 
-          <!-- Output block -->
-          <rect x="840" y="392" width="72" height="56" rx="8" fill="#FFFFFF" stroke="#38A169" stroke-width="2" filter="url(#ps-shadow)"/>
-          <text x="876" y="425" text-anchor="middle" font-size="13" font-weight="600" fill="#276749">Output</text>
+  <!-- Arrow Stage 1 -> Stage 2 -->
+  <line x1="194" y1="305" x2="258" y2="305" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
 
-          <!-- Green checkmark -->
-          <circle cx="876" cy="365" r="16" fill="#C6F6D5" stroke="#38A169" stroke-width="1.5"/>
-          <polyline points="867,365 874,372 886,358" fill="none" stroke="#276749" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Stage 2: Split by Surface -->
+  <rect x="268" y="270" width="150" height="70" rx="6" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.5" filter="url(#ps-shadow)"/>
+  <text x="343" y="295" text-anchor="middle" font-size="12" font-weight="600" fill="#166534">Split by Surface</text>
+  <!-- 3 small down-arrows -->
+  <line x1="313" y1="308" x2="313" y2="326" stroke="#4ADE80" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+  <line x1="343" y1="308" x2="343" y2="326" stroke="#4ADE80" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
+  <line x1="373" y1="308" x2="373" y2="326" stroke="#4ADE80" stroke-width="1.5" marker-end="url(#ps-arrowGreen)"/>
 
-          <!-- After annotations -->
-          <rect x="52" y="492" width="148" height="28" rx="14" fill="#C6F6D5" fill-opacity="0.6"/>
-          <text x="126" y="511" text-anchor="middle" font-size="11" font-weight="600" fill="#276749">Daily checkpoints</text>
-          <rect x="220" y="492" width="162" height="28" rx="14" fill="#C6F6D5" fill-opacity="0.6"/>
-          <text x="301" y="511" text-anchor="middle" font-size="11" font-weight="600" fill="#276749">Each step bounded</text>
-          <rect x="402" y="492" width="260" height="28" rx="14" fill="#C6F6D5" fill-opacity="0.6"/>
-          <text x="532" y="511" text-anchor="middle" font-size="11" font-weight="600" fill="#276749">Add surface = add one parallel job</text>
+  <!-- Arrow Stage 2 -> Stage 3 -->
+  <line x1="418" y1="305" x2="498" y2="305" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
 
-          <!-- Bottom principle -->
-          <rect x="280" y="548" width="400" height="38" rx="6" fill="#EDF2F7" stroke="#A0AEC0" stroke-width="1" filter="url(#ps-shadow)"/>
-          <text x="480" y="572" text-anchor="middle" font-size="13" fill="#4A5568">
-            <tspan font-weight="400">Core Principle: </tspan>
-            <tspan font-weight="700" fill="#2D3748">Decompose time + decompose space = tractable pipeline</tspan>
-          </text>
-        </svg>
+  <!-- Stage 3: 9 Parallel Join Jobs -->
+  <rect x="508" y="264" width="200" height="82" rx="6" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.5" filter="url(#ps-shadow)"/>
+  <text x="608" y="288" text-anchor="middle" font-size="12" font-weight="600" fill="#166534">9 Parallel Join Jobs</text>
+  <!-- Parallel job bars -->
+  <rect x="528" y="298" width="160" height="7" rx="3" fill="#4ADE80" opacity="0.9"/>
+  <rect x="528" y="309" width="140" height="7" rx="3" fill="#4ADE80" opacity="0.7"/>
+  <rect x="528" y="320" width="155" height="7" rx="3" fill="#4ADE80" opacity="0.5"/>
+  <rect x="528" y="331" width="130" height="7" rx="3" fill="#4ADE80" opacity="0.35"/>
+
+  <!-- Arrow Stage 3 -> Output -->
+  <line x1="708" y1="305" x2="772" y2="305" stroke="#2F855A" stroke-width="2" marker-end="url(#ps-arrowGreen)"/>
+
+  <!-- Box: Output -->
+  <rect x="782" y="280" width="100" height="50" rx="6" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.5" filter="url(#ps-shadow)"/>
+  <text x="832" y="310" text-anchor="middle" font-size="13" font-weight="600" fill="#166534">Output</text>
+
+  <!-- Green checkmark -->
+  <circle cx="832" cy="264" r="14" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.5"/>
+  <polyline points="824,264 830,270 841,257" fill="none" stroke="#166534" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- After annotation pills -->
+  <rect x="44" y="358" width="148" height="26" rx="13" fill="#BBF7D0" fill-opacity="0.5"/>
+  <text x="118" y="376" text-anchor="middle" font-size="11" font-weight="600" fill="#166534">Daily checkpoints</text>
+
+  <rect x="208" y="358" width="156" height="26" rx="13" fill="#BBF7D0" fill-opacity="0.5"/>
+  <text x="286" y="376" text-anchor="middle" font-size="11" font-weight="600" fill="#166534">Each step bounded</text>
+
+  <rect x="380" y="358" width="264" height="26" rx="13" fill="#BBF7D0" fill-opacity="0.5"/>
+  <text x="512" y="376" text-anchor="middle" font-size="11" font-weight="600" fill="#166534">Add surface = add one parallel job</text>
+</svg>
       </div>
       <div class="card card-border-teal" style="margin-top: 20px;">
         <ul>
@@ -1511,38 +1525,10 @@
             <animateTransform attributeName="transform" type="translate" values="458,264;458,272;458,264" dur="2s" repeatCount="indefinite"/>
           </g>
 
-          <!-- BOTTOM TIMELINE CALLOUT -->
-          <rect x="16" y="510" width="928" height="74" rx="10" fill="#2D3748" filter="url(#se-shadow)"/>
-          <line x1="60" y1="540" x2="900" y2="540" stroke="#4A5568" stroke-width="2"/>
-          <circle cx="120" cy="540" r="8" fill="#48BB78"/>
-          <text x="120" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">1</text>
-          <text x="120" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#68D391">CK proposed</text>
-          <text x="120" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">daily partition</text>
-          <circle cx="340" cy="540" r="8" fill="#E53E3E"/>
-          <text x="340" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">2</text>
-          <text x="340" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#FC8181">Rejected</text>
-          <text x="340" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">by model team</text>
-          <circle cx="560" cy="540" r="8" fill="#ED8936"/>
-          <text x="560" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">3</text>
-          <text x="560" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#FBD38D">Tried 4 alternatives</text>
-          <text x="560" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">all hit limits</text>
-          <circle cx="780" cy="540" r="8" fill="#48BB78"/>
-          <text x="780" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">4</text>
-          <text x="780" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#68D391">Eventually adopted</text>
-          <text x="780" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">CK's original design</text>
-          <line x1="128" y1="540" x2="332" y2="540" stroke="#FC8181" stroke-width="2"/>
-          <line x1="348" y1="540" x2="552" y2="540" stroke="#FBD38D" stroke-width="2"/>
-          <line x1="568" y1="540" x2="772" y2="540" stroke="#68D391" stroke-width="2"/>
-          <text x="900" y="544" text-anchor="end" font-size="8" fill="#718096" font-style="italic">Leadership</text>
-          <text x="900" y="556" text-anchor="end" font-size="8" fill="#718096" font-style="italic">through</text>
-          <text x="900" y="568" text-anchor="end" font-size="8" fill="#718096" font-style="italic">persistence</text>
+          <!-- Timeline callout removed -->
         </svg>
       </div>
-      <div class="highlight-box" style="margin-top: 20px;">
-        <p><strong>The Leadership Arc</strong></p>
-        <p>Proposed daily-partitioned schema early &rarr; Rejected by model team &rarr; Tried 4 alternatives &rarr; Kept pushing &rarr; Eventually adopted</p>
-        <p class="small-italic">The right technical answer doesn't always win on the first try.</p>
-      </div>
+      <!-- Leadership Arc removed -->
     </div>
   </div>
 
@@ -1956,14 +1942,43 @@
   window.addEventListener('hashchange', handleHash);
   handleHash();
 
+  // --- Side TOC logic ---
+  const sideToc = document.getElementById('sideToc');
+  const tocItems = sideToc.querySelectorAll('.side-toc-item');
+  const tocSectionMap = {
+    // slide index -> toc section data-toc-section value
+    2: 'context', 3: 'context',
+    4: 'arch', 5: 'arch', 6: 'arch', 7: 'arch',
+    8: 'exec',
+    9: 'lead',
+    10: 'outcomes', 11: 'outcomes'
+  };
+  const tocHiddenSlides = new Set([0, 1, 12]);
+
+  function updateToc(slideIndex) {
+    if (tocHiddenSlides.has(slideIndex)) {
+      sideToc.classList.add('hidden');
+      return;
+    }
+    sideToc.classList.remove('hidden');
+    const activeSection = tocSectionMap[slideIndex] || '';
+    tocItems.forEach(item => {
+      item.classList.toggle('active', item.getAttribute('data-toc-section') === activeSection);
+    });
+  }
+
   // Update hash on navigation
   const origGoToSlide = goToSlide;
   goToSlide = function(n) {
     origGoToSlide(n);
     if (n >= 0 && n < totalSlides) {
       history.replaceState(null, '', '#' + (n + 1));
+      updateToc(n);
     }
   };
+
+  // Initialize TOC for current slide
+  updateToc(currentSlide);
 
   // Keyboard navigation
   document.addEventListener('keydown', (e) => {
