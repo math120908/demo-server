@@ -1595,10 +1595,28 @@
             <animateTransform attributeName="transform" type="translate" values="458,264;458,272;458,264" dur="2s" repeatCount="indefinite"/>
           </g>
 
-          <!-- Timeline callout removed -->
+          <!-- BOTTOM TIMELINE: Leadership Arc -->
+          <rect x="16" y="510" width="928" height="74" rx="10" fill="#2D3748" filter="url(#se-shadow)"/>
+          <line x1="60" y1="540" x2="900" y2="540" stroke="#4A5568" stroke-width="2"/>
+          <circle cx="120" cy="540" r="8" fill="#48BB78"/>
+          <text x="120" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">1</text>
+          <text x="120" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#68D391">CK proposed</text>
+          <text x="120" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">daily partition</text>
+          <circle cx="340" cy="540" r="8" fill="#E53E3E"/>
+          <text x="340" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">2</text>
+          <text x="340" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#FC8181">Rejected</text>
+          <text x="340" y="576" text-anchor="middle" font-size="8" fill="#A0AEC0">by model team</text>
+          <circle cx="560" cy="540" r="8" fill="#ED8936"/>
+          <text x="560" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">3</text>
+          <text x="560" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#FBD38D">Tried 4 alternatives</text>
+          <circle cx="780" cy="540" r="8" fill="#48BB78"/>
+          <text x="780" y="544" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">4</text>
+          <text x="780" y="564" text-anchor="middle" font-size="9" font-weight="600" fill="#68D391">Eventually adopted</text>
+          <line x1="128" y1="540" x2="332" y2="540" stroke="#FC8181" stroke-width="2"/>
+          <line x1="348" y1="540" x2="552" y2="540" stroke="#FBD38D" stroke-width="2"/>
+          <line x1="568" y1="540" x2="772" y2="540" stroke="#68D391" stroke-width="2"/>
         </svg>
       </div>
-      <!-- Leadership Arc removed -->
     </div>
   </div>
 
@@ -1607,15 +1625,136 @@
     <div class="slide-content">
       <p class="tag" style="margin-bottom: 16px;">Platformize</p>
       <h2>Decision 3: Configurable Workflow</h2>
-      <div class="card-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
-        <div class="card card-border-danger">
-          <h4>Before</h4>
-          <p>Each use case required a custom pipeline. Model team was the only customer. Adding a new consumer meant weeks of development.</p>
-        </div>
-        <div class="card card-border-accent">
-          <h4>After</h4>
-          <p>JSON-driven configurable workflow. Config file defines activity filtering, feature selection, output schema. Same framework serves 360Brew, LMS AI, Retention AI, and inGen on a daily basis.</p>
-        </div>
+      <div class="svg-container" style="max-width: 85%; margin: 0 auto 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 340" width="100%" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="cwf-beforeBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF5F5"/>
+      <stop offset="100%" stop-color="#FEE2E2"/>
+    </linearGradient>
+    <linearGradient id="cwf-afterBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0FFF4"/>
+      <stop offset="100%" stop-color="#DCFCE7"/>
+    </linearGradient>
+    <filter id="cwf-shadow" x="-4%" y="-8%" width="108%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00000018"/>
+    </filter>
+    <filter id="cwf-shadowSm" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#00000012"/>
+    </filter>
+    <marker id="cwf-arrowRed" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0, 7 2.5, 0 5" fill="#DC2626"/>
+    </marker>
+    <marker id="cwf-arrowGreen" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0, 7 2.5, 0 5" fill="#16A34A"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="880" height="340" fill="#FAFBFC"/>
+
+  <!-- LEFT: BEFORE -->
+  <rect x="12" y="8" width="390" height="324" rx="10" fill="url(#cwf-beforeBg)" stroke="#FECACA" stroke-width="1.2"/>
+  <text x="207" y="30" text-anchor="middle" font-size="10" font-weight="700" fill="#991B1B" letter-spacing="2">BEFORE</text>
+  <text x="207" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="#991B1B">Custom Pipelines per Consumer</text>
+  <rect x="30" y="58" width="354" height="56" rx="7" fill="#FFFFFF" stroke="#DC2626" stroke-width="1.5" filter="url(#cwf-shadow)"/>
+  <rect x="30" y="58" width="354" height="20" rx="7" fill="#DC2626"/>
+  <rect x="30" y="72" width="354" height="6" fill="#DC2626"/>
+  <text x="207" y="73" text-anchor="middle" font-size="10" font-weight="700" fill="#FFFFFF">360Brew Pipeline</text>
+  <rect x="48" y="86" width="80" height="20" rx="4" fill="#FEE2E2" stroke="#FECACA" stroke-width="1"/>
+  <text x="88" y="100" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Collect</text>
+  <line x1="128" y1="96" x2="156" y2="96" stroke="#DC2626" stroke-width="1.2" marker-end="url(#cwf-arrowRed)"/>
+  <rect x="162" y="86" width="80" height="20" rx="4" fill="#FEE2E2" stroke="#FECACA" stroke-width="1"/>
+  <text x="202" y="100" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Join</text>
+  <line x1="242" y1="96" x2="270" y2="96" stroke="#DC2626" stroke-width="1.2" marker-end="url(#cwf-arrowRed)"/>
+  <rect x="276" y="86" width="80" height="20" rx="4" fill="#FEE2E2" stroke="#FECACA" stroke-width="1"/>
+  <text x="316" y="100" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Publish</text>
+  <path d="M 358 114 C 368 128, 368 132, 358 146" stroke="#991B1B" stroke-width="1" fill="none" stroke-dasharray="4,3" opacity="0.4"/>
+  <g opacity="0.5">
+    <rect x="30" y="148" width="354" height="56" rx="7" fill="#FFFFFF" stroke="#DC2626" stroke-width="1.2" stroke-dasharray="8,4"/>
+    <rect x="30" y="148" width="354" height="20" rx="7" fill="#E57373"/>
+    <rect x="30" y="162" width="354" height="6" fill="#E57373"/>
+    <text x="207" y="163" text-anchor="middle" font-size="10" font-weight="700" fill="#FFFFFF">... repeated per customer</text>
+    <rect x="48" y="176" width="80" height="20" rx="4" fill="#FEE2E2" stroke="#FECACA" stroke-width="1"/>
+    <text x="88" y="190" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Collect</text>
+    <line x1="128" y1="186" x2="156" y2="186" stroke="#DC2626" stroke-width="1.2" marker-end="url(#cwf-arrowRed)"/>
+    <rect x="162" y="176" width="80" height="20" rx="4" fill="#FEE2E2" stroke="#FECACA" stroke-width="1"/>
+    <text x="202" y="190" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Join</text>
+    <line x1="242" y1="186" x2="270" y2="186" stroke="#DC2626" stroke-width="1.2" marker-end="url(#cwf-arrowRed)"/>
+    <rect x="276" y="176" width="80" height="20" rx="4" fill="#FEE2E2" stroke="#FECACA" stroke-width="1"/>
+    <text x="316" y="190" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Publish</text>
+  </g>
+  <rect x="30" y="256" width="240" height="20" rx="10" fill="#FECACA" fill-opacity="0.5"/>
+  <text x="150" y="270" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Each customer = custom code</text>
+  <rect x="30" y="280" width="240" height="20" rx="10" fill="#FECACA" fill-opacity="0.5"/>
+  <text x="150" y="294" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Weeks to onboard</text>
+  <rect x="30" y="304" width="240" height="20" rx="10" fill="#FECACA" fill-opacity="0.5"/>
+  <text x="150" y="318" text-anchor="middle" font-size="9" font-weight="600" fill="#991B1B">Fragmented, hard to maintain</text>
+
+  <!-- CENTER DIVIDER -->
+  <line x1="440" y1="18" x2="440" y2="326" stroke="#CBD5E0" stroke-width="1.2" stroke-dasharray="6,4"/>
+
+  <!-- RIGHT: AFTER -->
+  <rect x="478" y="8" width="390" height="324" rx="10" fill="url(#cwf-afterBg)" stroke="#BBF7D0" stroke-width="1.2"/>
+  <text x="673" y="30" text-anchor="middle" font-size="10" font-weight="700" fill="#166534" letter-spacing="2">AFTER</text>
+  <text x="673" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">Config-Driven Platform</text>
+  <rect x="496" y="56" width="140" height="26" rx="6" fill="#F0FFF4" stroke="#86EFAC" stroke-width="1.2" filter="url(#cwf-shadowSm)"/>
+  <text x="566" y="73" text-anchor="middle" font-size="9.5" font-weight="600" fill="#166534">Daily Collection</text>
+  <text x="496" y="53" text-anchor="start" font-size="8" fill="#16A34A" opacity="0.8" font-style="italic">(runs independently)</text>
+  <line x1="566" y1="82" x2="566" y2="100" stroke="#16A34A" stroke-width="1.2" marker-end="url(#cwf-arrowGreen)"/>
+  <rect x="700" y="58" width="72" height="22" rx="4" fill="#FFFFFF" stroke="#16A34A" stroke-width="1" filter="url(#cwf-shadowSm)"/>
+  <text x="736" y="73" text-anchor="middle" font-size="7.5" font-weight="600" fill="#166534">360brew.json</text>
+  <rect x="778" y="58" width="72" height="22" rx="4" fill="#FFFFFF" stroke="#16A34A" stroke-width="1" filter="url(#cwf-shadowSm)"/>
+  <text x="814" y="73" text-anchor="middle" font-size="7.5" font-weight="600" fill="#166534">lms_ai.json</text>
+  <line x1="736" y1="80" x2="700" y2="100" stroke="#16A34A" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#cwf-arrowGreen)"/>
+  <line x1="814" y1="80" x2="750" y2="100" stroke="#16A34A" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#cwf-arrowGreen)"/>
+  <text x="810" y="95" text-anchor="middle" font-size="7" fill="#16A34A" opacity="0.7" font-style="italic">+ more configs</text>
+  <rect x="496" y="104" width="354" height="102" rx="8" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.8" filter="url(#cwf-shadow)"/>
+  <rect x="496" y="104" width="354" height="22" rx="8" fill="#16A34A"/>
+  <rect x="496" y="120" width="354" height="6" fill="#16A34A"/>
+  <text x="673" y="121" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">Configurable Workflow Engine</text>
+  <circle cx="522" cy="156" r="3" fill="#16A34A" opacity="0.35"/>
+  <line x1="525" y1="151" x2="554" y2="141" stroke="#16A34A" stroke-width="1.2" marker-end="url(#cwf-arrowGreen)"/>
+  <line x1="525" y1="161" x2="554" y2="175" stroke="#16A34A" stroke-width="1.2" marker-end="url(#cwf-arrowGreen)"/>
+  <rect x="500" y="131" width="56" height="14" rx="7" fill="#BBF7D0" fill-opacity="0.6"/>
+  <text x="528" y="141" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Recurring</text>
+  <rect x="560" y="132" width="56" height="22" rx="4" fill="#DCFCE7" stroke="#4ADE80" stroke-width="1"/>
+  <text x="588" y="147" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Join</text>
+  <line x1="616" y1="143" x2="638" y2="143" stroke="#16A34A" stroke-width="1" marker-end="url(#cwf-arrowGreen)"/>
+  <rect x="644" y="132" width="62" height="22" rx="4" fill="#DCFCE7" stroke="#4ADE80" stroke-width="1"/>
+  <text x="675" y="147" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Publish</text>
+  <line x1="706" y1="139" x2="730" y2="139" stroke="#16A34A" stroke-width="0.8" stroke-dasharray="3,2"/>
+  <text x="735" y="137" text-anchor="start" font-size="8" fill="#166534" opacity="0.9">LMS AI,</text>
+  <text x="735" y="148" text-anchor="start" font-size="8" fill="#166534" opacity="0.9">Retention AI</text>
+  <rect x="500" y="167" width="56" height="14" rx="7" fill="#FEF3C7" fill-opacity="0.7"/>
+  <text x="528" y="177" text-anchor="middle" font-size="9" font-weight="600" fill="#92400E">Adhoc</text>
+  <rect x="560" y="168" width="56" height="22" rx="4" fill="#DCFCE7" stroke="#4ADE80" stroke-width="1"/>
+  <text x="588" y="183" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Join</text>
+  <line x1="616" y1="179" x2="638" y2="179" stroke="#16A34A" stroke-width="1" marker-end="url(#cwf-arrowGreen)"/>
+  <rect x="644" y="168" width="62" height="22" rx="4" fill="#DCFCE7" stroke="#4ADE80" stroke-width="1"/>
+  <text x="675" y="183" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Publish</text>
+  <line x1="706" y1="179" x2="730" y2="179" stroke="#16A34A" stroke-width="0.8" stroke-dasharray="3,2"/>
+  <text x="735" y="183" text-anchor="start" font-size="8" fill="#92400E" opacity="0.9">360Brew</text>
+  <line x1="590" y1="206" x2="554" y2="220" stroke="#16A34A" stroke-width="1.2" marker-end="url(#cwf-arrowGreen)"/>
+  <line x1="673" y1="206" x2="673" y2="220" stroke="#16A34A" stroke-width="1.2" marker-end="url(#cwf-arrowGreen)"/>
+  <line x1="756" y1="206" x2="792" y2="220" stroke="#16A34A" stroke-width="1.2" marker-end="url(#cwf-arrowGreen)"/>
+  <rect x="506" y="224" width="96" height="24" rx="5" fill="#FFFFFF" stroke="#16A34A" stroke-width="1" filter="url(#cwf-shadowSm)"/>
+  <text x="554" y="240" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">360Brew</text>
+  <rect x="625" y="224" width="96" height="24" rx="5" fill="#FFFFFF" stroke="#16A34A" stroke-width="1" filter="url(#cwf-shadowSm)"/>
+  <text x="673" y="240" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">LMS AI</text>
+  <rect x="744" y="224" width="96" height="24" rx="5" fill="#FFFFFF" stroke="#16A34A" stroke-width="1" filter="url(#cwf-shadowSm)"/>
+  <text x="792" y="240" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">Retention AI</text>
+  <rect x="496" y="256" width="240" height="20" rx="10" fill="#BBF7D0" fill-opacity="0.5"/>
+  <text x="616" y="270" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">New customer = new config</text>
+  <rect x="496" y="280" width="240" height="20" rx="10" fill="#BBF7D0" fill-opacity="0.5"/>
+  <text x="616" y="294" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Days to onboard</text>
+  <rect x="496" y="304" width="240" height="20" rx="10" fill="#BBF7D0" fill-opacity="0.5"/>
+  <text x="616" y="318" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Same engine, different configs</text>
+
+  <!-- PLATFORMIZE pill -->
+  <rect x="386" y="156" width="108" height="28" rx="14" fill="#475569" filter="url(#cwf-shadow)"/>
+  <text x="440" y="174" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF" letter-spacing="1.5">PLATFORMIZE</text>
+</svg>
       </div>
       <p class="team-note">CK proposed the architecture. Member X developed the implementation.</p>
       <div class="card" style="margin-top: 20px; padding: 20px;">
@@ -1960,31 +2099,27 @@
   <div class="slide" data-slide="10">
     <div class="slide-content">
       <h2>Results &amp; Impact</h2>
-      <div class="card-grid card-grid-4">
+      <div class="card-grid" style="grid-template-columns: repeat(3, 1fr);">
         <div class="card" style="text-align: center; padding: 28px 16px;">
           <div class="big-number">8.6T</div>
-          <div class="big-number-subtitle">tokens (v0.7.5)</div>
+          <div class="big-number-subtitle">tokens</div>
         </div>
         <div class="card" style="text-align: center; padding: 28px 16px;">
-          <div class="big-number">13</div>
+          <div class="big-number">10</div>
           <div class="big-number-subtitle">surfaces</div>
         </div>
         <div class="card" style="text-align: center; padding: 28px 16px;">
-          <div class="big-number">47.5M</div>
-          <div class="big-number-subtitle">unique members (v0.8)</div>
-        </div>
-        <div class="card" style="text-align: center; padding: 28px 16px;">
-          <div class="big-number">8-10x</div>
-          <div class="big-number-subtitle">perf improvement</div>
+          <div class="big-number">23M</div>
+          <div class="big-number-subtitle">unique members</div>
         </div>
       </div>
       <h3 style="margin-top: 28px;">Downstream Impact</h3>
       <div class="card-grid">
         <div class="card card-border-green">
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--accent);">EON:</strong> Dynamic Ranking reduced egregious job recommendations by 8%</p>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--accent);">EON (inGen):</strong> Member activity dataset enabled Dynamic Ranking, reducing egregious job recommendations by 8%</p>
         </div>
         <div class="card card-border-blue">
-          <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--primary);">LMS AI / Retention AI / inGen:</strong> Daily data serving via Configurable Workflow</p>
+          <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--primary);">LMS AI / Retention AI:</strong> Daily data serving via Configurable Workflow</p>
         </div>
         <div class="card card-border-purple">
           <p style="margin: 0; font-size: 0.95rem; color: var(--text-sec);"><strong style="color: var(--purple);">Platformization:</strong> From project-specific pipeline to multi-team data platform</p>
