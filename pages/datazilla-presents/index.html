@@ -516,6 +516,68 @@
     a { color: var(--primary); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
+    /* --- Agenda Slide --- */
+    .agenda-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .agenda-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s;
+    }
+    .agenda-item:hover {
+      border-color: var(--primary);
+    }
+    .num-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-family: var(--font-d);
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .agenda-item-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .agenda-item-body strong {
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+    .agenda-item-body .agenda-note {
+      font-size: 0.88rem;
+      color: var(--text-sec);
+      margin-top: 2px;
+    }
+    .agenda-time {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: var(--font-m);
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .agenda-footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
     /* --- Responsive --- */
     @media (max-width: 900px) {
       .slide { padding: 40px 32px 80px; }
@@ -554,8 +616,50 @@
     </div>
   </div>
 
-  <!-- Slide 2: Context & Problem -->
+  <!-- Slide 2: Agenda -->
   <div class="slide" data-slide="1">
+    <div class="slide-content">
+      <h2>Agenda</h2>
+      <div class="agenda-list">
+        <div class="agenda-item">
+          <div class="num-badge">1</div>
+          <div class="agenda-item-body">
+            <strong>Context &amp; Goals</strong>
+            <div class="agenda-note">Why this project? Why now?</div>
+          </div>
+          <span class="agenda-time">3 min</span>
+        </div>
+        <div class="agenda-item">
+          <div class="num-badge">2</div>
+          <div class="agenda-item-body">
+            <strong>Technical Architecture &amp; Decisions</strong>
+            <div class="agenda-note">3 dimensions of scaling</div>
+          </div>
+          <span class="agenda-time">7 min</span>
+        </div>
+        <div class="agenda-item">
+          <div class="num-badge">3</div>
+          <div class="agenda-item-body">
+            <strong>Execution &amp; Leadership</strong>
+            <div class="agenda-note">Iteration + the hard part</div>
+          </div>
+          <span class="agenda-time">5 min</span>
+        </div>
+        <div class="agenda-item">
+          <div class="num-badge">4</div>
+          <div class="agenda-item-body">
+            <strong>Outcomes &amp; Reflection</strong>
+            <div class="agenda-note">Results + what I'd do differently</div>
+          </div>
+          <span class="agenda-time">5 min</span>
+        </div>
+      </div>
+      <p class="agenda-footer">20 minutes presentation &middot; followed by discussion</p>
+    </div>
+  </div>
+
+  <!-- Slide 3: Context & Problem -->
+  <div class="slide" data-slide="2">
     <div class="slide-content">
       <h2>Context &amp; Problem</h2>
       <div class="card card-accent" style="margin-bottom: 24px;">
@@ -715,8 +819,8 @@
     </div>
   </div>
 
-  <!-- Slide 3: Team & My Role -->
-  <div class="slide" data-slide="2">
+  <!-- Slide 4: Team & My Role -->
+  <div class="slide" data-slide="3">
     <div class="slide-content">
       <h2>Team &amp; My Role</h2>
       <div class="split-layout">
@@ -813,8 +917,8 @@
     </div>
   </div>
 
-  <!-- Slide 4: Technical Architecture -->
-  <div class="slide" data-slide="3">
+  <!-- Slide 5: Technical Architecture -->
+  <div class="slide" data-slide="4">
     <div class="slide-content">
       <h2>Technical Architecture</h2>
       <p class="tag" style="margin-bottom: 16px;">The Full Pipeline</p>
@@ -961,8 +1065,8 @@
     </div>
   </div>
 
-  <!-- Slide 5: Decision 1 — Pipeline Architecture -->
-  <div class="slide" data-slide="4">
+  <!-- Slide 6: Decision 1 — Pipeline Architecture -->
+  <div class="slide" data-slide="5">
     <div class="slide-content">
       <p class="tag" style="margin-bottom: 16px;">Scaling Data Volume</p>
       <h2>Decision 1: Daily Collection + Decoupled Joins</h2>
@@ -1127,8 +1231,8 @@
     </div>
   </div>
 
-  <!-- Slide 6: Decision 2 — Schema Evolution -->
-  <div class="slide" data-slide="5">
+  <!-- Slide 7: Decision 2 — Schema Evolution -->
+  <div class="slide" data-slide="6">
     <div class="slide-content">
       <p class="tag" style="margin-bottom: 16px;">Scaling Data Size</p>
       <h2>Decision 2: Fighting the &lsquo;All-in-One&rsquo; Problem</h2>
@@ -1326,8 +1430,8 @@
     </div>
   </div>
 
-  <!-- Slide 7: Decision 3 — Configurable Workflow -->
-  <div class="slide" data-slide="6">
+  <!-- Slide 8: Decision 3 — Configurable Workflow -->
+  <div class="slide" data-slide="7">
     <div class="slide-content">
       <p class="tag" style="margin-bottom: 16px;">Scaling to More Customers</p>
       <h2>Decision 3: Configurable Workflow</h2>
@@ -1373,8 +1477,8 @@
     </div>
   </div>
 
-  <!-- Slide 8: Iteration & Execution -->
-  <div class="slide" data-slide="7">
+  <!-- Slide 9: Iteration & Execution -->
+  <div class="slide" data-slide="8">
     <div class="slide-content">
       <h2>Execution: 9 Releases in 10 Months</h2>
       <div class="svg-container" style="padding: 12px; margin-top: 20px;">
