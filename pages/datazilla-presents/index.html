@@ -707,6 +707,46 @@
     }
 
     /* --- Side TOC --- */
+    .side-toc-section {
+      margin-bottom: 6px;
+    }
+    .side-toc-section .side-toc-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 4px 0 2px 12px;
+      border-left: 3px solid transparent;
+      transition: all 0.3s;
+      cursor: default;
+    }
+    .side-toc-section.active .side-toc-title {
+      color: var(--primary);
+      border-left-color: var(--primary);
+      font-weight: 700;
+    }
+    .side-toc-section:not(.active) .side-toc-title {
+      opacity: 0.45;
+    }
+    .side-toc-subs {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+    .side-toc-section.active .side-toc-subs {
+      max-height: 200px;
+    }
+    .side-toc-sub {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      padding: 2px 0 2px 22px;
+      transition: all 0.2s;
+      opacity: 0.5;
+    }
+    .side-toc-sub.current {
+      opacity: 1;
+      color: var(--primary);
+      font-weight: 600;
+    }
     .side-toc {
       position: fixed;
       left: 16px;
@@ -721,7 +761,7 @@
     }
     .side-toc:hover { opacity: 0.85; }
     .side-toc.hidden { opacity: 0; pointer-events: none; }
-    .side-toc-item {
+    .side-toc-item-legacy {
       font-family: var(--font-b);
       font-size: 11px;
       color: var(--text-muted);
@@ -752,11 +792,41 @@
 </button>
 
 <nav class="side-toc hidden" id="sideToc">
-  <div class="side-toc-item" data-toc-section="context">Context &amp; Goals</div>
-  <div class="side-toc-item" data-toc-section="arch">Technical Architecture</div>
-  <div class="side-toc-item" data-toc-section="exec">Execution</div>
-  <div class="side-toc-item" data-toc-section="lead">Leadership</div>
-  <div class="side-toc-item" data-toc-section="outcomes">Outcomes &amp; Reflection</div>
+  <div class="side-toc-section" data-section="context">
+    <div class="side-toc-title">Context &amp; Goals</div>
+    <div class="side-toc-subs">
+      <div class="side-toc-sub" data-slide-idx="2">Problem &amp; Goal</div>
+      <div class="side-toc-sub" data-slide-idx="3">Team &amp; Role</div>
+    </div>
+  </div>
+  <div class="side-toc-section" data-section="arch">
+    <div class="side-toc-title">Technical Architecture</div>
+    <div class="side-toc-subs">
+      <div class="side-toc-sub" data-slide-idx="4">Architecture Overview</div>
+      <div class="side-toc-sub" data-slide-idx="5">D1: Execution</div>
+      <div class="side-toc-sub" data-slide-idx="6">D2: Data Size</div>
+      <div class="side-toc-sub" data-slide-idx="7">D3: Platformize</div>
+    </div>
+  </div>
+  <div class="side-toc-section" data-section="exec">
+    <div class="side-toc-title">Execution</div>
+    <div class="side-toc-subs">
+      <div class="side-toc-sub" data-slide-idx="8">Iteration &amp; Releases</div>
+    </div>
+  </div>
+  <div class="side-toc-section" data-section="lead">
+    <div class="side-toc-title">Leadership</div>
+    <div class="side-toc-subs">
+      <div class="side-toc-sub" data-slide-idx="9">Challenges</div>
+    </div>
+  </div>
+  <div class="side-toc-section" data-section="outcomes">
+    <div class="side-toc-title">Outcomes &amp; Reflection</div>
+    <div class="side-toc-subs">
+      <div class="side-toc-sub" data-slide-idx="10">Results &amp; Impact</div>
+      <div class="side-toc-sub" data-slide-idx="11">Reflections</div>
+    </div>
+  </div>
 </nav>
 
 <div class="slides-wrapper">
@@ -1008,7 +1078,7 @@
               <rect x="30" y="148" width="260" height="12" fill="#0D9488"/>
               <text x="160" y="145" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="600">Data Team (Datazilla)</text>
               <rect x="50" y="170" width="220" height="40" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-              <text x="66" y="185" fill="#1E3A5F" font-size="11.5" font-weight="600">Albert</text>
+              <text x="66" y="185" fill="#1E3A5F" font-size="11.5" font-weight="600">Leader A</text>
               <text x="66" y="200" fill="#5F6B7A" font-size="10">Overall Tech Lead (ML/Quality)</text>
               <rect x="50" y="220" width="220" height="40" rx="8" fill="#F0FDFA" stroke="#0D9488" stroke-width="1.5" filter="url(#ts-ck-glow)"/>
               <circle cx="70" cy="240" r="10" fill="#0D9488"/>
@@ -1061,7 +1131,7 @@
           </ul>
         </div>
         <div class="card card-border-blue">
-          <div class="card-title">Albert &mdash; Overall Tech Lead</div>
+          <div class="card-title">Leader A &mdash; Overall Tech Lead</div>
           <ul>
             <li>ML decisions &amp; data quality</li>
             <li>Summarization pipeline</li>
@@ -1183,11 +1253,11 @@
           <text x="600" y="510" text-anchor="middle" font-size="10" fill="#94A3B8" font-weight="500" letter-spacing="2">SOURCES  ──►  COLLECTION  ──►  AGGREGATION  ──►  OUTPUT</text>
         </svg>
       </div>
-      <h3 style="margin-top: 28px; margin-bottom: 4px;">3 Dimensions of Scaling</h3>
+      <h3 style="margin-top: 28px; margin-bottom: 4px;">3 Dimensions of Optimizing Scaling</h3>
       <div class="card-grid">
         <div class="card" style="text-align: center;">
           <div class="icon-badge blue" style="margin: 0 auto 12px;">&#9881;</div>
-          <h4>D1: Data Volume</h4>
+          <h4>D1: Execution</h4>
           <p>Daily collection + parallel joins</p>
         </div>
         <div class="card" style="text-align: center;">
@@ -1197,7 +1267,7 @@
         </div>
         <div class="card" style="text-align: center;">
           <div class="icon-badge teal" style="margin: 0 auto 12px;">&#9872;</div>
-          <h4>D3: Customers</h4>
+          <h4>D3: Platformize</h4>
           <p>JSON-driven configurable workflow</p>
         </div>
       </div>
@@ -1207,7 +1277,7 @@
   <!-- Slide 6: Decision 1 — Pipeline Architecture -->
   <div class="slide" data-slide="5">
     <div class="slide-content">
-      <p class="tag" style="margin-bottom: 16px;">Scaling Data Volume</p>
+      <p class="tag" style="margin-bottom: 16px;">Scaling Execution</p>
       <h2>Decision 1: Daily Collection + Decoupled Joins</h2>
       <div class="svg-container" style="max-width: 80%; margin: 0 auto;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" font-family="system-ui, -apple-system, sans-serif">
@@ -1535,7 +1605,7 @@
   <!-- Slide 8: Decision 3 — Configurable Workflow -->
   <div class="slide" data-slide="7">
     <div class="slide-content">
-      <p class="tag" style="margin-bottom: 16px;">Scaling to More Customers</p>
+      <p class="tag" style="margin-bottom: 16px;">Platformize</p>
       <h2>Decision 3: Configurable Workflow</h2>
       <div class="card-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
         <div class="card card-border-danger">
@@ -1547,7 +1617,7 @@
           <p>JSON-driven configurable workflow. Config file defines activity filtering, feature selection, output schema. Same framework serves 360Brew, LMS AI, Retention AI, and inGen on a daily basis.</p>
         </div>
       </div>
-      <p class="team-note">CK proposed the architecture. Xiaoyi Duan developed the implementation.</p>
+      <p class="team-note">CK proposed the architecture. Member X developed the implementation.</p>
       <div class="card" style="margin-top: 20px; padding: 20px;">
         <table class="summary-table">
           <thead>
@@ -1582,170 +1652,256 @@
   <!-- Slide 9: Iteration & Execution -->
   <div class="slide" data-slide="8">
     <div class="slide-content">
-      <h2>Execution: 9 Releases in 10 Months</h2>
+      <h2>Execution: 7 Releases in 6 Months</h2>
       <div class="svg-container" style="padding: 12px; margin-top: 20px;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="100%">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 420" width="100%">
           <defs>
-            <linearGradient id="vt-tokenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.15"/>
-              <stop offset="70%" stop-color="#F59E0B" stop-opacity="0.12"/>
-              <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.06"/>
+            <linearGradient id="vt-areaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#0EA5E9" stop-opacity="0.08"/>
+              <stop offset="50%" stop-color="#0EA5E9" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#14B8A6" stop-opacity="0.18"/>
             </linearGradient>
             <linearGradient id="vt-lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#3B82F6"/>
-              <stop offset="60%" stop-color="#F59E0B"/>
-              <stop offset="100%" stop-color="#EF4444"/>
+              <stop offset="0%" stop-color="#38BDF8"/>
+              <stop offset="60%" stop-color="#0EA5E9"/>
+              <stop offset="100%" stop-color="#14B8A6"/>
+            </linearGradient>
+            <linearGradient id="vt-peakGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#14B8A6" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#14B8A6" stop-opacity="0"/>
             </linearGradient>
             <filter id="vt-glow">
-              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feGaussianBlur stdDeviation="4" result="blur"/>
               <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
-            <filter id="vt-dotShadow">
-              <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.12"/>
+            <filter id="vt-shadow">
+              <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.08"/>
+            </filter>
+            <filter id="vt-cardShadow">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.06"/>
             </filter>
           </defs>
-          <rect width="1200" height="500" fill="#FFFFFF"/>
-          <text x="600" y="38" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="20" font-weight="700" fill="#1E293B">Datazilla Version Evolution</text>
-          <text x="600" y="58" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="13" font-weight="500" fill="#94A3B8">9 releases in 10 months  ·  Feb — Dec 2024</text>
-          <line x1="100" y1="370" x2="1120" y2="370" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/>
-          <g font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="11" fill="#94A3B8" text-anchor="middle">
-            <line x1="100" y1="367" x2="100" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="100" y="390">Feb</text>
-            <line x1="202" y1="367" x2="202" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="202" y="390">Mar</text>
-            <line x1="304" y1="367" x2="304" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="304" y="390">Apr</text>
-            <line x1="406" y1="367" x2="406" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="406" y="390">May</text>
-            <line x1="508" y1="367" x2="508" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="508" y="390">Jun</text>
-            <line x1="610" y1="367" x2="610" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="610" y="390">Jul</text>
-            <line x1="712" y1="367" x2="712" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="712" y="390">Aug</text>
-            <line x1="814" y1="367" x2="814" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="814" y="390">Sep</text>
-            <line x1="916" y1="367" x2="916" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="916" y="390">Oct</text>
-            <line x1="1018" y1="367" x2="1018" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="1018" y="390">Nov</text>
-            <line x1="1120" y1="367" x2="1120" y2="373" stroke="#CBD5E1" stroke-width="1.5"/>
-            <text x="1120" y="390">Dec</text>
+
+          <!-- Background -->
+          <rect width="1100" height="420" rx="8" fill="#FAFBFC"/>
+
+          <!-- Title -->
+          <text x="550" y="32" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#0F172A" letter-spacing="-0.3">Datazilla Version Evolution</text>
+          <text x="550" y="50" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#94A3B8">7 releases in 6 months  ·  Jan — Aug 2024</text>
+
+          <!-- Y-axis label -->
+          <text x="42" y="200" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" fill="#94A3B8" transform="rotate(-90, 42, 200)">Tokens (log scale)</text>
+
+          <!-- Y-axis reference lines (subtle) -->
+          <line x1="80" y1="310" x2="1020" y2="310" stroke="#E2E8F0" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="80" y1="220" x2="1020" y2="220" stroke="#E2E8F0" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="80" y1="130" x2="1020" y2="130" stroke="#E2E8F0" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <text x="72" y="314" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#CBD5E1">10B</text>
+          <text x="72" y="224" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#CBD5E1">1T</text>
+          <text x="72" y="134" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#CBD5E1">10T</text>
+
+          <!-- Timeline axis -->
+          <line x1="100" y1="340" x2="1020" y2="340" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+
+          <!-- Month ticks: Jan=100, Feb=220, Mar=340, Apr=460, May=560, Jun=680, Jul(skip)=780, Aug=900
+               Spacing: ~115px per month for Jan-Jun, then gap to Aug
+               Let me use: Jan=100, Feb=220, Mar=340, Apr=460, May=580, Jun=700, Aug=960 -->
+
+          <!-- Month labels -->
+          <g font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">
+            <line x1="100" y1="337" x2="100" y2="343" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="100" y="357">Jan</text>
+            <line x1="235" y1="337" x2="235" y2="343" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="235" y="357">Feb</text>
+            <line x1="370" y1="337" x2="370" y2="343" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="370" y="357">Mar</text>
+            <line x1="505" y1="337" x2="505" y2="343" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="505" y="357">Apr</text>
+            <line x1="640" y1="337" x2="640" y2="343" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="640" y="357">May</text>
+            <line x1="775" y1="337" x2="775" y2="343" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="775" y="357">Jun</text>
+            <line x1="900" y1="337" x2="900" y2="343" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="900" y="357">Aug</text>
           </g>
-          <path d="M100,340 L202,308 L304,282 L406,294 L508,176 L712,95 L1120,170 L1120,370 L100,370 Z" fill="url(#vt-tokenGrad)" opacity="0.8"/>
-          <path d="M100,340 L202,308 L304,282 L406,294 L508,176 L712,95 L1120,170" fill="none" stroke="url(#vt-lineGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          <g font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="10" fill="#94A3B8" text-anchor="end">
-            <text x="88" y="344">22B</text>
-            <line x1="91" y1="340" x2="97" y2="340" stroke="#CBD5E1" stroke-width="1"/>
-            <text x="88" y="180">1T</text>
-            <line x1="91" y1="176" x2="97" y2="176" stroke="#CBD5E1" stroke-width="1"/>
-            <text x="88" y="99">8.6T</text>
-            <line x1="91" y1="95" x2="97" y2="95" stroke="#CBD5E1" stroke-width="1"/>
+
+          <!--
+            Log-scale Y mapping (tokens → y):
+            0 (planning) → y=340 (on axis)
+            22B   → log10(22)=1.342   → y=305
+            88B   → log10(88)=1.944   → y=278
+            170B  → log10(170)=2.230  → y=265
+            126B  → log10(126)=2.100  → y=271
+            1300B → log10(1300)=3.114 → y=226
+            8600B → log10(8600)=3.934 → y=190
+
+            Mapping: log range [1.0, 4.2] → y range [320, 100]
+            y = 320 - (log10(val) - 1.0) * (220 / 3.2)
+            y = 320 - (log10(val) - 1.0) * 68.75
+
+            22B:   320 - 0.342*68.75 = 320 - 23.5 = 296
+            88B:   320 - 0.944*68.75 = 320 - 64.9 = 255
+            170B:  320 - 1.230*68.75 = 320 - 84.6 = 235
+            126B:  320 - 1.100*68.75 = 320 - 75.6 = 244
+            1300B: 320 - 2.114*68.75 = 320 - 145.3 = 175
+            8600B: 320 - 2.934*68.75 = 320 - 201.7 = 118
+
+            Points on timeline:
+            Jan(planning): x=100, y=340
+            v0.1 Feb:      x=235, y=296
+            v0.2 Mar:      x=370, y=255
+            v0.3 Apr:      x=505, y=235
+            v0.4 May:      x=640, y=244
+            v0.6.2 Jun:    x=775, y=175
+            v0.7.5 Aug:    x=900, y=118
+          -->
+
+          <!-- Token growth area fill -->
+          <path d="M235,296 C270,280 335,260 370,255 C405,248 470,238 505,235 C540,238 600,242 640,244 C680,230 740,195 775,175 C810,155 860,130 900,118 L900,340 L235,340 Z"
+                fill="url(#vt-areaGrad)" opacity="0.9"/>
+
+          <!-- Token growth line -->
+          <path d="M235,296 C270,280 335,260 370,255 C405,248 470,238 505,235 C540,238 600,242 640,244 C680,230 740,195 775,175 C810,155 860,130 900,118"
+                fill="none" stroke="url(#vt-lineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- Peak glow behind v0.7.5 -->
+          <circle cx="900" cy="118" r="30" fill="url(#vt-peakGlow)" opacity="0.5"/>
+
+          <!-- ============================================ -->
+          <!-- PLANNING MARKER — Jan 2024 -->
+          <!-- ============================================ -->
+          <circle cx="100" cy="340" r="5" fill="#CBD5E1" stroke="#94A3B8" stroke-width="1.5"/>
+          <line x1="100" y1="332" x2="100" y2="290" stroke="#94A3B8" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.5"/>
+          <g transform="translate(100, 278)">
+            <rect x="-42" y="-16" width="84" height="28" rx="4" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="0.8"/>
+            <text x="0" y="-2" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="600" fill="#64748B">Planning</text>
+            <text x="0" y="9" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" fill="#94A3B8">No spec, no staffing</text>
           </g>
-          <text x="50" y="220" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="10" fill="#94A3B8" transform="rotate(-90, 50, 220)">Tokens (log scale)</text>
-          <!-- v0.1 — Feb -->
-          <circle cx="100" cy="340" r="6" fill="#3B82F6" filter="url(#vt-dotShadow)"/>
-          <line x1="100" y1="334" x2="100" y2="265" stroke="#3B82F6" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-          <g transform="translate(100, 250)">
-            <rect x="-48" y="-30" width="96" height="52" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-            <text x="0" y="-14" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="13" font-weight="700" fill="#1E40AF">v0.1</text>
-            <text x="0" y="0" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#64748B">1 surface · 6.7M</text>
-            <text x="0" y="13" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" font-weight="600" fill="#F59E0B">22B tokens</text>
+
+          <!-- ============================================ -->
+          <!-- v0.1 — Feb 2024 -->
+          <!-- ============================================ -->
+          <circle cx="235" cy="296" r="5" fill="#0EA5E9" filter="url(#vt-shadow)"/>
+          <line x1="235" y1="289" x2="235" y2="230" stroke="#0EA5E9" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+          <g transform="translate(235, 216)" filter="url(#vt-cardShadow)">
+            <rect x="-44" y="-18" width="88" height="36" rx="5" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="0.8"/>
+            <text x="0" y="-4" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#0369A1">v0.1</text>
+            <text x="0" y="8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#64748B">1 sfc · 22B</text>
           </g>
-          <!-- v0.2 — Mar -->
-          <circle cx="202" cy="308" r="6" fill="#3B82F6" filter="url(#vt-dotShadow)"/>
-          <line x1="202" y1="302" x2="202" y2="233" stroke="#3B82F6" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-          <g transform="translate(202, 218)">
-            <rect x="-48" y="-30" width="96" height="52" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-            <text x="0" y="-14" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="13" font-weight="700" fill="#1E40AF">v0.2</text>
-            <text x="0" y="0" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#64748B">2 surfaces · 9.4M</text>
-            <text x="0" y="13" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" font-weight="600" fill="#F59E0B">88B tokens</text>
+
+          <!-- ============================================ -->
+          <!-- v0.2 — Mar 2024 -->
+          <!-- ============================================ -->
+          <circle cx="370" cy="255" r="5" fill="#0EA5E9" filter="url(#vt-shadow)"/>
+          <line x1="370" y1="248" x2="370" y2="192" stroke="#0EA5E9" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+          <g transform="translate(370, 178)" filter="url(#vt-cardShadow)">
+            <rect x="-44" y="-18" width="88" height="36" rx="5" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="0.8"/>
+            <text x="0" y="-4" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#0369A1">v0.2</text>
+            <text x="0" y="8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#64748B">2 sfc · 88B</text>
           </g>
-          <!-- v0.3 — Apr -->
-          <circle cx="304" cy="282" r="6" fill="#3B82F6" filter="url(#vt-dotShadow)"/>
-          <line x1="304" y1="276" x2="304" y2="207" stroke="#3B82F6" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-          <g transform="translate(304, 192)">
-            <rect x="-48" y="-30" width="96" height="52" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-            <text x="0" y="-14" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="13" font-weight="700" fill="#1E40AF">v0.3</text>
-            <text x="0" y="0" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#64748B">3 surfaces · 20M</text>
-            <text x="0" y="13" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" font-weight="600" fill="#F59E0B">170B tokens</text>
+
+          <!-- ============================================ -->
+          <!-- v0.3 — Apr 2024 -->
+          <!-- ============================================ -->
+          <circle cx="505" cy="235" r="5" fill="#0EA5E9" filter="url(#vt-shadow)"/>
+          <line x1="505" y1="228" x2="505" y2="168" stroke="#0EA5E9" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+          <g transform="translate(505, 154)" filter="url(#vt-cardShadow)">
+            <rect x="-46" y="-18" width="92" height="36" rx="5" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="0.8"/>
+            <text x="0" y="-4" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#0369A1">v0.3</text>
+            <text x="0" y="8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#64748B">3 sfc · 170B</text>
           </g>
-          <!-- v0.4 — May -->
-          <circle cx="406" cy="294" r="6" fill="#3B82F6" filter="url(#vt-dotShadow)"/>
-          <line x1="406" y1="288" x2="406" y2="219" stroke="#3B82F6" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-          <g transform="translate(406, 204)">
-            <rect x="-52" y="-30" width="104" height="52" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-            <text x="0" y="-14" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="13" font-weight="700" fill="#1E40AF">v0.4</text>
-            <text x="0" y="0" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#64748B">6 surfaces · 8.3M</text>
-            <text x="0" y="13" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" font-weight="600" fill="#F59E0B">126B tokens</text>
+
+          <!-- ============================================ -->
+          <!-- v0.4 — May 2024 -->
+          <!-- ============================================ -->
+          <circle cx="640" cy="244" r="5" fill="#0EA5E9" filter="url(#vt-shadow)"/>
+          <line x1="640" y1="237" x2="640" y2="178" stroke="#0EA5E9" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+          <g transform="translate(640, 164)" filter="url(#vt-cardShadow)">
+            <rect x="-46" y="-18" width="92" height="36" rx="5" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="0.8"/>
+            <text x="0" y="-4" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#0369A1">v0.4</text>
+            <text x="0" y="8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#64748B">6 sfc · 126B</text>
           </g>
-          <!-- v0.6.2 — Jun -->
-          <circle cx="508" cy="176" r="7" fill="#F59E0B" filter="url(#vt-dotShadow)"/>
-          <line x1="508" y1="169" x2="508" y2="130" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-          <g transform="translate(508, 115)">
-            <rect x="-52" y="-30" width="104" height="52" rx="6" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
-            <text x="0" y="-14" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="13" font-weight="700" fill="#B45309">v0.6.2</text>
-            <text x="0" y="0" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#64748B">7 surfaces · 4.6M</text>
-            <text x="0" y="13" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" font-weight="700" fill="#D97706">1.3T tokens</text>
+
+          <!-- v0.3 → v0.4 quality pivot annotation -->
+          <g transform="translate(572, 252)">
+            <rect x="-60" y="-10" width="120" height="20" rx="3" fill="#FEF3C7" stroke="#FCD34D" stroke-width="0.6" opacity="0.9"/>
+            <text x="0" y="4" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7.5" font-weight="600" fill="#92400E">Quality > Quantity pivot</text>
           </g>
-          <!-- Dramatic jump annotation -->
-          <path d="M560,160 C590,130 650,115 700,105" fill="none" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
-          <text x="640" y="128" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="10" font-weight="700" fill="#EF4444">6.6x jump</text>
-          <!-- v0.7.5 — Aug (peak) -->
-          <circle cx="712" cy="95" r="8" fill="#EF4444" filter="url(#vt-glow)"/>
-          <line x1="712" y1="87" x2="712" y2="78" stroke="#EF4444" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-          <g transform="translate(712, 78)">
-            <rect x="-56" y="-42" width="112" height="56" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
-            <text x="0" y="-26" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="14" font-weight="800" fill="#DC2626">v0.7.5</text>
-            <text x="0" y="-11" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#64748B">10 surfaces · 23M</text>
-            <text x="0" y="2" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="10" font-weight="700" fill="#DC2626">8.6T tokens</text>
+          <!-- Small arrow pointing to the dip -->
+          <path d="M572,262 L572,268 L570,266 M572,268 L574,266" stroke="#D97706" stroke-width="0.8" fill="none" opacity="0.6"/>
+          <!-- Additional context below -->
+          <text x="572" y="278" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" fill="#B45309" opacity="0.7">20M→8.3M members, 3→6 surfaces</text>
+
+          <!-- ============================================ -->
+          <!-- v0.6.2 — Jun 2024 -->
+          <!-- ============================================ -->
+          <circle cx="775" cy="175" r="6" fill="#0D9488" filter="url(#vt-shadow)"/>
+          <line x1="775" y1="167" x2="775" y2="128" stroke="#0D9488" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+          <g transform="translate(775, 114)" filter="url(#vt-cardShadow)">
+            <rect x="-48" y="-18" width="96" height="36" rx="5" fill="#F0FDFA" stroke="#99F6E4" stroke-width="0.8"/>
+            <text x="0" y="-4" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#0F766E">v0.6.2</text>
+            <text x="0" y="8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#64748B">7 sfc · 1.3T</text>
           </g>
-          <!-- v0.8 — Dec -->
-          <circle cx="1120" cy="170" r="7" fill="#059669" filter="url(#vt-dotShadow)"/>
-          <line x1="1120" y1="163" x2="1120" y2="130" stroke="#059669" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-          <g transform="translate(1120, 115)">
-            <rect x="-60" y="-30" width="120" height="60" rx="6" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="1.5"/>
-            <text x="0" y="-14" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="13" font-weight="700" fill="#065F46">v0.8</text>
-            <text x="0" y="0" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#64748B">13 surfaces · 47.5M</text>
-            <text x="0" y="13" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" font-weight="600" fill="#059669">1.45T tokens*</text>
-            <text x="0" y="24" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="8" fill="#059669">8-10x perf</text>
+
+          <!-- Dramatic jump annotation: v0.4 → v0.6.2 -->
+          <path d="M690,210 C720,195 740,190 760,182" fill="none" stroke="#0D9488" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.5"/>
+          <text x="740" y="203" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="700" fill="#0D9488" opacity="0.7">10x tokens</text>
+
+          <!-- ============================================ -->
+          <!-- v0.7.5 — Aug 2024 (PEAK — emphasized) -->
+          <!-- ============================================ -->
+          <circle cx="900" cy="118" r="8" fill="#14B8A6" stroke="#FFFFFF" stroke-width="2" filter="url(#vt-glow)"/>
+          <line x1="900" y1="108" x2="900" y2="75" stroke="#14B8A6" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+          <g transform="translate(900, 66)" filter="url(#vt-cardShadow)">
+            <rect x="-56" y="-24" width="112" height="46" rx="6" fill="#F0FDFA" stroke="#14B8A6" stroke-width="1.5"/>
+            <text x="0" y="-8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#0F766E">v0.7.5</text>
+            <text x="0" y="5" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#64748B">10 sfc · 23M members</text>
+            <text x="0" y="16" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#0D9488">8.6T tokens</text>
           </g>
-          <!-- Innovation labels below timeline -->
-          <g font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#64748B" text-anchor="middle">
-            <text x="100" y="410">Pipeline</text>
-            <text x="100" y="420">MVP</text>
-            <text x="202" y="410">+Search</text>
-            <text x="304" y="410">Scale</text>
-            <text x="304" y="420">members</text>
-            <text x="406" y="410">+Feed, PYMK</text>
-            <text x="406" y="420">Profile</text>
-            <text x="508" y="410">Quality</text>
-            <text x="508" y="420">filtering</text>
-            <text x="712" y="410">OpenHouse</text>
-            <text x="712" y="420">new schema</text>
-            <text x="1120" y="410">CWFv2</text>
-            <text x="1120" y="420">8-10x perf</text>
+          <!-- PEAK badge -->
+          <g transform="translate(962, 46)">
+            <rect x="-18" y="-8" width="36" height="16" rx="8" fill="#14B8A6"/>
+            <text x="0" y="4" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="700" fill="#FFFFFF">PEAK</text>
           </g>
-          <!-- Surfaces bar chart (small, bottom-right inset) -->
-          <g transform="translate(830, 420)">
-            <text x="90" y="0" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="10" font-weight="600" fill="#64748B">Surfaces</text>
-            <rect x="5" y="46" width="20" height="4" rx="2" fill="#BFDBFE"/>
-            <text x="15" y="58" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="8" fill="#94A3B8">1</text>
-            <rect x="30" y="42" width="20" height="8" rx="2" fill="#93C5FD"/>
-            <text x="40" y="58" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="8" fill="#94A3B8">2</text>
-            <rect x="55" y="38" width="20" height="12" rx="2" fill="#60A5FA"/>
-            <text x="65" y="58" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="8" fill="#94A3B8">3</text>
-            <rect x="80" y="27" width="20" height="23" rx="2" fill="#3B82F6"/>
-            <text x="90" y="58" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="8" fill="#94A3B8">6</text>
-            <rect x="105" y="23" width="20" height="27" rx="2" fill="#2563EB"/>
-            <text x="115" y="58" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="8" fill="#94A3B8">7</text>
-            <rect x="130" y="12" width="20" height="38" rx="2" fill="#1D4ED8"/>
-            <text x="140" y="58" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="8" fill="#94A3B8">10</text>
-            <rect x="155" y="0" width="20" height="50" rx="2" fill="#1E40AF"/>
-            <text x="165" y="58" text-anchor="middle" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="8" fill="#94A3B8">13</text>
+
+          <!-- ============================================ -->
+          <!-- Key notes below timeline -->
+          <!-- ============================================ -->
+          <g font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#64748B" text-anchor="middle">
+            <text x="235" y="373">Pipeline MVP</text>
+            <text x="370" y="373">+Search</text>
+            <text x="505" y="373">+Notification</text>
+            <text x="640" y="373">+Feed/PYMK/Profile</text>
+            <text x="775" y="373">+Follow, filtering</text>
+            <text x="900" y="373">OpenHouse, PEAK</text>
+            <text x="900" y="383">new schema</text>
           </g>
-          <!-- Footnote -->
-          <text x="1120" y="490" text-anchor="end" font-family="Inter, SF Pro Display, -apple-system, Helvetica Neue, sans-serif" font-size="9" fill="#CBD5E1">*1.45T after aggressive downsampling from 8.6T peak</text>
+
+          <!-- ============================================ -->
+          <!-- Surfaces mini bar chart (bottom-left) -->
+          <!-- ============================================ -->
+          <g transform="translate(80, 392)">
+            <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="600" fill="#94A3B8">Surfaces</text>
+            <!-- bars: 1,2,3,6,7,10 → max height 18 -->
+            <rect x="50" y="10" width="14" height="2" rx="1" fill="#BAE6FD"/>
+            <text x="57" y="8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" fill="#CBD5E1">1</text>
+
+            <rect x="68" y="8" width="14" height="4" rx="1" fill="#7DD3FC"/>
+            <text x="75" y="6" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" fill="#CBD5E1">2</text>
+
+            <rect x="86" y="7" width="14" height="5" rx="1" fill="#38BDF8"/>
+            <text x="93" y="5" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" fill="#CBD5E1">3</text>
+
+            <rect x="104" y="1" width="14" height="11" rx="1" fill="#0EA5E9"/>
+            <text x="111" y="-1" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" fill="#CBD5E1">6</text>
+
+            <rect x="122" y="-1" width="14" height="13" rx="1" fill="#0284C7"/>
+            <text x="129" y="-3" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" fill="#CBD5E1">7</text>
+
+            <rect x="140" y="-6" width="14" height="18" rx="1" fill="#0369A1"/>
+            <text x="147" y="-8" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="7" fill="#CBD5E1">10</text>
+          </g>
+
         </svg>
       </div>
       <div class="split-layout" style="margin-top: 24px;">
@@ -1944,9 +2100,9 @@
 
   // --- Side TOC logic ---
   const sideToc = document.getElementById('sideToc');
-  const tocItems = sideToc.querySelectorAll('.side-toc-item');
+  const tocSections = sideToc.querySelectorAll('.side-toc-section');
+  const tocSubs = sideToc.querySelectorAll('.side-toc-sub');
   const tocSectionMap = {
-    // slide index -> toc section data-toc-section value
     2: 'context', 3: 'context',
     4: 'arch', 5: 'arch', 6: 'arch', 7: 'arch',
     8: 'exec',
@@ -1962,8 +2118,11 @@
     }
     sideToc.classList.remove('hidden');
     const activeSection = tocSectionMap[slideIndex] || '';
-    tocItems.forEach(item => {
-      item.classList.toggle('active', item.getAttribute('data-toc-section') === activeSection);
+    tocSections.forEach(sec => {
+      sec.classList.toggle('active', sec.getAttribute('data-section') === activeSection);
+    });
+    tocSubs.forEach(sub => {
+      sub.classList.toggle('current', parseInt(sub.getAttribute('data-slide-idx')) === slideIndex);
     });
   }
 
