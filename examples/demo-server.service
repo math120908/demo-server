@@ -4,6 +4,9 @@ After=network.target
 
 [Service]
 # Customize: path to demo-server and the modules directory
+# IMPORTANT: Use the FULL path from `which demo-server`. pip-installed
+# binaries are often in ~/.local/bin/, NOT /usr/local/bin/.
+# Wrong path → status=203/EXEC and the service restart-loops silently.
 ExecStart=/usr/local/bin/demo-server start --port 5566 /path/to/modules
 Restart=on-failure
 RestartSec=3

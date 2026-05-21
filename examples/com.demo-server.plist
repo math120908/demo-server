@@ -6,7 +6,10 @@
     <key>Label</key>
     <string>com.demo-server.app</string>
 
-    <!-- Customize: path to demo-server and the modules directory -->
+    <!-- Customize: path to demo-server and the modules directory.
+         IMPORTANT: Use the FULL path from `which demo-server`. pip-installed
+         binaries are often in ~/.local/bin/, NOT /usr/local/bin/.
+         Wrong path → the service fails silently on launch. -->
     <key>ProgramArguments</key>
     <array>
         <string>/usr/local/bin/demo-server</string>
