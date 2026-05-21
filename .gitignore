@@ -6,3 +6,5 @@ build/
 *.egg
 .venv/
 pages/
+pages
+.claude/
