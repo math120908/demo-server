@@ -1,0 +1,14 @@
+[Unit]
+Description=demo-server — static module server
+After=network.target
+
+[Service]
+# Customize: path to demo-server and the modules directory
+ExecStart=/usr/local/bin/demo-server start --port 5566 /path/to/modules
+Restart=on-failure
+RestartSec=3
+StandardOutput=append:%h/.demo-server/logs/server.log
+StandardError=append:%h/.demo-server/logs/server.log
+
+[Install]
+WantedBy=default.target

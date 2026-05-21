@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.demo-server.app</string>
+
+    <!-- Customize: path to demo-server and the modules directory -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/demo-server</string>
+        <string>start</string>
+        <string>--port</string>
+        <string>5566</string>
+        <string>/path/to/modules</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/tmp</string>
+
+    <key>StandardOutPath</key>
+    <string>/Users/YOU/.demo-server/logs/server.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/YOU/.demo-server/logs/server.log</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>
