@@ -6,6 +6,7 @@ import os
 import secrets
 import time
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form
@@ -85,30 +86,41 @@ PASSCODE_FORM = """\
 
 WELCOME_PAGE = """\
 <!DOCTYPE html>
-<html><head><title>demo-server</title>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>demo-server</title>
 <style>
+  :root {{ --ink: #1f2430; --muted: #8a93a3; --line: #eceef2;
+    --star: #f59e0b; --bg: #f0f2f5; }}
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center;
-    min-height: 100vh; margin: 0; background: #f0f2f5; color: #1a1a2e; }}
-  .box {{ background: white; padding: 2.5rem 3rem; border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.08); max-width: 560px; width: 90%; }}
-  h1 {{ font-size: 1.6rem; font-weight: 700; margin-bottom: 0.3rem; }}
-  .subtitle {{ font-size: 0.95rem; color: #888; margin-bottom: 1.8rem; }}
-  h2 {{ font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 0.08em; color: #aaa; margin: 1.4rem 0 0.6rem; }}
-  h2:first-of-type {{ margin-top: 0; }}
-  ul {{ list-style: none; }}
-  li {{ margin: 0; }}
-  li a {{ display: block; padding: 0.6rem 1rem; font-size: 1.05rem;
-    color: #2563eb; text-decoration: none; border-radius: 6px;
-    transition: background 0.15s, color 0.15s; }}
-  li a:hover {{ background: #eef2ff; color: #1d4ed8; }}
-  .pinned li a::before {{ content: "\\2605 "; font-size: 0.85rem; color: #f59e0b; }}
+    min-height: 100vh; background: var(--bg); color: var(--ink);
+    display: flex; justify-content: center; padding: 3rem 1rem; }}
+  .panel {{ background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(20,30,60,.06); max-width: 600px; width: 100%;
+    height: fit-content; padding: 1.6rem 1.7rem; }}
+  .title {{ font-size: 1.5rem; font-weight: 750; }}
+  .tagline {{ font-size: 0.85rem; color: var(--muted); margin: 0.15rem 0 0.3rem; }}
+  .sec-label {{ font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--muted); margin: 1.3rem 0 0.45rem;
+    display: flex; align-items: center; gap: 0.5rem; }}
+  .sec-label .count {{ background: #f0f2f5; color: var(--muted); border-radius: 20px;
+    padding: 0.05rem 0.5rem; font-size: 0.65rem; font-weight: 700; }}
+  .row {{ display: flex; align-items: center; justify-content: space-between;
+    padding: 0.58rem 0.65rem; border-radius: 9px; text-decoration: none;
+    color: var(--ink); transition: background 0.12s; }}
+  .row:hover {{ background: #f5f7fb; }}
+  .row + .row {{ border-top: 1px solid var(--line); }}
+  .name {{ font-size: 0.92rem; font-weight: 520; }}
+  .when {{ font-size: 0.75rem; color: var(--muted); white-space: nowrap;
+    font-variant-numeric: tabular-nums; }}
+  .pin .name::before {{ content: "\\2605"; color: var(--star);
+    font-size: 0.8rem; margin-right: 0.4rem; }}
+  .fresh .when {{ color: #16a34a; font-weight: 600; }}
 </style></head>
-<body><div class="box">
-  <h1>demo-server</h1>
-  <p class="subtitle">Available modules</p>
+<body><div class="panel">
+  <div class="title">demo-server</div>
+  <div class="tagline">{count} modules</div>
   {modules}
 </div></body></html>
 """
@@ -240,6 +252,70 @@ def _render_redirect(slug: str, target: str, description: str, seconds: int | st
     )
 
 
+RECENT_WINDOW = 30 * 86400  # modules updated within 30 days count as "Recent"
+
+
+def _module_mtime(module_dir: Path) -> float:
+    """Update time of a module = mtime of its newest file (recursive).
+
+    Dotfiles (e.g. .DS_Store) are skipped so editor/OS noise doesn't skew the
+    time. Falls back to the directory's own mtime if it holds no regular files.
+    """
+    newest = 0.0
+    for f in module_dir.rglob("*"):
+        if f.name.startswith(".") or not f.is_file():
+            continue
+        try:
+            mtime = f.stat().st_mtime
+        except OSError:
+            continue
+        if mtime > newest:
+            newest = mtime
+    if newest == 0.0:
+        try:
+            newest = module_dir.stat().st_mtime
+        except OSError:
+            newest = 0.0
+    return newest
+
+
+def _format_when(mtime: float, now: float, recent: bool) -> str:
+    """Recent modules show a relative time; older ones an absolute date."""
+    if recent:
+        days = int((now - mtime) // 86400)
+        if days <= 0:
+            return "today"
+        if days == 1:
+            return "1 day ago"
+        return f"{days} days ago"
+    dt = datetime.fromtimestamp(mtime)
+    if dt.year == datetime.fromtimestamp(now).year:
+        return dt.strftime("%b %-d")
+    return dt.strftime("%b %-d, %Y")
+
+
+def _render_section(label: str, entries: list, now: float, *, recent: bool, pinned: bool) -> str:
+    """Render one section (Pinned / Recent / Earlier) as a header + rows."""
+    if not entries:
+        return ""
+    count = "" if pinned else f'<span class="count">{len(entries)}</span>'
+    html_parts = [f'<div class="sec-label">{label}{count}</div>']
+    for name, mtime in entries:
+        when = _format_when(mtime, now, recent)
+        classes = "row"
+        if pinned:
+            classes += " pin"
+        elif when == "today":
+            classes += " fresh"
+        safe = html.escape(name)
+        html_parts.append(
+            f'<a class="{classes}" href="/{safe}/">'
+            f'<span class="name">{safe}</span>'
+            f'<span class="when">{when}</span></a>'
+        )
+    return "".join(html_parts)
+
+
 def create_app(base_path: str) -> FastAPI:
     base = Path(base_path).resolve()
     secret = _get_secret()
@@ -290,32 +366,32 @@ def create_app(base_path: str) -> FastAPI:
                 return HTMLResponse(html, status_code=401)
 
         config = _load_config(base)
-        pinned = set(config.get("pinned-modules", []))
+        pinned_cfg = config.get("pinned-modules", [])
+        pinned = set(pinned_cfg)
         ignored = set(config.get("ignore-modules", []))
 
-        all_dirs = sorted(
-            e.name for e in base.iterdir()
+        now = time.time()
+        mtimes = {
+            e.name: _module_mtime(e)
+            for e in base.iterdir()
             if e.is_dir() and not e.name.startswith(".") and e.name not in ignored
+        }
+
+        # Primary: mtime desc. Tiebreaker: name asc.
+        ordered = sorted(mtimes.items(), key=lambda kv: (-kv[1], kv[0]))
+
+        pinned_list = [(n, mtimes[n]) for n in pinned_cfg if n in mtimes]
+        rest = [(n, m) for n, m in ordered if n not in pinned]
+        recent = [(n, m) for n, m in rest if now - m < RECENT_WINDOW]
+        earlier = [(n, m) for n, m in rest if now - m >= RECENT_WINDOW]
+
+        modules_html = (
+            _render_section("Pinned", pinned_list, now, recent=False, pinned=True)
+            + _render_section("Recent · past month", recent, now, recent=True, pinned=False)
+            + _render_section("Earlier", earlier, now, recent=False, pinned=False)
         )
 
-        pinned_list = [d for d in config.get("pinned-modules", []) if d in set(all_dirs)]
-        others_list = [d for d in all_dirs if d not in pinned]
-
-        modules_html = ""
-        if pinned_list:
-            modules_html += '<div class="pinned"><h2>Pinned</h2><ul>'
-            for name in pinned_list:
-                modules_html += f'<li><a href="/{name}/">{name}</a></li>'
-            modules_html += "</ul></div>"
-        if others_list:
-            if pinned_list:
-                modules_html += "<h2>All</h2>"
-            modules_html += "<ul>"
-            for name in others_list:
-                modules_html += f'<li><a href="/{name}/">{name}</a></li>'
-            modules_html += "</ul>"
-
-        return WELCOME_PAGE.format(modules=modules_html)
+        return WELCOME_PAGE.format(count=len(mtimes), modules=modules_html)
 
     @app.post("/{module}/__auth__")
     async def auth(module: str, request: Request, passcode: str = Form(...)):
