@@ -258,27 +258,23 @@ RECENT_WINDOW = 30 * 86400  # modules updated within 30 days count as "Recent"
 
 
 def _module_mtime(module_dir: Path) -> float:
-    """Update time of a module = mtime of its newest file (recursive).
+    """Update time of a module = the module directory's own mtime.
 
-    Dotfiles (e.g. .DS_Store) are skipped so editor/OS noise doesn't skew the
-    time. Falls back to the directory's own mtime if it holds no regular files.
+    We intentionally use the directory's mtime rather than the newest file
+    inside it. Bulk operations (rdev sync, restore-from-backup) re-touch every
+    file's mtime, which would collapse every module's "newest file" to the same
+    sync timestamp and destroy the chronological ordering. A directory's own
+    mtime only changes when entries are added/removed/renamed in it, which
+    tracks "when this demo was last published" far more reliably.
+
+    Note: editing a file's *contents* in place does not change the directory
+    mtime. To bump a module to the top after such an edit, touch the directory
+    (`touch <module_dir>`).
     """
-    newest = 0.0
-    for f in module_dir.rglob("*"):
-        if f.name.startswith(".") or not f.is_file():
-            continue
-        try:
-            mtime = f.stat().st_mtime
-        except OSError:
-            continue
-        if mtime > newest:
-            newest = mtime
-    if newest == 0.0:
-        try:
-            newest = module_dir.stat().st_mtime
-        except OSError:
-            newest = 0.0
-    return newest
+    try:
+        return module_dir.stat().st_mtime
+    except OSError:
+        return 0.0
 
 
 def _format_when(mtime: float, now: float, recent: bool) -> str:
