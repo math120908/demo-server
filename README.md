@@ -61,6 +61,35 @@ modules/
     └── .encrypt        <- passcode gate
 ```
 
+## Configuration (`.config`)
+
+An optional `.config` JSON file at the root of the served path controls the
+listing page and redirects:
+
+```json
+{
+  "pinned-modules": ["project-a"],
+  "ignore-modules": ["scratch"],
+  "redirect-modules": [
+    {
+      "slug": "old-tutorial",
+      "redirect-to": "https://example.github.io/old-tutorial/",
+      "description": "archived pages",
+      "seconds": 5
+    }
+  ]
+}
+```
+
+- `pinned-modules` — shown first, starred, on the `/all/` listing.
+- `ignore-modules` — hidden from the `/all/` listing (direct URLs still work).
+- `redirect-modules` — any request to `/<slug>` (or any path beneath it) renders
+  a front-end "page moved" notice with a countdown, then redirects to
+  `redirect-to`. Fires whether or not a folder named `<slug>` exists, and takes
+  precedence over serving local files. `seconds` (default 5) sets the countdown;
+  `description` is shown on the notice. The notice card is in
+  `src/demo_server/assets/redirect-cat.svg`.
+
 ## Passcode Protection
 
 ```bash

@@ -1,4 +1,5 @@
 import hashlib
+import html
 import json
 import logging
 import os
@@ -126,10 +127,117 @@ def _load_config(base: Path) -> dict:
                 data.pop(key)
             elif key in data:
                 data[key] = [m for m in data[key] if isinstance(m, str)]
+        if "redirect-modules" in data:
+            rm = data["redirect-modules"]
+            if not isinstance(rm, list):
+                data.pop("redirect-modules")
+            else:
+                data["redirect-modules"] = [
+                    x for x in rm
+                    if isinstance(x, dict)
+                    and isinstance(x.get("slug"), str)
+                    and isinstance(x.get("redirect-to"), str)
+                ]
         return data
     except (json.JSONDecodeError, OSError) as exc:
         logger.warning("Failed to read .config: %s", exc)
         return {}
+
+
+REDIRECT_PAGE = """\
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page moved — %%SLUG%%</title>
+<meta http-equiv="refresh" content="%%SECONDS%%;url=%%TARGET_ATTR%%">
+<style>
+  :root { --bg:#f0f2f5; --card:#fff; --fg:#1a1a2e; --muted:#6b7280; --accent:#2563eb; --cat:#1a1a2e; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16161f; --card:#1f1f2b; --fg:#e8e8ea; --muted:#9ca3af; --accent:#60a5fa; --cat:#e8e8ea; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;
+    background:var(--bg); color:var(--fg); padding:1.5rem; }
+  .card { background:var(--card); border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,.12);
+    padding:2.6rem 2.2rem; max-width:440px; width:100%; text-align:center; }
+  .cat { width:120px; height:120px; color:var(--cat); margin:0 auto .6rem; }
+  .cat svg { width:100%; height:100%; display:block; }
+  h1 { font-size:1.45rem; margin:.3rem 0 .7rem; }
+  .desc { color:var(--muted); font-size:.98rem; margin:0 0 1.3rem; }
+  .slug { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:rgba(127,127,127,.14);
+    padding:.12rem .45rem; border-radius:5px; font-size:.92em; }
+  .count { font-size:.95rem; color:var(--muted); margin:1.3rem 0 1.1rem; }
+  .count b { color:var(--accent); font-size:1.15rem; }
+  .btn { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
+    padding:.65rem 1.6rem; border-radius:9px; font-weight:600; font-size:1rem;
+    transition:opacity .15s, transform .15s; }
+  .btn:hover { opacity:.9; transform:translateY(-1px); }
+  .url { margin-top:1.1rem; font-size:.8rem; }
+  .url a { color:var(--muted); word-break:break-all; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="cat">%%CAT%%</div>
+    <h1>This page has moved 🐾</h1>
+    <p class="desc">%%DESC%%</p>
+    <p><span class="slug">/%%SLUG%%</span> has a new home.</p>
+    <p class="count">Redirecting in <b id="n">%%SECONDS%%</b> seconds…</p>
+    <a class="btn" href="%%TARGET_ATTR%%">Go now →</a>
+    <p class="url"><a href="%%TARGET_ATTR%%">%%TARGET_ATTR%%</a></p>
+  </div>
+  <script>
+    var n = %%SECONDS%%;
+    var el = document.getElementById("n");
+    var timer = setInterval(function () {
+      n -= 1;
+      if (n <= 0) { n = 0; clearInterval(timer); }
+      if (el) { el.textContent = n; }
+    }, 1000);
+    setTimeout(function () { window.location.href = %%TARGET_JS%%; }, %%SECONDS%% * 1000);
+  </script>
+</body>
+</html>
+"""
+
+ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+_redirect_cat_cache: str | None = None
+
+
+def _redirect_cat_svg() -> str:
+    global _redirect_cat_cache
+    if _redirect_cat_cache is None:
+        try:
+            _redirect_cat_cache = (ASSETS_DIR / "redirect-cat.svg").read_text()
+        except OSError:
+            _redirect_cat_cache = ""
+    return _redirect_cat_cache
+
+
+def _match_redirect(config: dict, module: str) -> dict | None:
+    for item in config.get("redirect-modules", []):
+        if item.get("slug") == module:
+            return item
+    return None
+
+
+def _render_redirect(slug: str, target: str, description: str, seconds: int | str = 5) -> str:
+    try:
+        seconds = max(0, int(seconds))
+    except (TypeError, ValueError):
+        seconds = 5
+    return (
+        REDIRECT_PAGE
+        .replace("%%CAT%%", _redirect_cat_svg())
+        .replace("%%SECONDS%%", str(seconds))
+        .replace("%%SLUG%%", html.escape(slug))
+        .replace("%%DESC%%", html.escape(description or ""))
+        .replace("%%TARGET_ATTR%%", html.escape(target, quote=True))
+        .replace("%%TARGET_JS%%", json.dumps(target))
+    )
 
 
 def create_app(base_path: str) -> FastAPI:
@@ -237,6 +345,19 @@ def create_app(base_path: str) -> FastAPI:
 
     @app.get("/{module}/{path:path}")
     async def serve(module: str, request: Request, path: str = ""):
+        # Front-end redirect for migrated modules — fires whether or not the
+        # folder exists, for the slug itself and any path beneath it.
+        redirect = _match_redirect(_load_config(base), module)
+        if redirect:
+            return HTMLResponse(
+                _render_redirect(
+                    slug=module,
+                    target=redirect["redirect-to"],
+                    description=redirect.get("description", ""),
+                    seconds=redirect.get("seconds", 5),
+                )
+            )
+
         module_dir = base / module
         if not module_dir.is_dir():
             return HTMLResponse("Not found", status_code=404)
