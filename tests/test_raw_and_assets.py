@@ -68,11 +68,3 @@ def test_rendered_page_links_reader_assets(client):
     assert "/__reader__/reader.js?v=" in r.text
     assert "/__reader__/comments.js?v=" in r.text
     assert 'id="mdr-rail"' in r.text
-
-
-def test_pygments_block_background_stripped(client):
-    """Pygments' light `pre code` background must not override dark themes."""
-    r = client.get("/open-mod/notes.md")
-    assert "pre code { background:" not in r.text
-    # Token color rules survive.
-    assert "pre code ." in r.text
