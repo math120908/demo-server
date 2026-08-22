@@ -1,5 +1,7 @@
 """Server-side Markdown → HTML rendering with theme templates."""
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
 
@@ -11,6 +13,8 @@ from mdit_py_plugins.container import container_plugin
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name, guess_lexer, TextLexer
+
+from demo_server.static_files import reader_version
 
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 _FIRST_HEADING_RE = re.compile(r"^#\s+(.+)", re.MULTILINE)
@@ -221,6 +225,20 @@ def get_template(theme_name: str) -> Template:
     return tmpl
 
 
+_PYGMENTS_BLOCK_BG_RE = re.compile(r"^pre code \{ background:[^}]*\}\s*$\n?", re.MULTILINE)
+
+
+def _strip_pygments_block_background(css: str) -> str:
+    """Drop Pygments' hardcoded light background for code blocks.
+
+    ``get_style_defs`` emits ``pre code { background: #f8f8f8; }``. That rule
+    is injected *after* each theme's own ``pre code`` rule, so it wins the
+    cascade and paints a near-white block in every dark face. The block
+    background belongs to the theme; only token colors come from Pygments.
+    """
+    return _PYGMENTS_BLOCK_BG_RE.sub("", css)
+
+
 def render_md_file(file_path: Path) -> str:
     """Full pipeline: read file → parse frontmatter → render → template."""
     content = file_path.read_text(encoding="utf-8")
@@ -239,7 +257,9 @@ def render_md_file(file_path: Path) -> str:
     html_body = render_markdown(body, allow_html=allow_html)
     html_body, toc_entries = _inject_heading_ids(html_body)
     toc_html = _build_toc_html(toc_entries) if meta.get("toc", True) else ""
-    highlight_css = HtmlFormatter().get_style_defs("pre code")
+    highlight_css = _strip_pygments_block_background(
+        HtmlFormatter().get_style_defs("pre code")
+    )
     template = get_template(theme)
 
     return template.render(
@@ -248,4 +268,5 @@ def render_md_file(file_path: Path) -> str:
         toc=toc_html,
         highlight_css=highlight_css,
         lang=lang,
+        reader_version=reader_version(),
     )

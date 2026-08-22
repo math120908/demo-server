@@ -99,7 +99,47 @@ demo-server set-passcode modules/project-b/
 Visitors to that module will see a passcode form. After entering the correct
 passcode they receive a signed cookie and can browse freely.
 
+The cookie lasts 24 hours. When it expires mid-session, the passcode form
+remembers the page that was requested (including its query string) and returns
+there after a successful unlock instead of dropping the reader at the module
+root. Redirect targets are validated server-side — only same-origin paths that
+stay inside the module are accepted.
+
 Hidden files (any path component starting with `.`) are never served (403).
+
+## Markdown Reader
+
+Markdown files are rendered server-side using the theme named in their
+frontmatter (`theme: meridian-lite | github | minimal`; default
+`meridian-lite`). Every rendered page gets a reader rail on the right edge:
+
+| Button | What it does |
+|---|---|
+| 🌓 | Toggle light / dark |
+| ⚙ | Settings: pick a **skin** (Theme default, GitHub, Solarized, Dracula, Nord, Sepia) |
+| 💬 | Comments: select text to annotate it; edit, delete, or `⧉ To tab` the JSON |
+| `</>` | Show the raw Markdown source |
+
+**theme vs skin.** The *theme* is server-side and decides layout, typography
+and structure. The *skin* is client-side and only swaps the color palette. All
+three themes consume the same CSS variable contract, so any skin works on any
+theme. Preferences (theme + skin) live in `localStorage` under `mdr-ui` and
+apply site-wide.
+
+Comments are stored per page in `localStorage` under
+`mdr-comments:<path>`. They are anchored with a W3C TextQuoteSelector
+(exact text plus 32-character prefix/suffix), so they survive edits elsewhere
+in the document; an anchor that can no longer be found is listed as "orphaned"
+rather than discarded. Comments never leave the browser — there is no server
+storage, no download, and no import.
+
+Appending `?raw=1` to a `.md` URL returns the original file as `text/plain`.
+The passcode check runs first, so this is not a way around a protected module.
+
+Reader assets are served from `/__reader__/` (an allowlist of `reader.css`,
+`reader.js`, `comments.js`) with a one-year immutable cache. The `?v=` token is
+a digest of the asset bytes, so a restart after any edit invalidates the cache
+automatically — no version bump needed.
 
 ## Troubleshooting
 

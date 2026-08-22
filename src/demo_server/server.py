@@ -5,15 +5,25 @@ import html
 import json
 import logging
 import os
+import posixpath
 import secrets
 import time
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    PlainTextResponse,
+    RedirectResponse,
+)
 from itsdangerous import URLSafeTimedSerializer
+
+from demo_server import pages, static_files
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +31,42 @@ BASE_DIR = Path.home() / ".demo-server"
 SECRET_FILE = BASE_DIR / ".secret"
 
 AUTH_COOKIE_MAX_AGE = 86400  # 24 hours
+
+
+def safe_next(candidate: Optional[str], module: str) -> str:
+    """Validate a post-login redirect target.
+
+    Only same-origin paths that stay inside ``module`` are allowed. Anything
+    else — absolute URLs, protocol-relative URLs, backslash tricks, ``..``
+    escapes, header-injection attempts — falls back to the module root.
+    ``module`` may be the sentinel ``__root__``, whose scope is ``/all/``.
+    """
+    fallback = "/all/" if module == "__root__" else "/{0}/".format(module)
+    if not candidate or not isinstance(candidate, str):
+        return fallback
+    # Reject control characters outright (CR/LF header injection, NUL).
+    if any(ord(ch) < 0x20 or ord(ch) == 0x7F for ch in candidate):
+        return fallback
+    if "\\" in candidate:
+        return fallback
+    if not candidate.startswith("/") or candidate.startswith("//"):
+        return fallback
+    parts = urlsplit(candidate)
+    if parts.scheme or parts.netloc:
+        return fallback
+    normalized = posixpath.normpath(parts.path)
+    scope = "/all" if module == "__root__" else "/{0}".format(module)
+    if normalized != scope and not normalized.startswith(scope + "/"):
+        return fallback
+    return candidate
+
+
+def _request_target(request: Request) -> str:
+    """The path (plus query) the reader actually asked for."""
+    target = request.url.path
+    if request.url.query:
+        target = target + "?" + request.url.query
+    return target
 
 
 def _get_secret() -> str:
@@ -66,68 +112,6 @@ class RateLimiter:
         return False
 
 
-PASSCODE_FORM = """\
-<!DOCTYPE html>
-<html><head><title>Passcode Required</title>
-<style>
-  body {{ font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f5f5f5; }}
-  .box {{ background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.1); text-align: center; }}
-  input[type=password] {{ padding: .5rem; font-size: 1rem; margin: .5rem 0; }}
-  button {{ padding: .5rem 1.5rem; font-size: 1rem; cursor: pointer; }}
-  .error {{ color: red; }}
-</style></head>
-<body><div class="box">
-  <h2>🔒 {module}</h2>
-  <form method="post" action="/{module}/__auth__">
-    <div><input type="password" name="passcode" placeholder="Enter passcode" autofocus /></div>
-    {error}
-    <div><button type="submit">Submit</button></div>
-  </form>
-</div></body></html>
-"""
-
-WELCOME_PAGE = """\
-<!DOCTYPE html>
-<html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>demo-server</title>
-<style>
-  :root {{ --ink: #1f2430; --muted: #8a93a3; --line: #eceef2;
-    --star: #f59e0b; --bg: #f0f2f5; }}
-  * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-  body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    min-height: 100vh; background: var(--bg); color: var(--ink);
-    display: flex; justify-content: center; padding: 3rem 1rem; }}
-  .panel {{ background: #fff; border: 1px solid var(--line); border-radius: 14px;
-    box-shadow: 0 4px 24px rgba(20,30,60,.06); max-width: 600px; width: 100%;
-    height: fit-content; padding: 1.6rem 1.7rem; }}
-  .title {{ font-size: 1.5rem; font-weight: 750; }}
-  .tagline {{ font-size: 0.85rem; color: var(--muted); margin: 0.15rem 0 0.3rem; }}
-  .sec-label {{ font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em;
-    text-transform: uppercase; color: var(--muted); margin: 1.3rem 0 0.45rem;
-    display: flex; align-items: center; gap: 0.5rem; }}
-  .sec-label .count {{ background: #f0f2f5; color: var(--muted); border-radius: 20px;
-    padding: 0.05rem 0.5rem; font-size: 0.65rem; font-weight: 700; }}
-  .row {{ display: flex; align-items: center; justify-content: space-between;
-    padding: 0.58rem 0.65rem; border-radius: 9px; text-decoration: none;
-    color: var(--ink); transition: background 0.12s; }}
-  .row:hover {{ background: #f5f7fb; }}
-  .row + .row {{ border-top: 1px solid var(--line); }}
-  .name {{ font-size: 0.92rem; font-weight: 520; }}
-  .when {{ font-size: 0.75rem; color: var(--muted); white-space: nowrap;
-    font-variant-numeric: tabular-nums; }}
-  .pin .name::before {{ content: "\\2605"; color: var(--star);
-    font-size: 0.8rem; margin-right: 0.4rem; }}
-  .fresh .when {{ color: #16a34a; font-weight: 600; }}
-</style></head>
-<body><div class="panel">
-  <div class="title">demo-server</div>
-  <div class="tagline">{count} modules</div>
-  {modules}
-</div></body></html>
-"""
-
-
 def _load_config(base: Path) -> dict:
     config_file = base / ".config"
     if not config_file.exists():
@@ -158,100 +142,11 @@ def _load_config(base: Path) -> dict:
         return {}
 
 
-REDIRECT_PAGE = """\
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page moved — %%SLUG%%</title>
-<meta http-equiv="refresh" content="%%SECONDS%%;url=%%TARGET_ATTR%%">
-<style>
-  :root { --bg:#f0f2f5; --card:#fff; --fg:#1a1a2e; --muted:#6b7280; --accent:#2563eb; --cat:#1a1a2e; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#16161f; --card:#1f1f2b; --fg:#e8e8ea; --muted:#9ca3af; --accent:#60a5fa; --cat:#e8e8ea; }
-  }
-  * { box-sizing:border-box; }
-  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;
-    background:var(--bg); color:var(--fg); padding:1.5rem; }
-  .card { background:var(--card); border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,.12);
-    padding:2.6rem 2.2rem; max-width:440px; width:100%; text-align:center; }
-  .cat { width:120px; height:120px; color:var(--cat); margin:0 auto .6rem; }
-  .cat svg { width:100%; height:100%; display:block; }
-  h1 { font-size:1.45rem; margin:.3rem 0 .7rem; }
-  .desc { color:var(--muted); font-size:.98rem; margin:0 0 1.3rem; }
-  .slug { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:rgba(127,127,127,.14);
-    padding:.12rem .45rem; border-radius:5px; font-size:.92em; }
-  .count { font-size:.95rem; color:var(--muted); margin:1.3rem 0 1.1rem; }
-  .count b { color:var(--accent); font-size:1.15rem; }
-  .btn { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
-    padding:.65rem 1.6rem; border-radius:9px; font-weight:600; font-size:1rem;
-    transition:opacity .15s, transform .15s; }
-  .btn:hover { opacity:.9; transform:translateY(-1px); }
-  .url { margin-top:1.1rem; font-size:.8rem; }
-  .url a { color:var(--muted); word-break:break-all; }
-</style>
-</head>
-<body>
-  <div class="card">
-    <div class="cat">%%CAT%%</div>
-    <h1>This page has moved 🐾</h1>
-    <p class="desc">%%DESC%%</p>
-    <p><span class="slug">/%%SLUG%%</span> has a new home.</p>
-    <p class="count">Redirecting in <b id="n">%%SECONDS%%</b> seconds…</p>
-    <a class="btn" href="%%TARGET_ATTR%%">Go now →</a>
-    <p class="url"><a href="%%TARGET_ATTR%%">%%TARGET_ATTR%%</a></p>
-  </div>
-  <script>
-    var n = %%SECONDS%%;
-    var el = document.getElementById("n");
-    var timer = setInterval(function () {
-      n -= 1;
-      if (n <= 0) { n = 0; clearInterval(timer); }
-      if (el) { el.textContent = n; }
-    }, 1000);
-    setTimeout(function () { window.location.href = %%TARGET_JS%%; }, %%SECONDS%% * 1000);
-  </script>
-</body>
-</html>
-"""
-
-ASSETS_DIR = Path(__file__).resolve().parent / "assets"
-_redirect_cat_cache: str | None = None
-
-
-def _redirect_cat_svg() -> str:
-    global _redirect_cat_cache
-    if _redirect_cat_cache is None:
-        try:
-            _redirect_cat_cache = (ASSETS_DIR / "redirect-cat.svg").read_text()
-        except OSError:
-            _redirect_cat_cache = ""
-    return _redirect_cat_cache
-
-
 def _match_redirect(config: dict, module: str) -> dict | None:
     for item in config.get("redirect-modules", []):
         if item.get("slug") == module:
             return item
     return None
-
-
-def _render_redirect(slug: str, target: str, description: str, seconds: int | str = 5) -> str:
-    try:
-        seconds = max(0, int(seconds))
-    except (TypeError, ValueError):
-        seconds = 5
-    return (
-        REDIRECT_PAGE
-        .replace("%%CAT%%", _redirect_cat_svg())
-        .replace("%%SECONDS%%", str(seconds))
-        .replace("%%SLUG%%", html.escape(slug))
-        .replace("%%DESC%%", html.escape(description or ""))
-        .replace("%%TARGET_ATTR%%", html.escape(target, quote=True))
-        .replace("%%TARGET_JS%%", json.dumps(target))
-    )
 
 
 RECENT_WINDOW = 30 * 86400  # modules updated within 30 days count as "Recent"
@@ -326,7 +221,11 @@ def create_app(base_path: str) -> FastAPI:
         return ""
 
     @app.post("/all/__auth__")
-    async def root_auth(request: Request, passcode: str = Form(...)):
+    async def root_auth(
+        request: Request,
+        passcode: str = Form(...),
+        next: str = Form(""),
+    ):
         encrypt_file = base / ".encrypt"
         if not encrypt_file.exists():
             return HTMLResponse("Not found", status_code=404)
@@ -337,12 +236,12 @@ def create_app(base_path: str) -> FastAPI:
 
         stored = encrypt_file.read_text().strip()
         if not verify_passcode(passcode, stored):
-            html = PASSCODE_FORM.format(
-                module="all", error='<p class="error">Wrong passcode.</p>',
+            html = pages.render_passcode_page(
+                "all", safe_next(next, "__root__"), "Wrong passcode."
             )
             return HTMLResponse(html, status_code=403)
 
-        response = RedirectResponse("/all/", status_code=303)
+        response = RedirectResponse(safe_next(next, "__root__"), status_code=303)
         token = serializer.dumps("__root__")
         response.set_cookie(
             "auth___root__", token, httponly=True, samesite="lax",
@@ -360,7 +259,7 @@ def create_app(base_path: str) -> FastAPI:
             except Exception:
                 value = None
             if value != "__root__":
-                html = PASSCODE_FORM.format(module="all", error="")
+                html = pages.render_passcode_page("all", "/all/")
                 return HTMLResponse(html, status_code=401)
 
         config = _load_config(base)
@@ -389,10 +288,26 @@ def create_app(base_path: str) -> FastAPI:
             + _render_section("Earlier", earlier, now, recent=False, pinned=False)
         )
 
-        return WELCOME_PAGE.format(count=len(mtimes), modules=modules_html)
+        return pages.render_welcome_page(len(mtimes), modules_html)
+
+    @app.get("/__reader__/{filename}")
+    async def reader_asset(filename: str):
+        path = static_files.asset_path(filename)
+        if path is None:
+            return HTMLResponse("Not found", status_code=404)
+        return FileResponse(
+            path,
+            media_type=static_files.ALLOWED[filename],
+            headers={"Cache-Control": "public, max-age=31536000, immutable"},
+        )
 
     @app.post("/{module}/__auth__")
-    async def auth(module: str, request: Request, passcode: str = Form(...)):
+    async def auth(
+        module: str,
+        request: Request,
+        passcode: str = Form(...),
+        next: str = Form(""),
+    ):
         module_dir = base / module
         encrypt_file = module_dir / ".encrypt"
         if not module_dir.is_dir() or not encrypt_file.exists():
@@ -404,13 +319,14 @@ def create_app(base_path: str) -> FastAPI:
 
         stored = encrypt_file.read_text().strip()
         if not verify_passcode(passcode, stored):
-            html = PASSCODE_FORM.format(
-                module=module,
-                error='<p class="error">Wrong passcode.</p>',
+            return HTMLResponse(
+                pages.render_passcode_page(
+                    module, safe_next(next, module), "Wrong passcode."
+                ),
+                status_code=403,
             )
-            return HTMLResponse(html, status_code=403)
 
-        response = RedirectResponse(f"/{module}/", status_code=303)
+        response = RedirectResponse(safe_next(next, module), status_code=303)
         token = serializer.dumps(module)
         response.set_cookie(
             f"auth_{module}", token, httponly=True, samesite="lax",
@@ -424,7 +340,7 @@ def create_app(base_path: str) -> FastAPI:
         redirect = _match_redirect(_load_config(base), module)
         if redirect:
             return HTMLResponse(
-                _render_redirect(
+                pages.render_redirect(
                     slug=module,
                     target=redirect["redirect-to"],
                     description=redirect.get("description", ""),
@@ -464,8 +380,10 @@ def create_app(base_path: str) -> FastAPI:
             except Exception:
                 value = None
             if value != module:
-                html = PASSCODE_FORM.format(module=module, error="")
-                return HTMLResponse(html, status_code=401)
+                return HTMLResponse(
+                    pages.render_passcode_page(module, _request_target(request)),
+                    status_code=401,
+                )
 
         file_path = (module_dir / path).resolve()
         # Prevent path traversal — append os.sep to avoid prefix collisions
@@ -476,7 +394,13 @@ def create_app(base_path: str) -> FastAPI:
             return HTMLResponse("Not found", status_code=404)
 
         if file_path.suffix == ".md":
+            if request.query_params.get("raw"):
+                return PlainTextResponse(
+                    file_path.read_text(encoding="utf-8"),
+                    media_type="text/plain; charset=utf-8",
+                )
             from demo_server.markdown_render import render_md_file
+
             html_content = render_md_file(file_path)
             return HTMLResponse(html_content)
 
