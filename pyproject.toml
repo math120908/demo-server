@@ -25,4 +25,4 @@ demo-server = "demo_server.cli:cli"
 where = ["src"]
 
 [tool.setuptools.package-data]
-demo_server = ["themes/**/*.html"]
+demo_server = ["themes/**/*.html", "static/*", "assets/*"]

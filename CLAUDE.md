@@ -44,7 +44,33 @@ under 3.9 (run the entry point on `ckuo-ld2`, not just locally).
 ## Layout
 
 - `src/demo_server/server.py` — FastAPI app, routing, auth, the `/all/` listing.
+- `src/demo_server/pages.py` — standalone HTML pages (passcode, `/all/` welcome,
+  move-redirect) and their renderers.
 - `src/demo_server/cli.py` — `demo-server` CLI entry point.
 - `src/demo_server/markdown_render.py` — Markdown → HTML rendering.
-- `src/demo_server/themes/` — HTML templates per theme.
+- `src/demo_server/static_files.py` — allowlist and cache-busting digest for the
+  reader assets served at `/__reader__/`.
+- `src/demo_server/static/` — `reader.css` (variable contract + skins + rail UI),
+  `reader.js` (`window.MdrRail`, settings, source toggle), `comments.js`
+  (anchoring + comments panel). Client-side only; no build step.
+- `src/demo_server/themes/` — HTML templates per theme. All three consume the
+  same CSS variable contract so any skin works on any theme.
+- `tests/` — pytest suite; `tests/js/` runs under `node --test`.
 - `docs/superpowers/specs/` — design docs for non-trivial changes.
+- `docs/superpowers/plans/` — implementation plans.
+
+## Reader conventions
+
+- **theme** is server-side (which Jinja template renders the page, chosen in
+  frontmatter). **skin** is client-side (which palette, chosen by the reader and
+  stored in `localStorage['mdr-ui']`). Keep them orthogonal.
+- Skins override only palette variables and are keyed on `html[data-skin="X"]`
+  — specificity (0,1,1), which beats a template's `:root` (0,1,0) without
+  needing `!important` or a particular load order.
+- The DOM contract between the templates and the reader JS (`#mdr-rail`,
+  `#mdr-panel`, `#mdr-content`, the `mdr-ui` bootstrap snippet) is shared by all
+  three templates. Changing it means changing all three plus both JS files.
+- Reader assets are cached `immutable` for a year; the `?v=` token is a digest
+  of their bytes, so restarting the service after an edit is enough to
+  invalidate it.
+

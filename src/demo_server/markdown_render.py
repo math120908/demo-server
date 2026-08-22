@@ -1,5 +1,7 @@
 """Server-side Markdown → HTML rendering with theme templates."""
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
 
@@ -10,7 +12,9 @@ from markdown_it.rules_inline import StateInline
 from mdit_py_plugins.container import container_plugin
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
-from pygments.lexers import get_lexer_by_name, guess_lexer, TextLexer
+from pygments.lexers import get_lexer_by_name, TextLexer
+
+from demo_server.static_files import reader_version
 
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 _FIRST_HEADING_RE = re.compile(r"^#\s+(.+)", re.MULTILINE)
@@ -64,11 +68,23 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
 
 
 def _highlight_code(code: str, lang: str, _attrs: str) -> str:
-    """Pygments-based code block highlighting."""
-    try:
-        lexer = get_lexer_by_name(lang) if lang else guess_lexer(code)
-    except Exception:
+    """Pygments-based code block highlighting.
+
+    An unlabelled fence is rendered as plain text rather than guessed at.
+    ``guess_lexer`` happily picks a language for ASCII diagrams, directory
+    trees and console transcripts; every character the guessed grammar does
+    not understand then becomes an Error token, which Pygments' default style
+    paints with ``border: 1px solid #F00``. A box-drawing diagram in a bare
+    ``` fence came out wrapped in red boxes. Guessing wrong is worse than not
+    highlighting, so we only highlight when the author named the language.
+    """
+    if not lang:
         lexer = TextLexer()
+    else:
+        try:
+            lexer = get_lexer_by_name(lang)
+        except Exception:
+            lexer = TextLexer()
     return highlight(code, lexer, HtmlFormatter(nowrap=True, cssclass="highlight"))
 
 
@@ -221,6 +237,27 @@ def get_template(theme_name: str) -> Template:
     return tmpl
 
 
+_PYGMENTS_BLOCK_BG_RE = re.compile(r"^pre code \{ background:[^}]*\}\s*$\n?", re.MULTILINE)
+_PYGMENTS_ERR_BORDER_RE = re.compile(r"(^pre code \.err \{)([^}]*)(\})", re.MULTILINE)
+
+
+def _sanitize_pygments_css(css: str) -> str:
+    """Remove two hostile rules from Pygments' generated stylesheet.
+
+    1. ``pre code { background: #f8f8f8; }`` — injected *after* each theme's
+       own ``pre code`` rule, so it wins the cascade and paints a near-white
+       block in every dark face. The block background belongs to the theme;
+       only token colors come from Pygments.
+    2. ``pre code .err { border: 1px solid #F00 }`` — draws a red box around
+       every character the lexer could not parse. Even a correctly labelled
+       block can contain one (an intentionally broken snippet, an unusual
+       glyph), and a red box reads as "this page is broken" rather than "this
+       token is unrecognised". Error tokens still render, just unadorned.
+    """
+    css = _PYGMENTS_BLOCK_BG_RE.sub("", css)
+    return _PYGMENTS_ERR_BORDER_RE.sub(r"\1 \3", css)
+
+
 def render_md_file(file_path: Path) -> str:
     """Full pipeline: read file → parse frontmatter → render → template."""
     content = file_path.read_text(encoding="utf-8")
@@ -239,7 +276,9 @@ def render_md_file(file_path: Path) -> str:
     html_body = render_markdown(body, allow_html=allow_html)
     html_body, toc_entries = _inject_heading_ids(html_body)
     toc_html = _build_toc_html(toc_entries) if meta.get("toc", True) else ""
-    highlight_css = HtmlFormatter().get_style_defs("pre code")
+    highlight_css = _sanitize_pygments_css(
+        HtmlFormatter().get_style_defs("pre code")
+    )
     template = get_template(theme)
 
     return template.render(
@@ -248,4 +287,5 @@ def render_md_file(file_path: Path) -> str:
         toc=toc_html,
         highlight_css=highlight_css,
         lang=lang,
+        reader_version=reader_version(),
     )
